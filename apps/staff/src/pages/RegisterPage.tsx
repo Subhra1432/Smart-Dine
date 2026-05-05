@@ -180,22 +180,20 @@ export default function RegisterPage() {
       <button
         type="button"
         onClick={() => (inputRef.current as any)?.click()}
-        className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-dashed transition-all duration-300 ${
-          docState.url
+        className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-dashed transition-all duration-300 ${docState.url
             ? 'border-emerald-500/30 bg-emerald-500/5'
             : docState.uploading
-            ? 'border-saffron-500/30 bg-saffron-500/5 animate-pulse'
-            : 'border-white/10 bg-white/[0.02] hover:border-saffron-500/30 hover:bg-white/[0.04]'
-        }`}
+              ? 'border-saffron-500/30 bg-saffron-500/5 animate-pulse'
+              : 'border-white/10 bg-white/[0.02] hover:border-saffron-500/30 hover:bg-white/[0.04]'
+          }`}
       >
         {docState.preview ? (
           <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
             <img src={docState.preview} alt="" className="w-full h-full object-cover" />
           </div>
         ) : (
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-            docState.url ? 'bg-emerald-500/10' : 'bg-white/5'
-          }`}>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${docState.url ? 'bg-emerald-500/10' : 'bg-white/5'
+            }`}>
             {docState.url ? (
               <FileCheck size={20} className="text-emerald-400" />
             ) : (
@@ -204,9 +202,8 @@ export default function RegisterPage() {
           </div>
         )}
         <div className="flex-1 text-left">
-          <p className={`text-[9px] font-black uppercase tracking-widest ${
-            docState.url ? 'text-emerald-400' : 'text-stone-400'
-          }`}>
+          <p className={`text-[9px] font-black uppercase tracking-widest ${docState.url ? 'text-emerald-400' : 'text-stone-400'
+            }`}>
             {docState.uploading ? 'Uploading...' : docState.url ? 'Uploaded ✓' : label}
           </p>
           <p className="text-[8px] font-bold text-stone-500 uppercase tracking-wider mt-0.5">
@@ -234,7 +231,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-4xl relative group">
         {/* Card Glow */}
         <div className="absolute -inset-1 bg-gradient-to-r from-saffron-500/20 to-stone-500/20 rounded-[3rem] blur-2xl opacity-50 group-hover:opacity-75 transition duration-1000" />
-        
+
         <div className="relative glass-card rounded-[3rem] border border-stone-200 dark:border-white/10 bg-white/80 dark:bg-stone-900/40 backdrop-blur-3xl overflow-hidden shadow-2xl">
           <div className="grid md:grid-cols-[300px_1fr] h-[85vh]">
             {/* Sidebar Status */}
@@ -243,7 +240,7 @@ export default function RegisterPage() {
                 <div className="w-16 h-16 bg-saffron-500/10 border border-saffron-500/20 rounded-2xl flex items-center justify-center shadow-xl">
                   <UtensilsCrossed size={32} className="text-saffron-500" />
                 </div>
-                
+
                 <div className="space-y-6">
                   {[
                     { s: 1, label: 'Identity Node', desc: 'Personal & Business Details' },
@@ -251,10 +248,9 @@ export default function RegisterPage() {
                     { s: 3, label: 'Secure Payment', desc: 'Finalize Initialization' }
                   ].map((item) => (
                     <div key={item.s} className={`flex gap-4 items-start transition-all duration-500 ${step >= item.s ? 'opacity-100' : 'opacity-30'}`}>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border-2 ${
-                        step === item.s ? 'bg-saffron-500 border-saffron-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 
-                        step > item.s ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'border-white/10 text-stone-400'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border-2 ${step === item.s ? 'bg-saffron-500 border-saffron-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]' :
+                          step > item.s ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'border-white/10 text-stone-400'
+                        }`}>
                         {step > item.s ? '✓' : item.s}
                       </div>
                       <div className="space-y-1">
@@ -290,7 +286,7 @@ export default function RegisterPage() {
                       <div className="grid gap-4">
                         <div className="relative group/field">
                           <Building2 size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-500 group-focus-within/field:text-saffron-500 transition-colors" />
-                             <input
+                          <input
                             type="text"
                             required
                             value={formData.restaurantName}
@@ -314,7 +310,7 @@ export default function RegisterPage() {
                           </div>
                           <div className="relative group/field">
                             <Phone size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-500 group-focus-within/field:text-saffron-500 transition-colors" />
-                             <input
+                            <input
                               type="text"
                               required
                               value={formData.phone}
@@ -439,9 +435,8 @@ export default function RegisterPage() {
                       <button
                         key={plan.id}
                         onClick={() => setFormData({ ...formData, plan: plan.id })}
-                        className={`p-6 rounded-[2rem] border-2 text-left transition-all duration-300 relative overflow-hidden group/plan ${
-                          formData.plan === plan.id ? 'border-saffron-500 bg-saffron-500/5' : 'border-white/5 bg-white/[0.02] hover:border-white/20'
-                        }`}
+                        className={`p-6 rounded-[2rem] border-2 text-left transition-all duration-300 relative overflow-hidden group/plan ${formData.plan === plan.id ? 'border-saffron-500 bg-saffron-500/5' : 'border-white/5 bg-white/[0.02] hover:border-white/20'
+                          }`}
                       >
                         {formData.plan === plan.id && (
                           <div className="absolute top-6 right-6">
@@ -449,14 +444,13 @@ export default function RegisterPage() {
                           </div>
                         )}
                         <div className="flex items-start gap-5">
-                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-transform group-hover/plan:rotate-3 ${
-                            formData.plan === plan.id ? 'bg-saffron-500 text-black' : 'bg-white/5 text-stone-500'
-                          }`}>
+                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-transform group-hover/plan:rotate-3 ${formData.plan === plan.id ? 'bg-saffron-500 text-black' : 'bg-white/5 text-stone-500'
+                            }`}>
                             <plan.icon size={28} />
                           </div>
                           <div className="flex-1 space-y-1">
                             <div className="flex items-center justify-between">
-                             <h4 className="text-xl font-black text-stone-950 dark:text-white uppercase tracking-tight">{plan.name}</h4>
+                              <h4 className="text-xl font-black text-stone-950 dark:text-white uppercase tracking-tight">{plan.name}</h4>
                               <p className="text-xl font-black text-stone-950 dark:text-white tracking-tighter">₹{plan.price}<span className="text-[10px] text-stone-500">/mo</span></p>
                             </div>
                             <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wide">{plan.description}</p>
@@ -533,9 +527,9 @@ export default function RegisterPage() {
                           <QrCode size={48} className="animate-pulse" />
                           <p className="text-[10px] font-black uppercase tracking-widest">Scan with Any UPI App</p>
                         </div>
-                        <img 
-                          src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=dinesmart@upi&pn=DineSmart%20OS&am=999&cu=INR" 
-                          alt="Payment QR" 
+                        <img
+                          src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=dinesmart@upi&pn=DineSmart%20OS&am=999&cu=INR"
+                          alt="Payment QR"
                           className="w-full h-full object-contain"
                         />
                       </div>
@@ -562,7 +556,7 @@ export default function RegisterPage() {
               )}
             </div>
           </div>
-          
+
           {/* Bottom Security Banner */}
           <div className="bg-saffron-500/5 border-t border-white/5 px-10 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -584,7 +578,7 @@ export default function RegisterPage() {
             <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl mx-auto flex items-center justify-center shadow-2xl rotate-3">
               <CheckCircle size={40} className="text-emerald-500" />
             </div>
-            
+
             <div className="space-y-2">
               <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Node Deployed Successfully</h3>
               <p className="text-[10px] text-stone-400 font-black uppercase tracking-[0.2em]">Tier: {selectedPlan.name} Activated</p>
@@ -592,7 +586,7 @@ export default function RegisterPage() {
 
             <div className="p-6 bg-white/[0.03] rounded-2xl border border-white/5">
               <p className="text-xs text-stone-300 font-medium leading-relaxed">
-                Payment received. Your restaurant node is now in the <span className="text-saffron-500 font-bold underline">Final Verification Hub</span>. 
+                Payment received. Your restaurant node is now in the <span className="text-saffron-500 font-bold underline">Final Verification Hub</span>.
                 Our team will confirm your documents within 24 hours.
               </p>
             </div>

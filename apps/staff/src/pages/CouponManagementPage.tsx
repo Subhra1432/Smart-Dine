@@ -10,6 +10,7 @@ import { useAuthStore } from '../store/auth';
 import { getCoupons, createCoupon, deleteCoupon, toggleCoupon } from '../lib/api';
 import { cn } from '../lib/utils';
 import { format } from 'date-fns';
+import { PageLoader } from '../components/PageLoader';
 
 interface Coupon {
   id: string;
@@ -109,20 +110,9 @@ export default function CouponManagementPage() {
         </button>
       </div>
 
-      {isLoading ? (
-        <div className="glass-panel py-48 flex flex-col items-center justify-center gap-10 !bg-white/40 dark:!bg-stone-900/40 border-white/20 dark:border-white/5">
-          <div className="relative">
-            <div className="w-24 h-24 border-4 border-stone-100 dark:border-stone-800 border-t-primary rounded-full animate-spin" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Zap size={28} className="text-primary animate-pulse" />
-            </div>
-          </div>
-          <div className="text-center space-y-3">
-            <p className="text-stone-950 dark:text-white font-black tracking-[0.4em] uppercase text-xs">Syncing Offer Matrix</p>
-            <p className="text-stone-400 dark:text-stone-600 text-[10px] font-black uppercase tracking-[0.2em]">Optimizing operational parameters...</p>
-          </div>
-        </div>
-      ) : (
+      <PageLoader isLoading={isLoading} />
+
+      {!isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {(coupons || []).map((coupon) => (
             <div key={coupon.id} className="glass-panel group relative p-6 overflow-hidden !bg-white/40 dark:!bg-stone-900/40 border-white/20 dark:border-white/5 shadow-2xl shadow-stone-200/40 dark:shadow-none transition-all duration-700 hover:scale-[1.02]">

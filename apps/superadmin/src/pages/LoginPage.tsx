@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Lock, User, Eye, EyeOff, Loader2, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '../store/auth';
 
 interface LoginPageProps {
   onLoginSuccess: () => void;
 }
 
 const API = import.meta.env.VITE_API_URL || '';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
+  const { setLoggedIn } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +32,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
     setLoading(true);
     const toastId = toast.loading('Synchronizing with Google Neural Link...');
     try {
-      const res = await fetch(`${API_URL}/api/v1/auth/superadmin/google`, {
+      const res = await fetch(`${API}/api/v1/auth/superadmin/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: response.credential }),
@@ -38,7 +41,8 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       if (!data.success) throw new Error(data.error || 'Google Authentication Failed');
 
       toast.success('Access Granted. Welcome, Architect.', { id: toastId });
-      setSuperAdmin(data.data.token);
+      setLoggedIn(true);
+      onLoginSuccess();
       navigate('/');
     } catch (err: any) {
       toast.error(err.message, { id: toastId });
@@ -52,13 +56,18 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       toast.error('Google Configuration Missing');
       return;
     }
-    window.google?.accounts.id.prompt(); // One Tap
-    window.google?.accounts.id.requestCode(); // Or standardized button trigger
-    // Since we want to use our custom button, we use the library's click trigger if possible,
-    // but the easiest way is to just use the prompt or a specific button element.
-    // For custom buttons, we can also use:
-    // @ts-ignore
-    google.accounts.id.prompt();
+    // Use prompt() to show the One Tap UI
+    // If you want to force the selector, you'd usually render the official button
+    // But we'll try to trigger the prompt which is the most reliable way for custom buttons
+    try {
+      window.google?.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed()) {
+          toast.error('Google Sign-In was suppressed. Please clear your cache or allow popups.');
+        }
+      });
+    } catch (err) {
+      toast.error('Google SDK not initialized');
+    }
   };
 
   const navigate = useNavigate();
@@ -206,7 +215,6 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
               Continue with Google
             </button>
 
-            {/* Help Text */}
             <div className="pt-4 flex items-center justify-center gap-2">
               <span className="h-[1px] w-4 bg-stone-800" />
               <p className="text-[10px] text-stone-600 font-bold uppercase tracking-tighter">Authorized Access Only</p>
@@ -215,7 +223,6 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
           </form>
         </div>
 
-        {/* Footer */}
         <p className="mt-8 text-center text-stone-500 text-xs font-medium tracking-wide">
           &copy; {new Date().getFullYear()} DineSmart Intelligence Platforms. 
           <br/>

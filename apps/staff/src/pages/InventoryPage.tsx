@@ -22,6 +22,7 @@ import {
   FolderPlus, Layers, Zap, Edit2, Activity, Box, RefreshCw, IndianRupee
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { PageLoader } from '../components/PageLoader';
 
 interface InventoryItem {
   id: string; 
@@ -69,25 +70,27 @@ export default function InventoryPage() {
   const [catFormData, setCatFormData] = useState({ name: '' });
 
   // Queries
-  const { data: items } = useQuery<InventoryItem[]>({ 
+  const { data: items, isLoading: itemsLoading } = useQuery<InventoryItem[]>({ 
     queryKey: ['inventory'], 
     queryFn: () => getInventoryItems() as Promise<InventoryItem[]> 
   });
   
-  const { data: alerts } = useQuery<InventoryItem[]>({ 
+  const { data: alerts, isLoading: alertsLoading } = useQuery<InventoryItem[]>({ 
     queryKey: ['inventoryAlerts'], 
     queryFn: () => getInventoryAlerts() as Promise<InventoryItem[]> 
   });
 
-  const { data: branches } = useQuery<Branch[]>({
+  const { data: branches, isLoading: branchesLoading } = useQuery<Branch[]>({
     queryKey: ['branches'],
     queryFn: () => getBranches() as Promise<Branch[]>
   });
 
-  const { data: categories } = useQuery<InventoryCategory[]>({
+  const { data: categories, isLoading: categoriesLoading } = useQuery<InventoryCategory[]>({
     queryKey: ['inventoryCategories'],
     queryFn: () => getInventoryCategories() as Promise<InventoryCategory[]>
   });
+
+  const isLoading = itemsLoading || alertsLoading || branchesLoading || categoriesLoading;
 
   // Mutations
   const createMutation = useMutation({
@@ -162,6 +165,10 @@ export default function InventoryPage() {
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-6 pb-24 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+      <PageLoader isLoading={isLoading} />
+      
+      {!isLoading && (
+        <>
       {/* Dynamic Header Matrix */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
@@ -539,6 +546,8 @@ export default function InventoryPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

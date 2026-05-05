@@ -1,165 +1,276 @@
----
-title: DineSmart
-emoji: 🍽️
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-pinned: false
-app_port: 7860
+# 🍽️ DineSmart — Multi-Tenant SaaS Restaurant Platform
+
+> A production-ready, real-time restaurant management platform with AI-powered recommendations, a branded customer PWA, and a live Kitchen Display System (KDS).
+
 ---
 
-# DineSmart OS
+## ✨ What is DineSmart?
 
-> **Complete multi-tenant SaaS Restaurant Operating System**
+DineSmart is a **multi-tenant SaaS** platform that lets any restaurant onboard, configure their menu, and immediately serve customers via a branded QR-code menu. It combines:
 
-Customer scans QR → orders digitally → system manages everything automatically.
+- **Customer PWA** — A stunning, mobile-first ordering experience.
+- **Staff Panel** — Table management, KDS, orders, billing, coupons, and analytics.
+- **Super Admin Panel** — Tenant onboarding, subscription tiers, and platform-wide control.
+- **Real-time backend** — Socket.io for live order updates across all panels.
+- **AI Recommendations** — Gemini-powered upselling at checkout.
 
-## Latest Features (v1.2)
+---
 
-- **SuperAdmin Google Sign-In**: Modernized authentication for the platform command center with secure Google OAuth integration.
-- **Pricing Optimization**: Consolidated subscription tiers to two streamlined options (₹999 and ₹2499) to simplify onboarding.
-- **Premium Landing Experience**: Completely redesigned the default customer interface with a high-end, responsive landing page.
-- **Mobile UI Harmonization**: Fixed overlapping layouts and optimized splash screens across all platforms for a seamless mobile experience.
-- **Automatic Kitchen Oversight**: Managers/Owners can now supervise all branches from a single unified Kitchen Display with real-time multi-branch socket updates.
-
-## Architecture
+## 🏗️ Monorepo Structure
 
 ```
-d:\DineSmart\
-├── packages/
-│   ├── shared/        # @dinesmart/shared — Types, schemas, constants
-│   └── api/           # @dinesmart/api — Express + Prisma + Socket.io
+Dine_Smart-main/
 ├── apps/
-│   ├── customer/      # React PWA — Customer menu & ordering
-│   ├── staff/         # React SPA — Billing, Kitchen, Admin dashboard
-│   └── superadmin/    # React SPA — Platform management
-├── docker-compose.yml # PostgreSQL + Redis
-└── Dockerfile.api     # API container
+│   ├── customer/          # Customer-facing PWA (Vite + React, port 5173)
+│   ├── staff/             # Staff & KDS panel  (Vite + React, port 5174)
+│   └── superadmin/        # Super Admin panel  (Vite + React, port 5175)
+│
+└── packages/
+    └── api/               # Express + TypeScript backend (port 4000)
+        ├── src/
+        │   ├── routes/    # All REST API routes
+        │   ├── services/  # Business logic
+        │   ├── socket/    # Socket.io event handlers
+        │   └── config/    # env, prisma, redis
+        └── prisma/
+            └── schema.prisma
 ```
 
-## Tech Stack
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| **API** | Node.js, Express, TypeScript |
-| **Database** | PostgreSQL 16 + Prisma ORM |
-| **Cache & Pub/Sub** | Redis 7 + ioredis |
-| **Real-time** | Socket.io with Redis adapter |
-| **Auth** | JWT (httpOnly cookies) + Google OAuth (SuperAdmin) |
-| **Validation** | Zod schemas (shared) |
-| **Job Queue** | BullMQ (inventory, notifications, reports) |
-| **Frontend** | React 18, Vite, Vanilla CSS, Zustand |
-| **Charts** | Recharts |
-| **PWA** | vite-plugin-pwa + Workbox |
+|---|---|
+| **Frontend** | React 18 + TypeScript, Vite, TailwindCSS, Lucide React |
+| **State / Data** | TanStack Query, Zustand |
+| **Backend** | Node.js, Express, TypeScript |
+| **ORM / DB** | Prisma 5 + PostgreSQL (Neon / Supabase) |
+| **Cache / Pub-Sub** | Redis (Upstash or local) |
+| **Real-time** | Socket.io |
+| **Auth** | JWT (access + refresh token rotation) |
+| **AI** | Google Gemini API (recommendations) |
+| **Payments** | Razorpay (optional) |
+| **Deployment** | Render (API), Vercel / Netlify (frontends) |
+| **Storage** | Cloudinary (menu images) |
+| **Notifications** | Web Audio API (KDS sound alerts) |
 
-## Quick Start
+---
 
-### 1. Prerequisites
-- Node.js 20+
-- Docker & Docker Compose
-- npm 9+
+## 🚀 Quick Start (Local Development)
 
-### 2. Start Infrastructure
+### Prerequisites
+- Node.js ≥ 18
+- npm ≥ 9
+- PostgreSQL database (or Neon / Supabase free tier)
+- Redis instance (or Upstash free tier)
 
-```bash
-docker compose up -d
-```
-
-This launches PostgreSQL (port 5432) and Redis (port 6379).
-
-### 3. Install Dependencies
+### 1. Clone & Install
 
 ```bash
+git clone https://github.com/<your-org>/Dine_Smart.git
+cd Dine_Smart-main
 npm install
 ```
 
-### 4. Configure Environment
+### 2. Configure Environment
 
 ```bash
-cp .env.example .env
-# Edit .env with your secrets (Add GOOGLE_CLIENT_ID for SuperAdmin)
+cp packages/api/.env.example packages/api/.env
 ```
 
-### 5. Setup Database
+Fill in `packages/api/.env`:
+
+```env
+DATABASE_URL="postgresql://USER:PASS@HOST:5432/dinesmart?sslmode=require"
+DIRECT_URL="postgresql://USER:PASS@HOST:5432/dinesmart?sslmode=require"
+
+REDIS_URL="redis://localhost:6379"
+
+JWT_SECRET="your-super-secret-key"
+JWT_REFRESH_SECRET="your-refresh-secret-key"
+
+GEMINI_API_KEY="your-gemini-key"
+CLOUDINARY_CLOUD_NAME="your-cloud-name"
+CLOUDINARY_API_KEY="your-cloudinary-key"
+CLOUDINARY_API_SECRET="your-cloudinary-secret"
+
+PORT=4000
+NODE_ENV=development
+CLIENT_URL="http://localhost:5173"
+STAFF_URL="http://localhost:5174"
+SUPERADMIN_URL="http://localhost:5175"
+```
+
+### 3. Initialise the Database
 
 ```bash
 cd packages/api
-npx prisma generate
-npx prisma db push
-npx tsx prisma/seed.ts
+npx prisma migrate dev --name init
+npx prisma db seed          # Creates super admin + demo restaurant
 ```
 
-### 6. Start Development
+### 4. Start All Services
+
+From the root (using separate terminals or a process manager):
 
 ```bash
-# Terminal 1 — API
-npm run dev --workspace=@dinesmart/api
-
-# Terminal 2 — Customer PWA
-npm run dev --workspace=@dinesmart/customer
-
-# Terminal 3 — Staff Panel
-npm run dev --workspace=@dinesmart/staff
-
-# Terminal 4 — Super Admin
-npm run dev --workspace=@dinesmart/superadmin
+npm run dev:api          # API on :4000
+npm run dev:customer     # Customer PWA on :5173
+npm run dev:staff        # Staff panel on :5174
+npm run dev:superadmin   # Super Admin on :5175
 ```
 
-| Service | URL |
-|---------|-----|
-| API | http://localhost:4000 |
-| Customer PWA | http://localhost:5173 |
-| Staff Panel | http://localhost:5174 |
-| Super Admin | http://localhost:5175 |
+---
 
-## Demo Credentials
+## 🔑 Default Credentials
 
 | Role | Email | Password |
-|------|-------|----------|
-| Super Admin | admin@dinesmart.app | superadmin123 |
-| Owner | owner@spicegarden.com | owner123 |
-| Manager | manager@spicegarden.com | manager123 |
-| Cashier | cashier@spicegarden.com | cashier123 |
-| Kitchen | kitchen@spicegarden.com | kitchen123 |
+|---|---|---|
+| Super Admin | `superadmin@dinesmart.com` | `superadmin123` |
+| Restaurant Admin | Created during onboarding | Set on first login |
 
-## API Endpoints (v1.2 Highlights)
+---
 
-### Public (No Auth)
+## 📡 API Reference (v1)
+
+Base URL: `http://localhost:4000/api/v1`
+
+### Public (no auth)
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/menu/public/:slug` | Get restaurant menu |
-| POST | `/api/v1/auth/superadmin/google` | **NEW:** Google login verification |
-| POST | `/api/v1/orders` | Place order |
-| GET | `/api/v1/orders/:sessionId` | Track order (with AI estimates) |
-| POST | `/api/v1/orders/reviews` | Submit review |
+|---|---|---|
+| GET | `/menu/public/:slug?tableId=` | Fetch full menu for a table |
+| POST | `/menu/public/:slug/send-otp` | Send OTP to customer phone |
+| POST | `/menu/public/:slug/verify-otp` | Verify OTP, return session |
+| POST | `/orders` | Place a new order |
+| GET | `/orders/:sessionId` | Get order by session |
+| POST | `/orders/reviews` | Submit a customer review |
+| POST | `/coupons/validate` | Validate coupon at checkout |
+| GET | `/coupons/active-for-customer` | List available coupons |
+| GET | `/ai/recommendations` | AI-powered item suggestions |
 
-### Billing & Kitchen
+### Staff (JWT required)
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/billing/customer-summary-bill` | Consolidated daily bill |
-| POST | `/api/v1/billing/orders/:id/print-bill` | Single order bill |
-| GET | `/api/v1/kitchen/orders` | Automatic multi-branch oversight |
-| PUT | `/api/v1/kitchen/order-items/:id/status` | Update item status |
+|---|---|---|
+| GET | `/orders` | List orders (with filters) |
+| PATCH | `/orders/:id/status` | Update order status |
+| GET | `/menu` | Get full menu with admin fields |
+| POST | `/menu/items` | Create menu item |
+| PATCH | `/menu/items/:id` | Update menu item |
+| DELETE | `/menu/items/:id` | Delete menu item |
+| GET | `/orders/reviews` | View customer reviews |
+| GET | `/analytics/summary` | Sales & trend analytics |
+| GET | `/tables` | List tables + QR codes |
 
-## Socket Events
+### Super Admin (JWT + SUPERADMIN role)
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/admin/restaurants` | List all tenants |
+| POST | `/admin/restaurants` | Onboard new restaurant |
+| PATCH | `/admin/restaurants/:id` | Update restaurant settings |
+| GET | `/admin/subscriptions` | Subscription overview |
+| POST | `/admin/subscriptions` | Assign / change plan |
 
-| Event | Direction | Description |
-|-------|-----------|-------------|
-| `order:new` | Server→Client | New order placed |
-| `order:status_updated` | Server→Client | Order status changed |
-| `payment:confirmed` | Server→Client | Payment received |
-| `table:occupied` | Server→Client | Table now occupied |
+---
 
-## Subscription Plans
+## 📱 Feature Highlights
 
-| Feature | Starter (₹999) | Premium (₹2,499) |
-|---------|:-:|:-:|
-| Branches    | 2  | Unlimited |
-| Tables      | 20 | Unlimited |
-| AI Features | ❌ | ✅ |
-| Inventory   | ❌ | ✅ |
-| Analytics   | ❌ | ✅ |
+### Customer PWA
+- **QR-code menu** — Scan table QR → instant menu, no app install.
+- **Chef's Special carousel** — Dynamic section featuring top-ordered, popular items.
+- **Live ratings** — Star ratings computed from real order counts per item.
+- **Smart cart** — Variants, addons, special instructions, coupon application.
+- **AI upsell** — Gemini recommends complementary items before checkout.
+- **OTP auth** — Phone-based customer identification (no passwords).
+- **Order tracking** — Live status updates via Socket.io.
+- **Loyalty history** — Previous orders tied to phone number.
 
-## License
+### Staff Panel
+- **Kitchen Display System (KDS)** — Live incoming orders, sound alerts (one-time unlock persisted per session).
+- **Order lifecycle** — PENDING → ACCEPTED → PREPARING → READY → SERVED → BILLED.
+- **Billing** — Generate bill, apply discounts, mark paid.
+- **Menu manager** — CRUD for categories, items, variants, addons, images.
+- **Coupon manager** — Percentage / flat discounts with expiry and usage limits.
+- **Analytics dashboard** — Daily revenue, top items, peak hours, occupancy.
+- **Feedback viewer** — Customer reviews with ratings and comments.
+- **Table & QR manager** — Add tables, regenerate QR codes.
 
-Proprietary — All rights reserved.
+### Super Admin Panel
+- **Multi-tenant onboarding** — Create restaurants, assign slugs, set branding.
+- **Subscription tiers** — Free / Pro / Enterprise with feature gating.
+- **Audio settings** — Enable/disable and configure custom KDS sounds per restaurant.
+- **Global analytics** — Platform-wide revenue and usage.
+
+---
+
+## 🔔 Real-time Events (Socket.io)
+
+| Event | Direction | Payload |
+|---|---|---|
+| `order:new` | Server → Staff | Full order object |
+| `order:status_update` | Server → Customer | `{ orderId, status }` |
+| `order:item_update` | Server → Customer | `{ orderId, items }` |
+| `join:restaurant` | Client → Server | `{ restaurantId }` |
+| `join:table` | Client → Server | `{ tableId }` |
+
+---
+
+## 🚢 Production Deployment (Render)
+
+1. **API service** — Node.js, build cmd `npm run build`, start cmd `node dist/index.js`.
+2. **Environment variables** — Set all vars from `.env` in the Render dashboard.
+3. **Database** — Use Neon / Supabase Transaction Pooler URL for `DATABASE_URL` and Session Pooler URL for `DIRECT_URL`.
+4. **Redis** — Use Upstash free tier; set `REDIS_URL`.
+5. **Frontends** — Deploy each `apps/*` as a static site; set `VITE_API_URL` to the Render API URL.
+
+### Build Commands
+
+```bash
+# API
+cd packages/api && npm run build
+
+# Customer
+cd apps/customer && npm run build
+
+# Staff
+cd apps/staff && npm run build
+
+# Super Admin
+cd apps/superadmin && npm run build
+```
+
+---
+
+## 🗂️ Key Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | ✅ | Prisma connection string (pooled) |
+| `DIRECT_URL` | ✅ | Direct DB URL for migrations |
+| `REDIS_URL` | ✅ | Redis connection string |
+| `JWT_SECRET` | ✅ | Access token signing secret |
+| `JWT_REFRESH_SECRET` | ✅ | Refresh token signing secret |
+| `GEMINI_API_KEY` | ✅ | Google Gemini for AI recommendations |
+| `CLOUDINARY_*` | ✅ | Image upload credentials |
+| `PORT` | ✅ | API server port (default: 4000) |
+| `NODE_ENV` | ✅ | `development` or `production` |
+| `CLIENT_URL` | ✅ | CORS: customer PWA origin |
+| `STAFF_URL` | ✅ | CORS: staff panel origin |
+| `SUPERADMIN_URL` | ✅ | CORS: super admin panel origin |
+| `QR_BASE_URL` | ⚠️ | Base URL embedded in QR codes |
+| `RAZORPAY_KEY_ID` | ⚠️ | Optional payment integration |
+
+---
+
+## 🛡️ Security Notes
+
+- JWT tokens are rotated on every refresh; refresh tokens are stored server-side in Redis.
+- OTP codes expire in 5 minutes and are single-use.
+- All staff / admin routes are protected by role-based middleware (`RESTAURANT_ADMIN`, `KITCHEN_STAFF`, `BILLING_STAFF`, `SUPERADMIN`).
+- Rate limiting is applied to OTP and order placement endpoints.
+
+---
+
+## 📄 License
+
+MIT © 2024 DineSmart

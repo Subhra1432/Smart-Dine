@@ -6,12 +6,13 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Search, ShoppingCart, Flame, Minus, Plus, X, Tag, User, Clock, LogOut, UtensilsCrossed, Star, Edit3, Check, ArrowRight, Scan } from 'lucide-react';
+import { Search, ShoppingCart, Flame, Minus, Plus, X, Tag, User, Clock, LogOut, UtensilsCrossed, Star, Edit3, Check, ArrowRight, Scan, ChefHat } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getPublicMenu, placeOrder, validateCoupon, getRecommendations, getCustomerHistory, getAvailableCoupons } from '../lib/api';
 import { useCartStore } from '../store/cart';
 import { CustomerAuthModal } from '../components/CustomerAuthModal';
 import { TermsModal } from '../components/TermsModal';
+import { SplashLoading } from '../components/SplashLoading';
 
 interface MenuItem {
   id: string;
@@ -127,33 +128,80 @@ export default function MenuPage() {
 
   if (!slug) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center bg-white">
-        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-          <Scan size={40} className="text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center bg-[#0C0A09] relative overflow-hidden font-sans">
+         {/* Dynamic Background Elements */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-saffron-500/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-saffron-600/5 rounded-full blur-[100px]" />
+        
+        {/* Grid Overlay */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+
+        <div className="relative z-10 max-w-sm w-full space-y-10">
+          <div className="space-y-4">
+            <div className="w-24 h-24 bg-saffron-500/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-saffron-500/20 shadow-[0_20px_50px_rgba(245,158,11,0.1)] group hover:scale-110 transition-all duration-700">
+              <UtensilsCrossed size={40} className="text-saffron-500" />
+            </div>
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">
+              DineSmart <span className="text-saffron-500 italic tracking-normal">OS</span>
+            </h1>
+            <div className="h-px w-12 bg-saffron-500/30 mx-auto" />
+          </div>
+
+          <div className="space-y-6">
+            <p className="text-stone-400 text-base leading-relaxed font-medium px-4">
+              Experience the future of dining. Please scan the QR code at your table to begin your culinary journey.
+            </p>
+            
+            <div className="pt-8">
+              <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">
+                <div className="w-2 h-2 rounded-full bg-saffron-500 animate-pulse" />
+                <span className="text-[10px] font-black text-stone-300 uppercase tracking-[0.3em]">Awaiting Table Anchor</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <h1 className="text-2xl font-black text-stone-900 uppercase tracking-tighter mb-2">Welcome to DineSmart</h1>
-        <p className="text-sm text-stone-500 font-medium max-w-xs mx-auto">Please scan the QR code located at your table to view the digital menu and place your order.</p>
       </div>
     );
   }
 
   if (!tableId) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center bg-white">
-        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
-          <Scan size={40} className="text-primary" />
-        </div>
-        <h1 className="text-2xl font-black text-stone-900 uppercase tracking-tighter mb-2">Scanning Table...</h1>
-        <p className="text-sm text-stone-500 font-medium max-w-xs mx-auto mb-8">We couldn't identify your table. Please re-scan the QR code on your table.</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center bg-[#0C0A09] relative overflow-hidden font-sans">
+         {/* Dynamic Background Elements */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-saffron-500/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-saffron-600/5 rounded-full blur-[100px]" />
         
-        {slug === 'spice-garden' && (
-          <button 
-            onClick={() => window.location.search = '?table=1'}
-            className="px-8 py-4 bg-primary text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all"
-          >
-            Enter Demo Mode (Table 1)
-          </button>
-        )}
+        {/* Grid Overlay */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+
+        <div className="relative z-10 max-w-sm w-full space-y-10">
+          <div className="space-y-4">
+            <div className="w-24 h-24 bg-saffron-500/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-saffron-500/20 shadow-[0_20px_50px_rgba(245,158,11,0.1)] group hover:scale-110 transition-all duration-700 animate-pulse">
+              <Scan size={40} className="text-saffron-500" />
+            </div>
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">
+              Scanning <span className="text-saffron-500 italic tracking-normal">Table...</span>
+            </h1>
+            <div className="h-px w-12 bg-saffron-500/30 mx-auto" />
+          </div>
+
+          <div className="space-y-6">
+            <p className="text-stone-400 text-base leading-relaxed font-medium px-4">
+              We couldn't identify your table node. Please re-scan the QR code located on your table to sync.
+            </p>
+            
+            {slug === 'spice-garden' && (
+              <button 
+                onClick={() => window.location.search = '?table=1'}
+                className="px-8 py-4 bg-saffron-500 text-black text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-saffron-500/20 hover:scale-105 transition-all"
+              >
+                Enter Demo Mode (Table 1)
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -208,6 +256,17 @@ export default function MenuPage() {
       .filter((cat) => activeCategory === 'all' || cat.id === activeCategory)
       .filter((cat) => cat.items.length > 0);
   }, [menuData, search, vegOnly, nonVegOnly, activeCategory, sortOrder]);
+
+  // Popular items for Chef's Special carousel
+  const chefsSpecials = useMemo(() => {
+    if (!menuData) return [];
+    return menuData.categories
+      .flatMap((cat) => cat.items)
+      .filter((item) => item.isPopular && item.isAvailable)
+      .slice(0, 8);
+  }, [menuData]);
+
+  // Helper: derive star rating from real orderCount — used in Chef's Special & MenuItemCard
 
   const canModifyOrder = useMemo(() => {
     if (!menuData?.branch) return true;
@@ -321,50 +380,7 @@ export default function MenuPage() {
 
   return (
     <>
-      {/* Premium Splash Screen Overlay (Matching Staff Aesthetic) */}
-      <div className={`fixed inset-0 z-[100] transition-all duration-1000 ${(showSplash || isLoading || !hasHydrated) ? 'opacity-100' : 'opacity-0 pointer-events-none'} flex flex-col items-center justify-center bg-stone-50 dark:bg-stone-950 m-0 p-0 antialiased transition-colors duration-700`}>
-        {/* Saffron Glow Background */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-saffron-500/10 rounded-full blur-[120px] animate-pulse" />
-        
-        {/* Subtle Noise Overlay Fallback */}
-        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3F%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
-        
-        <div className="relative z-10 flex flex-col items-center gap-8 md:gap-12 text-center w-full max-w-sm">
-          {/* Central Unit */}
-          <div className="relative scale-75 md:scale-100">
-            <div className="w-24 md:w-32 h-24 md:h-32 rounded-[2rem] md:rounded-[2.5rem] bg-stone-950 dark:bg-stone-900 border border-stone-200 dark:border-white/10 flex items-center justify-center shadow-[0_50px_100px_rgba(0,0,0,0.3)] dark:shadow-[0_50px_100px_rgba(0,0,0,0.6)] animate-in zoom-in duration-1000">
-              <UtensilsCrossed size={32} className="text-white md:hidden" />
-              <UtensilsCrossed size={48} className="text-white hidden md:block" />
-              <div className="absolute inset-0 bg-saffron-500/10 rounded-[2rem] md:rounded-[2.5rem] animate-pulse" />
-            </div>
-            {/* Orbiting Elements */}
-            <div className="absolute -inset-8 md:-inset-10 border border-saffron-500/10 rounded-[2.5rem] md:rounded-[3.5rem] animate-[spin_15s_linear_infinite]" />
-            <div className="absolute -inset-4 md:-inset-5 border-2 border-stone-100 dark:border-stone-800/50 rounded-[2rem] md:rounded-[3rem] animate-[ping_5s_linear_infinite]" />
-          </div>
-
-          <div className="flex flex-col items-center gap-4 md:gap-6 text-center">
-            <h1 className="text-3xl md:text-5xl font-black text-stone-950 dark:text-white tracking-[-0.05em] uppercase">
-              DineSmart <span className="text-saffron-500 tracking-normal italic">OS</span>
-            </h1>
-            <div className="flex items-center gap-4 md:gap-8">
-              <div className="h-[1px] w-8 md:w-12 bg-gradient-to-r from-transparent via-saffron-500/40 to-transparent" />
-              <p className="text-[8px] md:text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] md:tracking-[0.6em]">Node Activation</p>
-              <div className="h-[1px] w-8 md:w-12 bg-gradient-to-l from-transparent via-saffron-500/40 to-transparent" />
-            </div>
-          </div>
-        </div>
-
-        {/* Status Indicators */}
-        <div className="absolute bottom-24 flex gap-3">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-2.5 h-2.5 rounded-full bg-saffron-500/30 animate-bounce"
-              style={{ animationDelay: `${i * 0.2}s` }}
-            />
-          ))}
-        </div>
-      </div>
+      <SplashLoading isLoading={showSplash || isLoading || !hasHydrated} />
 
       {showTermsModal && hasHydrated && createPortal(
         <TermsModal 
@@ -585,6 +601,68 @@ export default function MenuPage() {
               </select>
             </div>
           </div>
+
+          {/* ── Chef's Special Showcase ─────────────────── */}
+          {chefsSpecials.length > 0 && (
+            <div className="mb-12">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-10 h-10 rounded-2xl bg-[#D97706]/10 border border-[#D97706]/20 flex items-center justify-center">
+                  <ChefHat size={18} className="text-[#D97706]" />
+                </div>
+                <div>
+                  <p className="text-[9px] font-black text-[#D97706] uppercase tracking-[0.4em] mb-0.5">Signature Dishes</p>
+                  <h3 className="font-serif font-bold text-2xl text-white leading-tight">Chef's <em className="text-[#D97706] not-italic">Special</em></h3>
+                </div>
+                <div className="flex-1 h-px bg-gradient-to-r from-[#D97706]/30 to-transparent" />
+                <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{chefsSpecials.length} Signatures</span>
+              </div>
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                {chefsSpecials.slice(0, 4).map((item) => {
+                  const count = item.orderCount || 0;
+                  const rating = count >= 50 ? 4.9 : count >= 20 ? 4.7 : count >= 5 ? 4.5 : count > 0 ? 4.3 : null;
+                  return (
+                    <div key={item.id} className="group rounded-[2rem] overflow-hidden border border-white/5 hover:border-[#D97706]/40 bg-gradient-to-b from-[#1c1917] to-[#111] transition-all duration-500 shadow-lg hover:shadow-[0_20px_40px_rgba(217,119,6,0.12)]">
+                      <div className="relative h-40 overflow-hidden">
+                        <img
+                          src={item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80'}
+                          alt={item.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent" />
+                        <div className="absolute top-3 left-3 flex items-center gap-1 bg-[#D97706] text-black px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider">
+                          <ChefHat size={8} /> Chef's Pick
+                        </div>
+                        <div className={`absolute top-3 right-3 w-5 h-5 rounded-md flex items-center justify-center border ${item.isVeg ? 'bg-green-500/20 border-green-500/40' : 'bg-red-500/20 border-red-500/40'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${item.isVeg ? 'bg-green-500' : 'bg-red-500'}`} />
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <h4 className="font-serif font-bold text-base text-white group-hover:text-[#D97706] transition-colors line-clamp-1 mb-1">{item.name}</h4>
+                        {rating && (
+                          <div className="flex items-center gap-1.5 mb-3">
+                            <div className="flex text-[#D97706]">
+                              {[...Array(5)].map((_, i) => <Star key={i} size={9} fill={i < Math.floor(rating) ? 'currentColor' : 'none'} className={i < Math.floor(rating) ? '' : 'opacity-20'} />)}
+                            </div>
+                            <span className="text-[9px] text-white/30 font-bold">{rating} · {count}+ orders</span>
+                          </div>
+                        )}
+                        <p className="text-[10px] text-white/40 line-clamp-2 leading-relaxed mb-4">{item.description || 'A signature creation by our expert chefs.'}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="font-black text-lg text-[#D97706] tracking-tighter">₹{item.price}</span>
+                          <button
+                            onClick={() => addToCart(item)}
+                            className="flex items-center gap-1.5 bg-[#D97706]/10 hover:bg-[#D97706] text-[#D97706] hover:text-black border border-[#D97706]/30 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
+                          >
+                            <Plus size={12} /> Add
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Menu Grid */}
           <div className="p-12">
@@ -819,6 +897,69 @@ export default function MenuPage() {
           </h2>
         </div>
       </section>
+
+      {/* ── Chef's Special ─────────────────────────────── */}
+      {chefsSpecials.length > 0 && (
+        <div className="mt-8">
+          <div className="px-6 mb-4 flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-1.5 h-1.5 bg-[#D97706] rounded-full animate-pulse" />
+                <span className="text-[9px] font-black text-[#D97706] uppercase tracking-[0.4em]">Most Ordered</span>
+              </div>
+              <h2 className="font-serif font-bold text-2xl text-white leading-tight">Chef's <em className="text-[#D97706] not-italic">Special</em></h2>
+            </div>
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#D97706]/20 to-[#B45309]/10 border border-[#D97706]/20 flex items-center justify-center shadow-[0_4px_20px_rgba(217,119,6,0.15)]">
+              <ChefHat size={20} className="text-[#D97706]" />
+            </div>
+          </div>
+          <div className="overflow-x-auto flex gap-4 px-6 pb-4 no-scrollbar">
+            {chefsSpecials.map((item) => {
+              const count = item.orderCount || 0;
+              const rating = count >= 50 ? 4.9 : count >= 20 ? 4.7 : count >= 5 ? 4.5 : count > 0 ? 4.3 : null;
+              return (
+                <div key={item.id} className="flex-shrink-0 w-[190px] rounded-[1.8rem] overflow-hidden border border-white/[0.07] bg-gradient-to-b from-[#1c1917] to-[#111] hover:border-[#D97706]/40 transition-all duration-500 shadow-xl group">
+                  <div className="relative h-[118px] overflow-hidden">
+                    <img
+                      src={item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80'}
+                      alt={item.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent" />
+                    <div className="absolute top-2 left-2 flex items-center gap-1 bg-[#D97706] text-black px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-wider shadow-lg">
+                      <ChefHat size={7} /> Pick
+                    </div>
+                    <div className={`absolute top-2 right-2 w-4 h-4 rounded-sm flex items-center justify-center border ${item.isVeg ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${item.isVeg ? 'bg-green-500' : 'bg-red-500'}`} />
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h4 className="font-serif font-bold text-[13px] text-white line-clamp-1 mb-0.5 group-hover:text-[#D97706] transition-colors">{item.name}</h4>
+                    {rating && (
+                      <div className="flex items-center gap-1 mb-2">
+                        <div className="flex text-[#D97706]">
+                          {[...Array(5)].map((_, i) => <Star key={i} size={8} fill={i < Math.floor(rating) ? 'currentColor' : 'none'} className={i < Math.floor(rating) ? '' : 'opacity-20'} />)}
+                        </div>
+                        <span className="text-[8px] text-white/30 font-bold">{rating} · {count}+ orders</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm font-black text-[#D97706] tracking-tighter">₹{item.price}</span>
+                      <button
+                        onClick={() => addToCart(item)}
+                        className="flex items-center gap-1 bg-[#D97706]/10 hover:bg-[#D97706] text-[#D97706] hover:text-black border border-[#D97706]/30 px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-wider transition-all active:scale-95"
+                      >
+                        <Plus size={10} /> Add
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mx-6 mt-2 h-px bg-gradient-to-r from-transparent via-[#D97706]/20 to-transparent" />
+        </div>
+      )}
 
       {/* ── Search Bar ───────────────────────────────────── */}
       <div className="px-6 mt-8">
@@ -1435,12 +1576,23 @@ function MenuItemCard({ item, onAdd, cart }: {
 
           <div className="mt-auto flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <div className="flex text-[#D97706]">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={10} fill={i < 4 ? 'currentColor' : 'none'} className={i < 4 ? '' : 'opacity-30'} />
-                ))}
-              </div>
-              <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">4.8 (120+)</span>
+              {(() => {
+                const count = item.orderCount || 0;
+                const r = count >= 100 ? 4.9 : count >= 50 ? 4.7 : count >= 20 ? 4.5 : count >= 5 ? 4.2 : count > 0 ? 4.0 : 0;
+                if (!r) return (
+                  <span className="text-[8px] font-black text-[#D97706]/60 px-2 py-0.5 bg-[#D97706]/5 rounded-md border border-[#D97706]/10 uppercase tracking-wider">New</span>
+                );
+                return (
+                  <>
+                    <div className="flex text-[#D97706]">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={10} fill={i < Math.floor(r) ? 'currentColor' : 'none'} className={i < Math.floor(r) ? '' : 'opacity-20'} />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{r} ({count}+)</span>
+                  </>
+                );
+              })()}
             </div>
 
             {item.isAvailable ? (

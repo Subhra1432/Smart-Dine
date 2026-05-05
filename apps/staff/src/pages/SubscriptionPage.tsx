@@ -11,6 +11,7 @@ import {
   CreditCard, Crown, Zap, Check, X as XIcon,
   AlertTriangle, IndianRupee, Calendar, Shield, Lock, TrendingUp
 } from 'lucide-react';
+import { PageLoader } from '../components/PageLoader';
 
 const API_URL = (import.meta as any).env.VITE_API_URL || '';
 const API_BASE = `${API_URL}/api/v1`;
@@ -139,13 +140,7 @@ export default function SubscriptionPage() {
 
   const selectedPlanInfo = PLANS.find(p => p.name === selectedPlan);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-12">
@@ -296,11 +291,12 @@ export default function SubscriptionPage() {
 
             return (
               <div
-                key={plan.name}
-                className={`relative rounded-[2.5rem] p-6 border transition-all duration-700 overflow-hidden group ${isCurrent
-                    ? 'border-saffron-500/30 bg-saffron-500/5 shadow-[0_0_80px_-20px_rgba(245,158,11,0.15)]'
-                    : 'border-white/5 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.05] hover:scale-[1.01]'
-                  }`}
+                key={plan.id}
+                className={`relative group p-8 rounded-[2.5rem] border transition-all duration-700 hover:scale-[1.02] flex flex-col ${
+                  isCurrent 
+                    ? 'bg-white/95 dark:bg-stone-900/90 border-saffron-500 shadow-[0_20px_80px_rgba(245,158,11,0.2)]' 
+                    : 'bg-white/90 dark:bg-stone-900/80 border-stone-200 dark:border-white/10 hover:border-saffron-500/30 shadow-2xl'
+                }`}
               >
                 {/* Decorative Background Icon */}
                 <div className="absolute -bottom-10 -right-10 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none">
@@ -319,7 +315,7 @@ export default function SubscriptionPage() {
                   </div>
                 )}
 
-                <div className="relative space-y-8">
+                <div className="relative space-y-8 flex flex-col flex-1">
                   <div className="flex items-start justify-between">
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center shadow-2xl border-4 border-white/10 group-hover:scale-110 transition-transform duration-500`}>
                       <plan.icon size={32} className="text-white" />
@@ -342,7 +338,7 @@ export default function SubscriptionPage() {
                     </p>
                   </div>
 
-                  <div className="grid gap-3">
+                  <div className="grid gap-3 flex-grow">
                     {plan.features.map((f) => (
                       <div key={f} className="flex items-center gap-3 group/feat">
                         <div className="w-5 h-5 rounded-lg bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/10 flex items-center justify-center group-hover/feat:border-saffron-500/50 transition-colors">

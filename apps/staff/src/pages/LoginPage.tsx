@@ -9,65 +9,19 @@ import { useAuthStore } from '../store/auth';
 import { login } from '../lib/api';
 import toast from 'react-hot-toast';
 import { UtensilsCrossed, Mail, Lock, LogIn, ArrowRight, ShieldCheck, ChevronRight } from 'lucide-react';
+import { PageLoader } from '../components/PageLoader';
 
-function FlashLoader() {
-  return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-stone-950 transition-opacity duration-1000">
-      <div className="relative mb-12">
-        {/* Dynamic Halo Effect */}
-        <div className="absolute -inset-24 bg-primary/20 blur-[120px] rounded-full animate-pulse" />
 
-        <div className="relative w-40 h-40 rounded-[3rem] bg-stone-900 flex items-center justify-center shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-white/10 animate-in zoom-in duration-1000">
-          <UtensilsCrossed size={64} className="text-white" />
-          <div className="absolute inset-0 bg-primary/10 rounded-[3rem] animate-pulse" />
-        </div>
-
-        {/* Orbiting Elements */}
-        <div className="absolute -inset-12 border border-primary/10 rounded-[4rem] animate-[spin_15s_linear_infinite]" />
-        <div className="absolute -inset-6 border-2 border-stone-800/50 rounded-[3.5rem] animate-[ping_5s_linear_infinite]" />
-      </div>
-
-      <div className="flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
-        <h2 className="text-6xl font-black tracking-[-0.05em] text-white uppercase">
-          DineSmart <span className="text-primary tracking-tight font-black">OS</span>
-        </h2>
-        <div className="flex items-center gap-8">
-          <div className="h-[1px] w-16 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-          <span className="text-stone-500 text-[12px] tracking-[0.8em] uppercase font-black opacity-80">
-            Node Activation
-          </span>
-          <div className="h-[1px] w-16 bg-gradient-to-l from-transparent via-primary/40 to-transparent" />
-        </div>
-      </div>
-
-      <div className="absolute bottom-24 flex gap-4">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="w-3 h-3 rounded-full bg-primary/30 animate-bounce"
-            style={{ animationDelay: `${i * 0.25}s` }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showFlash, setShowFlash] = useState(true);
 
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowFlash(false);
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,12 +38,12 @@ export default function LoginPage() {
     }
   };
 
-  if (showFlash) return <FlashLoader />;
-
   return (
     <div className="relative min-h-screen w-full flex overflow-hidden bg-stone-950">
-
-      {/* ── Full-bleed Background (Left atmosphere) ───────── */}
+      <PageLoader isLoading={loading} />
+      {!loading && (
+        <>
+          {/* ── Full-bleed Background (Left atmosphere) ───────── */}
       <div className="absolute inset-0 z-0">
         <div
           className="absolute inset-0 scale-110 animate-ken-burns opacity-70"
@@ -257,6 +211,8 @@ export default function LoginPage() {
       {/* Corner accents */}
       <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-white/[0.04] rounded-tl-3xl pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-20 h-20 border-b-2 border-l-2 border-white/[0.04] rounded-bl-3xl pointer-events-none" />
+        </>
+      )}
     </div>
   );
 }

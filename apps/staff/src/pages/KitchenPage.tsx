@@ -12,6 +12,7 @@ import { io } from 'socket.io-client';
 import { NOTIFICATION_SOUND } from '../assets/audio';
 import { Clock, ChefHat, Check, LogOut, Volume2, VolumeX, ShieldCheck, Flame, Timer, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PageLoader } from '../components/PageLoader';
 
 interface KitchenOrder {
   id: string;
@@ -34,17 +35,19 @@ export default function KitchenPage() {
   const { clearAuth, user } = useAuthStore();
   const isKitchenStaff = user?.role === 'KITCHEN_STAFF';
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [audioContextUnlocked, setAudioContextUnlocked] = useState(false);
+  const [audioContextUnlocked, setAudioContextUnlocked] = useState(() => sessionStorage.getItem('kds_audio_unlocked') === 'true');
   const audioContextRef = useRef<AudioContext | null>(null);
 
   // Auto-determine branch from login credentials
   const selectedBranchId = user?.branchId || '';
 
-  const { data: orders } = useQuery<KitchenOrder[]>({
+  const { data: orders, isLoading: ordersLoading } = useQuery<KitchenOrder[]>({
     queryKey: ['kitchenOrders', selectedBranchId],
     queryFn: () => getKitchenOrders(selectedBranchId) as Promise<KitchenOrder[]>,
     refetchInterval: 10000,
   });
+
+  const isLoading = ordersLoading || !orders;
 
   const statusMutation = useMutation({
     mutationFn: ({ itemId, status }: { itemId: string; status: string }) => updateItemStatus(itemId, status),
@@ -93,6 +96,7 @@ export default function KitchenPage() {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       audioContextRef.current = new AudioContextClass();
       await audioContextRef.current.resume();
+      sessionStorage.setItem('kds_audio_unlocked', 'true');
       setAudioContextUnlocked(true);
       playNotificationSound();
       toast.success('Audio Intelligence Synchronized');
@@ -204,6 +208,7 @@ export default function KitchenPage() {
 
   return (
     <div className="min-h-screen bg-transparent p-6 relative overflow-hidden flex flex-col font-sans transition-colors duration-700">
+      <PageLoader isLoading={isLoading} />
       {/* Header Matrix */}
       <header className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-10">
         <div className="flex items-center gap-6">

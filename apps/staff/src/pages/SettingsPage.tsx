@@ -2,13 +2,14 @@
 // DineSmart — Settings Page
 // ═══════════════════════════════════════════
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { getProfile, getBranches, getTables, getUsers, getCoupons, updateUser, deleteUser, clearOrderHistory } from '../lib/api';
+import { getProfile, updateProfile, getBranches, getTables, getUsers, getCoupons, updateUser, deleteUser, clearOrderHistory } from '../lib/api';
 import { useAuthStore } from '../store/auth';
 import { Building, Users, QrCode, Tag, Settings, Trash2, Pencil, Plus, X, Lock, AlertTriangle } from 'lucide-react';
 import { TableQRCode } from '../components/TableQRCode';
+import { PageLoader } from '../components/PageLoader';
 
 export default function SettingsPage() {
   const { restaurant, user } = useAuthStore();
@@ -17,9 +18,11 @@ export default function SettingsPage() {
   const isStarterPlan = restaurant?.plan === 'STARTER';
   const queryClient = useQueryClient();
 
-  const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: () => getProfile() });
+  const { data: profile, isLoading: profileLoading } = useQuery({ queryKey: ['profile'], queryFn: () => getProfile() });
   const { data: branches, isLoading: branchesLoading } = useQuery({ queryKey: ['branches'], queryFn: () => getBranches() });
   const { data: tables, isLoading: tablesLoading } = useQuery({ queryKey: ['tables'], queryFn: () => getTables() });
+
+  const isLoading = profileLoading || branchesLoading || tablesLoading;
   const { data: users } = useQuery({
     queryKey: ['users'],
     queryFn: () => getUsers(),
@@ -46,7 +49,7 @@ export default function SettingsPage() {
   const [brandingFormData, setBrandingFormData] = useState({ bannerText: '', bannerImageUrl: '' });
 
   // Sync profile data to branding form
-  useState(() => {
+  useEffect(() => {
     if (profile) {
       setBrandingFormData({
         bannerText: (profile as any).bannerText || '✨ WELCOME TO DINESMART — SAVOR THE EXPERIENCE ✨',
@@ -64,6 +67,8 @@ export default function SettingsPage() {
     },
     onError: (err: any) => toast.error(err.message || 'Update failed')
   });
+
+  if (isLoading) return <PageLoader />;
 
   const handleUpdateBranding = (e: React.FormEvent) => {
     e.preventDefault();

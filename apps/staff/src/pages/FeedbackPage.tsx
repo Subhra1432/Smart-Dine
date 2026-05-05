@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Star, MessageSquare, Quote, User, Hash, Calendar } from 'lucide-react';
 import { getReviews } from '../lib/api';
 import { cn } from '../lib/utils';
+import { PageLoader } from '../components/PageLoader';
 
 export default function FeedbackPage() {
   const { data: reviews, isLoading } = useQuery({
@@ -9,16 +10,7 @@ export default function FeedbackPage() {
     queryFn: () => getReviews() as Promise<Array<any>>,
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
-        <div className="relative w-24 h-24">
-          <div className="absolute inset-0 border-4 border-primary/20 rounded-full" />
-          <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   const averageRating = reviews?.length
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)

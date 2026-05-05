@@ -11,6 +11,7 @@ import { IndianRupee, ShoppingBag, TrendingUp, Clock, CreditCard, LayoutGrid, Ar
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import { PageLoader } from '../components/PageLoader';
 
 interface OverviewData {
   todayRevenue: number;
@@ -53,10 +54,12 @@ export default function OverviewPage() {
     refetchInterval: 60000,
   });
 
-  const { data: revenueData } = useQuery<RevenueData>({
+  const { data: revenueData, isLoading: revenueLoading } = useQuery<RevenueData>({
     queryKey: ['revenue'],
     queryFn: () => getRevenue() as Promise<RevenueData>,
   });
+
+  const isLoading = !overview || revenueLoading;
 
   useEffect(() => {
     const socket = io('/restaurant', { 
@@ -89,6 +92,10 @@ export default function OverviewPage() {
     { label: 'Projected Loss', value: `₹${((overview?.totalOrders || 0) * 0.05 * (overview?.avgOrderValue || 0)).toLocaleString()}`, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
     { label: 'Active Sessions', value: overview?.recentOrders?.filter(o => o.status !== 'COMPLETED').length || 0, icon: Clock, color: 'text-primary', bg: 'bg-primary/10' },
   ];
+
+  if (isLoading) {
+    return <PageLoader isLoading={true} />;
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">

@@ -9,6 +9,7 @@ import {
 import { useAuthStore } from '../store/auth';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
+import { PageLoader } from '../components/PageLoader';
 
 interface MenuPerf { bestSellers: Array<{ name: string; orderCount: number; revenue: number }>; slowMoving: Array<{ name: string; orderCount: number; revenue: number }> }
 interface PeakHour { hour: number; dayOfWeek: number; orderCount: number }
@@ -34,22 +35,24 @@ export default function AnalyticsPage() {
   const hasDemandForecast = plan === 'PREMIUM';
   const hasSmartPricing = plan === 'PREMIUM';
 
-  const { data: menuPerf } = useQuery<MenuPerf>({ queryKey: ['menuPerformance'], queryFn: () => getMenuPerformance() as Promise<MenuPerf>, enabled: hasProAnalytics });
-  const { data: peakHours } = useQuery<PeakHour[]>({ queryKey: ['peakHours'], queryFn: () => getPeakHours() as Promise<PeakHour[]>, enabled: hasProAnalytics });
-  const { data: tablePerf } = useQuery<TablePerf[]>({ queryKey: ['tablePerformance'], queryFn: () => getTablePerformance() as Promise<TablePerf[]>, enabled: hasProAnalytics });
-  const { data: revenue } = useQuery<RevenueData>({ queryKey: ['revenueAnalytics'], queryFn: () => getRevenue() as Promise<RevenueData> });
+  const { data: menuPerf, isLoading: menuLoading } = useQuery<MenuPerf>({ queryKey: ['menuPerformance'], queryFn: () => getMenuPerformance() as Promise<MenuPerf>, enabled: hasProAnalytics });
+  const { data: peakHours, isLoading: peakLoading } = useQuery<PeakHour[]>({ queryKey: ['peakHours'], queryFn: () => getPeakHours() as Promise<PeakHour[]>, enabled: hasProAnalytics });
+  const { data: tablePerf, isLoading: tableLoading } = useQuery<TablePerf[]>({ queryKey: ['tablePerformance'], queryFn: () => getTablePerformance() as Promise<TablePerf[]>, enabled: hasProAnalytics });
+  const { data: revenue, isLoading: revenueLoading } = useQuery<RevenueData>({ queryKey: ['revenueAnalytics'], queryFn: () => getRevenue() as Promise<RevenueData> });
   
-  const { data: demandForecast } = useQuery<DemandForecast[]>({ 
+  const { data: demandForecast, isLoading: demandLoading } = useQuery<DemandForecast[]>({ 
     queryKey: ['demandForecast'], 
     queryFn: () => getDemandForecast() as Promise<DemandForecast[]>,
     enabled: hasDemandForecast 
   });
   
-  const { data: pricingSuggestions } = useQuery<PricingSuggestion[]>({ 
+  const { data: pricingSuggestions, isLoading: pricingLoading } = useQuery<PricingSuggestion[]>({ 
     queryKey: ['pricingSuggestions'], 
     queryFn: () => getPricingSuggestions() as Promise<PricingSuggestion[]>,
     enabled: hasSmartPricing 
   });
+
+  const isLoading = menuLoading || peakLoading || tableLoading || revenueLoading || demandLoading || pricingLoading;
 
   const peakHoursByHour = peakHours?.reduce<Record<number, number>>((acc, p) => {
     acc[p.hour] = (acc[p.hour] || 0) + p.orderCount;
@@ -70,6 +73,10 @@ export default function AnalyticsPage() {
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-6 pb-24 animate-in fade-in slide-in-from-bottom-8 duration-1000 relative">
+      <PageLoader isLoading={isLoading} />
+      
+      {!isLoading && (
+        <>
       {/* Header Matrix */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
@@ -224,7 +231,7 @@ export default function AnalyticsPage() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} horizontal={false} />
                 <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" tick={{ fill: chartColors.text, fontSize: 9, fontWeight: 900 }} width={80} axisLine={false} tickLine={false} />
+                <YAxis dataKey="name" type="category" tick={{ fill: chartColors.text, fontSize: 8, fontWeight: 900 }} width={120} axisLine={false} tickLine={false} />
                 <Tooltip 
                   cursor={{ fill: 'rgba(0,0,0,0.02)' }}
                   contentStyle={{ background: chartColors.tooltipBg, border: `1px solid ${chartColors.tooltipBorder}`, borderRadius: '16px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', padding: '12px' }}
@@ -308,11 +315,11 @@ export default function AnalyticsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="text-[9px] font-black text-stone-300 dark:text-stone-700 uppercase tracking-[0.2em] border-b border-stone-100 dark:border-white/5">
-                  <th className="pb-4">Node ID</th>
-                  <th className="text-center pb-4">Volume</th>
-                  <th className="text-center pb-4">Gross Value</th>
-                  <th className="text-center pb-4">Avg Ticket</th>
-                  <th className="text-right pb-4">Cycle</th>
+                  <th className="pb-4 min-w-[100px]">Node ID</th>
+                  <th className="text-center pb-4 min-w-[80px]">Volume</th>
+                  <th className="text-center pb-4 min-w-[100px]">Gross Value</th>
+                  <th className="text-center pb-4 min-w-[100px]">Avg Ticket</th>
+                  <th className="text-right pb-4 min-w-[80px]">Cycle</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-50 dark:divide-white/5">
@@ -340,6 +347,8 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

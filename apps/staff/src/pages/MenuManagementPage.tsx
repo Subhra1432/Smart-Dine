@@ -28,6 +28,7 @@ import {
   ChefHat
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { PageLoader } from '../components/PageLoader';
 
 interface MenuItem {
   id: string;
@@ -95,20 +96,22 @@ export default function MenuManagementPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Queries
-  const { data: categories } = useQuery<Category[]>({
+  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: () => getCategories() as Promise<Category[]>,
   });
 
-  const { data: items } = useQuery<MenuItem[]>({
+  const { data: items, isLoading: itemsLoading } = useQuery<MenuItem[]>({
     queryKey: ['menuItems'],
     queryFn: () => getMenuItems() as Promise<MenuItem[]>,
   });
 
-  const { data: addons } = useQuery<any[]>({
+  const { data: addons, isLoading: addonsLoading } = useQuery<any[]>({
     queryKey: ['addons'],
     queryFn: () => getAddons() as Promise<any[]>,
   });
+
+  const isLoading = categoriesLoading || itemsLoading || addonsLoading;
 
   // Mutations
   const toggleMutation = useMutation({
@@ -244,7 +247,11 @@ export default function MenuManagementPage() {
   });
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+    <div className="max-w-[1600px] mx-auto space-y-6 pb-24 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+      <PageLoader isLoading={isLoading} />
+      
+      {!isLoading && (
+        <>
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2.5 mb-1">
@@ -810,6 +817,8 @@ export default function MenuManagementPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

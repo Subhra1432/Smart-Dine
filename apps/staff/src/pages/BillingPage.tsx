@@ -19,6 +19,7 @@ import {
   DollarSign, Clock, CheckCircle, X, Printer, CreditCard,
   Circle, AlertCircle, User, Phone, Plus, Search, ChevronRight, Trash2, Check
 } from 'lucide-react';
+import { PageLoader } from '../components/PageLoader';
 
 interface BillingTable {
   id: string;
@@ -95,10 +96,12 @@ export default function BillingPage() {
     enabled: tableFilter === 'HISTORY',
   });
 
-  const { data: branches } = useQuery<any[]>({
+  const { data: branches, isLoading: branchesLoading } = useQuery<any[]>({
     queryKey: ['branches'],
     queryFn: () => getBranches() as Promise<any[]>,
   });
+
+  const isLoading = !tables || branchesLoading;
 
   const branchSettings = useMemo(() =>
     branches?.find((b: any) => b.id === user?.branchId) || branches?.[0],
@@ -261,6 +264,10 @@ export default function BillingPage() {
       toast.error(err.message || 'Failed to print summary');
     }
   };
+
+  if (isLoading) {
+    return <PageLoader isLoading={true} />;
+  }
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-6 pb-24 animate-in fade-in slide-in-from-bottom-8 duration-1000">

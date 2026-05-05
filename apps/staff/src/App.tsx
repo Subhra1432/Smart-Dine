@@ -23,54 +23,14 @@ import FeedbackPage from './pages/FeedbackPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentCancelPage from './pages/PaymentCancelPage';
 import { ThemeProvider } from './lib/ThemeProvider';
+import { SplashLoading } from './components/SplashLoading';
 
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
   const { isAuthenticated, isInitializing, user } = useAuthStore();
 
   // Still verifying the session — show a neutral loading screen, never redirect prematurely
   if (isInitializing) {
-    return (
-      <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-700">
-        {/* Saffron Glow Background */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-10 mix-blend-overlay pointer-events-none" />
-        
-        <div className="relative z-10 flex flex-col items-center gap-12">
-          {/* Central Unit */}
-          <div className="relative">
-            <div className="w-32 h-32 rounded-[2.5rem] bg-stone-950 dark:bg-stone-900 border border-stone-200 dark:border-white/10 flex items-center justify-center shadow-[0_50px_100px_rgba(0,0,0,0.3)] dark:shadow-[0_50px_100px_rgba(0,0,0,0.6)] animate-in zoom-in duration-1000">
-              <UtensilsCrossed size={48} className="text-white" />
-              <div className="absolute inset-0 bg-primary/10 rounded-[2.5rem] animate-pulse" />
-            </div>
-            {/* Orbiting Elements */}
-            <div className="absolute -inset-10 border border-primary/10 rounded-[3.5rem] animate-[spin_15s_linear_infinite]" />
-            <div className="absolute -inset-5 border-2 border-stone-100 dark:border-stone-800/50 rounded-[3rem] animate-[ping_5s_linear_infinite]" />
-          </div>
-
-          <div className="flex flex-col items-center gap-6 text-center">
-            <h1 className="text-5xl font-black text-stone-950 dark:text-white tracking-[-0.05em] uppercase">
-              DineSmart <span className="text-primary tracking-normal italic">OS</span>
-            </h1>
-            <div className="flex items-center gap-8">
-              <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-              <p className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.6em] ml-4">Node Activation</p>
-              <div className="h-[1px] w-12 bg-gradient-to-l from-transparent via-primary/40 to-transparent" />
-            </div>
-          </div>
-        </div>
-
-        {/* Status Indicators */}
-        <div className="absolute bottom-24 flex gap-3">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-2.5 h-2.5 rounded-full bg-primary/30 animate-bounce"
-              style={{ animationDelay: `${i * 0.2}s` }}
-            />
-          ))}
-        </div>
-      </div>
-    );
+    return <SplashLoading isLoading={true} />;
   }
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
