@@ -2,7 +2,7 @@
 // Design System: Saffron & Stone (Industrial)
 // ═══════════════════════════════════════════
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import {
@@ -17,7 +17,7 @@ import { NOTIFICATION_SOUND } from '../assets/audio';
 import { useAuthStore } from '../store/auth';
 import {
   DollarSign, Clock, CheckCircle, X, Printer, CreditCard,
-  Circle, AlertCircle, User, Phone, Plus, Search, ChevronRight, Trash2, Check
+  Circle, AlertCircle, User, Phone, Plus, Search, ChevronRight, Trash2, Check, Volume2
 } from 'lucide-react';
 import { PageLoader } from '../components/PageLoader';
 
@@ -52,6 +52,43 @@ export default function BillingPage() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  const [audioContextUnlocked, setAudioContextUnlocked] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const audioUrl = useAuthStore.getState().restaurant?.notificationSoundUrl || NOTIFICATION_SOUND;
+    audioRef.current = new Audio(audioUrl);
+    audioRef.current.load();
+  }, [user]);
+
+  const playNotificationSound = async () => {
+    if (!audioRef.current) return;
+    try {
+      audioRef.current.currentTime = 0;
+      await audioRef.current.play();
+    } catch (err: any) {
+      console.error('Billing Audio Playback failed:', err);
+      if (err.name === 'NotAllowedError') {
+        setAudioContextUnlocked(false);
+      }
+    }
+  };
+
+  const unlockAudio = async () => {
+    try {
+      if (audioRef.current) {
+        audioRef.current.muted = true;
+        await audioRef.current.play();
+        audioRef.current.muted = false;
+        audioRef.current.currentTime = 0;
+      }
+      setAudioContextUnlocked(true);
+      playNotificationSound();
+      toast.success('Audio Intelligence Synchronized');
+    } catch (err) {
+      console.error('Failed to unlock audio:', err);
+    }
+  };
   const [tableFilter, setTableFilter] = useState<'ALL' | 'PENDING' | 'UNPAID' | 'HISTORY'>('ALL');
   const [pendingStatus, setPendingStatus] = useState<{ orderId: string; status: string } | null>(null);
   const [addingItemToOrderId, setAddingItemToOrderId] = useState<string | null>(null);
@@ -200,13 +237,19 @@ export default function BillingPage() {
     socket.on('connect', () => {
       socket.emit('join:billing');
     });
-    const audioUrl = useAuthStore.getState().restaurant?.notificationSoundUrl || NOTIFICATION_SOUND;
-    const dingAudio = new Audio(audioUrl);
-    socket.on('order:new', () => { queryClient.invalidateQueries({ queryKey: ['billingTables'] }); toast.success('🔔 New order received!'); dingAudio.play().catch(() => { }); });
+    socket.on('order:new', () => { 
+      queryClient.invalidateQueries({ queryKey: ['billingTables'] }); 
+      toast.success('🔔 New order received!'); 
+      playNotificationSound(); 
+    });
     socket.on('order:status_updated', () => { queryClient.invalidateQueries({ queryKey: ['billingTables'] }); });
     socket.on('payment:confirmed', () => { queryClient.invalidateQueries({ queryKey: ['billingTables'] }); toast.success('💰 Payment received!'); });
     socket.on('order:item_status_updated', () => { queryClient.invalidateQueries({ queryKey: ['billingTables'] }); });
-    socket.on('payment:request_at_desk', (data: { tableNumber: number, total: number }) => { queryClient.invalidateQueries({ queryKey: ['billingTables'] }); toast.error(`💳 Table #${data.tableNumber} requested check: ₹${data.total}`, { duration: 10000 }); dingAudio.play().catch(() => { }); });
+    socket.on('payment:request_at_desk', (data: { tableNumber: number, total: number }) => { 
+      queryClient.invalidateQueries({ queryKey: ['billingTables'] }); 
+      toast.error(`💳 Table #${data.tableNumber} requested check: ₹${data.total}`, { duration: 10000 }); 
+      playNotificationSound(); 
+    });
     return () => { socket.disconnect(); };
   }, [queryClient]);
 
@@ -859,6 +902,25 @@ export default function BillingPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Audio Unlock Overlay */}
+      {!audioContextUnlocked && (
+        <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-10 fade-in duration-500">
+          <button
+            onClick={unlockAudio}
+            className="group relative flex items-center gap-3 px-6 py-4 bg-stone-900 dark:bg-white rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300"
+          >
+            <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-stone-800 dark:bg-stone-100 text-primary animate-pulse">
+              <Volume2 size={20} />
+            </div>
+            <div className="relative text-left">
+              <p className="text-sm font-black text-white dark:text-stone-900 uppercase tracking-wider">Initialize Audio</p>
+              <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Required for Alerts</p>
+            </div>
+          </button>
         </div>
       )}
     </div>

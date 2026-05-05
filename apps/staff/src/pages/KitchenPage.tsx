@@ -35,8 +35,14 @@ export default function KitchenPage() {
   const { clearAuth, user } = useAuthStore();
   const isKitchenStaff = user?.role === 'KITCHEN_STAFF';
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [audioContextUnlocked, setAudioContextUnlocked] = useState(() => sessionStorage.getItem('kds_audio_unlocked') === 'true');
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const [audioContextUnlocked, setAudioContextUnlocked] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const audioUrl = useAuthStore.getState().restaurant?.notificationSoundUrl || NOTIFICATION_SOUND;
+    audioRef.current = new Audio(audioUrl);
+    audioRef.current.load();
+  }, [user]);
 
   // Auto-determine branch from login credentials
   const selectedBranchId = user?.branchId || '';
@@ -79,24 +85,26 @@ export default function KitchenPage() {
   });
 
   const playNotificationSound = async () => {
-    if (!audioEnabledRef.current) return;
-    
+    if (!audioEnabledRef.current || !audioRef.current) return;
     try {
-      const audioUrl = useAuthStore.getState().restaurant?.notificationSoundUrl || NOTIFICATION_SOUND;
-      const dingAudio = new Audio(audioUrl);
-      await dingAudio.play();
-    } catch (err) {
+      audioRef.current.currentTime = 0;
+      await audioRef.current.play();
+    } catch (err: any) {
       console.error('KDS Audio Playback failed:', err);
+      if (err.name === 'NotAllowedError') {
+        setAudioContextUnlocked(false);
+      }
     }
   };
 
-
   const unlockAudio = async () => {
     try {
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      audioContextRef.current = new AudioContextClass();
-      await audioContextRef.current.resume();
-      sessionStorage.setItem('kds_audio_unlocked', 'true');
+      if (audioRef.current) {
+        audioRef.current.muted = true;
+        await audioRef.current.play();
+        audioRef.current.muted = false;
+        audioRef.current.currentTime = 0;
+      }
       setAudioContextUnlocked(true);
       playNotificationSound();
       toast.success('Audio Intelligence Synchronized');
