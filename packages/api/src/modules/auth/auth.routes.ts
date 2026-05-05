@@ -22,6 +22,7 @@ router.post('/reset-password/:token', authRateLimiter, asyncHandler(authControll
 router.get('/me', authenticate, asyncHandler(authController.getMe));
 router.get('/superadmin/me', authenticateSuperAdmin, asyncHandler(authController.getSuperAdminMe));
 router.post('/superadmin/login', authRateLimiter, asyncHandler(authController.superAdminLogin));
+router.post('/superadmin/google', authRateLimiter, asyncHandler(authController.superAdminGoogleLogin));
 
 // Public document upload for registration (no auth required)
 router.post('/upload-document', authRateLimiter, upload.single('file'), asyncHandler(async (req: Request, res: Response) => {

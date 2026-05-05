@@ -22,8 +22,7 @@ interface Restaurant {
 
 const PLANS = [
   { name: 'STARTER', price: 999, features: ['1 Branch', '20 Tables', 'Basic Analytics', 'QR Code Ordering', 'KDS System'] },
-  { name: 'GROWTH', price: 1999, features: ['3 Branches', '100 Tables', 'Advanced Inventory', 'Sales Forecasting', 'Priority Support'] },
-  { name: 'PREMIUM', price: 3999, features: ['Unlimited Branches', 'Unlimited Tables', 'AI Insights', 'Coupon & Loyalty System', 'White Label Branding'] },
+  { name: 'PREMIUM', price: 2499, features: ['Unlimited Branches', 'Unlimited Tables', 'AI Insights', 'Coupon & Loyalty System', 'White Label Branding'] },
 ];
 
 export default function BillingPlansPage() {
@@ -86,12 +85,12 @@ export default function BillingPlansPage() {
       <div className="grid md:grid-cols-2 gap-6">
         {planCounts.map((plan) => (
           <div key={plan.name} className="p-6 bg-white dark:bg-stone-900 rounded-3xl border border-stone-100 dark:border-primary/10 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6">
-              <span className="text-[9px] font-black uppercase tracking-widest text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.4em]">{plan.name} ARCHITECTURE</h3>
+              <span className="text-[9px] font-black uppercase tracking-widest text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20 whitespace-nowrap">
                 {plan.count} Active Tenants
               </span>
             </div>
-            <h3 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.4em] mb-1.5">{plan.name} ARCHITECTURE</h3>
             <div className="flex items-baseline gap-2 mb-6">
               <h4 className="text-4xl font-black text-stone-950 dark:text-white tracking-tighter">₹{plan.price}</h4>
               <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">/ Month</span>
@@ -150,7 +149,6 @@ export default function BillingPlansPage() {
                         className="bg-stone-50 dark:bg-stone-800 text-[9px] font-black uppercase tracking-widest text-stone-600 dark:text-stone-300 rounded-lg px-3 py-1.5 border border-stone-200 dark:border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer hover:border-primary transition-all"
                       >
                         <option value="STARTER">Starter</option>
-                        <option value="GROWTH">Growth</option>
                         <option value="PREMIUM">Premium</option>
                       </select>
                     </td>

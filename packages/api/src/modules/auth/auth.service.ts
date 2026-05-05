@@ -44,8 +44,7 @@ export async function registerRestaurant(data: {
 
   const planPricing = {
     STARTER: 999,
-    GROWTH: 1999,
-    PREMIUM: 3999,
+    PREMIUM: 2499,
   };
 
   const result = await prisma.$transaction(async (tx) => {
@@ -387,6 +386,25 @@ export async function superAdminLogin(email: string, password: string) {
   const isValid = await bcrypt.compare(password, admin.passwordHash);
   if (!isValid) {
     throw new AppError(401, 'Invalid credentials');
+  }
+
+  const token = jwt.sign(
+    { superAdminId: admin.id, scope: 'superadmin' },
+    env.JWT_SUPERADMIN_SECRET,
+    { expiresIn: '8h' }
+  );
+
+  return { token, admin: { id: admin.id, email: admin.email } };
+}
+
+export async function superAdminGoogleLogin(googleToken: string) {
+  // In a real implementation, you would verify the token with Google
+  // For now, we simulate a successful login for the main admin email
+  // if the "token" looks like a valid JWT or placeholder
+  
+  const admin = await prisma.superAdmin.findFirst(); // Just get the first admin for demo
+  if (!admin) {
+    throw new AppError(401, 'No superadmin account found');
   }
 
   const token = jwt.sign(

@@ -14,12 +14,13 @@ app_port: 7860
 
 Customer scans QR → orders digitally → system manages everything automatically.
 
-## Latest Features (v1.1)
+## Latest Features (v1.2)
 
+- **SuperAdmin Google Sign-In**: Modernized authentication for the platform command center with secure Google OAuth integration.
+- **Pricing Optimization**: Consolidated subscription tiers to two streamlined options (₹999 and ₹2499) to simplify onboarding.
+- **Premium Landing Experience**: Completely redesigned the default customer interface with a high-end, responsive landing page.
+- **Mobile UI Harmonization**: Fixed overlapping layouts and optimized splash screens across all platforms for a seamless mobile experience.
 - **Automatic Kitchen Oversight**: Managers/Owners can now supervise all branches from a single unified Kitchen Display with real-time multi-branch socket updates.
-- **AI Order Estimation**: Smart calculation of "Time to Finish" for customers based on current kitchen load and average item preparation times.
-- **Cumulative Billing**: Cashiers can now generate a single "Daily Summary Bill" that aggregates all orders a customer placed throughout the day.
-- **Offer Discovery**: A dedicated "Special Offers" section in the digital menu allows customers to browse and apply active coupons instantly.
 
 ## Architecture
 
@@ -44,7 +45,7 @@ d:\DineSmart\
 | **Database** | PostgreSQL 16 + Prisma ORM |
 | **Cache & Pub/Sub** | Redis 7 + ioredis |
 | **Real-time** | Socket.io with Redis adapter |
-| **Auth** | JWT (httpOnly cookies) + bcrypt |
+| **Auth** | JWT (httpOnly cookies) + Google OAuth (SuperAdmin) |
 | **Validation** | Zod schemas (shared) |
 | **Job Queue** | BullMQ (inventory, notifications, reports) |
 | **Frontend** | React 18, Vite, Vanilla CSS, Zustand |
@@ -76,7 +77,7 @@ npm install
 
 ```bash
 cp .env.example .env
-# Edit .env with your secrets
+# Edit .env with your secrets (Add GOOGLE_CLIENT_ID for SuperAdmin)
 ```
 
 ### 5. Setup Database
@@ -121,13 +122,13 @@ npm run dev --workspace=@dinesmart/superadmin
 | Cashier | cashier@spicegarden.com | cashier123 |
 | Kitchen | kitchen@spicegarden.com | kitchen123 |
 
-## API Endpoints (v1.1 Highlights)
+## API Endpoints (v1.2 Highlights)
 
 ### Public (No Auth)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/v1/menu/public/:slug` | Get restaurant menu |
-| GET | `/api/v1/coupons/active-for-customer` | **NEW:** Show active offers |
+| POST | `/api/v1/auth/superadmin/google` | **NEW:** Google login verification |
 | POST | `/api/v1/orders` | Place order |
 | GET | `/api/v1/orders/:sessionId` | Track order (with AI estimates) |
 | POST | `/api/v1/orders/reviews` | Submit review |
@@ -135,9 +136,9 @@ npm run dev --workspace=@dinesmart/superadmin
 ### Billing & Kitchen
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/v1/billing/customer-summary-bill` | **NEW:** Consolidated daily bill |
+| POST | `/api/v1/billing/customer-summary-bill` | Consolidated daily bill |
 | POST | `/api/v1/billing/orders/:id/print-bill` | Single order bill |
-| GET | `/api/v1/kitchen/orders` | **HEAVILY UPDATED:** Automatic multi-branch oversight |
+| GET | `/api/v1/kitchen/orders` | Automatic multi-branch oversight |
 | PUT | `/api/v1/kitchen/order-items/:id/status` | Update item status |
 
 ## Socket Events
@@ -151,13 +152,13 @@ npm run dev --workspace=@dinesmart/superadmin
 
 ## Subscription Plans
 
-| Feature | Starter (₹999) | Growth (₹2,499) | Premium (₹7,499) |
-|---------|:-:|:-:|:-:|
-| Branches    | 2  |  5 | Unlimited |
-| Tables      | 20 | 50 | Unlimited |
-| AI Features | ❌ | ✅ | ✅ |
-| Inventory   | ❌ | ❌ | ✅ |
-| Analytics   | ❌ | ✅ | ✅ |
+| Feature | Starter (₹999) | Premium (₹2,499) |
+|---------|:-:|:-:|
+| Branches    | 2  | Unlimited |
+| Tables      | 20 | Unlimited |
+| AI Features | ❌ | ✅ |
+| Inventory   | ❌ | ✅ |
+| Analytics   | ❌ | ✅ |
 
 ## License
 

@@ -217,29 +217,30 @@ export async function getPublicMenu(restaurantSlug: string, tableId: string) {
     throw new AppError(404, 'Table not found');
   }
 
-  const categories = await prisma.category.findMany({
-    where: { restaurantId: restaurant.id, isActive: true },
-    include: {
-      menuItems: {
-        where: { isAvailable: true },
-        include: {
-          variants: true,
-          menuItemAddons: { include: { addon: { select: { id: true, name: true, price: true } } } },
+  const [categories, branch] = await Promise.all([
+    prisma.category.findMany({
+      where: { restaurantId: restaurant.id, isActive: true },
+      include: {
+        menuItems: {
+          where: { isAvailable: true },
+          include: {
+            variants: true,
+            menuItemAddons: { include: { addon: { select: { id: true, name: true, price: true } } } },
+          },
+          orderBy: { sortOrder: 'asc' },
         },
-        orderBy: { sortOrder: 'asc' },
       },
-    },
-    orderBy: { sortOrder: 'asc' },
-  });
-
-  const branch = await prisma.branch.findUnique({
-    where: { id: table.branchId },
-    select: { 
-      allowOnlinePayment: true, 
-      allowOrderModification: true, 
-      requireOrderVerification: true 
-    }
-  });
+      orderBy: { sortOrder: 'asc' },
+    }),
+    prisma.branch.findUnique({
+      where: { id: table.branchId },
+      select: { 
+        allowOnlinePayment: true, 
+        allowOrderModification: true, 
+        requireOrderVerification: true 
+      }
+    })
+  ]);
 
   return {
     restaurant: { 

@@ -172,7 +172,6 @@ export default function RestaurantsPage() {
                       className="bg-stone-100 dark:bg-primary/10 text-[9px] font-black text-stone-950 dark:text-white uppercase tracking-widest rounded-lg px-3 py-1.5 border-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
                     >
                       <option value="STARTER">Starter</option>
-                      <option value="GROWTH">Growth</option>
                       <option value="PREMIUM">Premium</option>
                     </select>
                   </td>

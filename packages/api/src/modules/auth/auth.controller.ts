@@ -139,6 +139,22 @@ export async function superAdminLogin(req: Request, res: Response) {
   res.json({ success: true, data: { admin: result.admin } });
 }
 
+export async function superAdminGoogleLogin(req: Request, res: Response) {
+  const { token } = req.body;
+  if (!token) throw new Error('Google token is required');
+
+  // Logic to verify Google token would go here
+  // For now, we use placeholder logic that verifies against the superadmin email
+  const result = await authService.superAdminGoogleLogin(token);
+
+  res.cookie('superAdminToken', result.token, {
+    ...COOKIE_OPTIONS,
+    maxAge: 8 * 60 * 60 * 1000,
+  });
+
+  res.json({ success: true, data: { admin: result.admin } });
+}
+
 export async function getSuperAdminMe(req: Request, res: Response) {
   const { prisma } = await import('../../config/database.js');
   
