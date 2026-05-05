@@ -30,8 +30,8 @@ export default function AnalyticsPage() {
   }, []);
   
   const plan = restaurant?.plan || 'STARTER';
-  const hasProAnalytics = plan !== 'STARTER';
-  const hasDemandForecast = plan === 'GROWTH' || plan === 'PREMIUM';
+  const hasProAnalytics = plan === 'PREMIUM';
+  const hasDemandForecast = plan === 'PREMIUM';
   const hasSmartPricing = plan === 'PREMIUM';
 
   const { data: menuPerf } = useQuery<MenuPerf>({ queryKey: ['menuPerformance'], queryFn: () => getMenuPerformance() as Promise<MenuPerf>, enabled: hasProAnalytics });

@@ -28,20 +28,16 @@ const PLANS = [
     color: 'stone'
   },
   {
-    id: 'GROWTH' as const,
-    name: 'Growth Engine',
-    price: 1999,
-    description: 'Built for scaling restaurants & high volume.',
-    features: ['Up to 3 Branches', 'Advanced Inventory', 'Sales Forecasting', 'Priority Support'],
-    icon: TrendingUp,
-    color: 'saffron'
-  },
-  {
     id: 'PREMIUM' as const,
     name: 'Premium Nexus',
-    price: 3999,
+    price: 2499,
     description: 'Full ecosystem for restaurant chains.',
-    features: ['Unlimited Branches', 'AI Insights', 'Custom Domain', '24/7 Dedicated Support'],
+    features: [
+      'Unlimited Branches',
+      'Full Analytics + AI',
+      'Inventory Management',
+      'White Label Branding',
+    ],
     icon: Crown,
     color: 'emerald'
   }
@@ -61,7 +57,7 @@ export default function RegisterPage() {
     gstBill: '',
     password: '',
     confirmPassword: '',
-    plan: 'STARTER' as 'STARTER' | 'GROWTH' | 'PREMIUM'
+    plan: 'STARTER' as 'STARTER' | 'PREMIUM'
   });
   const [loading, setLoading] = useState(false);
 
@@ -227,7 +223,7 @@ export default function RegisterPage() {
   const selectedPlan = PLANS.find(p => p.id === formData.plan)!;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-stone-950 relative overflow-hidden font-outfit">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-stone-50 dark:bg-stone-950 relative overflow-hidden font-outfit transition-colors duration-500">
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_30%,rgba(245,158,11,0.05),transparent_50%)]" />
@@ -239,7 +235,7 @@ export default function RegisterPage() {
         {/* Card Glow */}
         <div className="absolute -inset-1 bg-gradient-to-r from-saffron-500/20 to-stone-500/20 rounded-[3rem] blur-2xl opacity-50 group-hover:opacity-75 transition duration-1000" />
         
-        <div className="relative glass-card rounded-[3rem] border border-white/10 bg-stone-900/40 backdrop-blur-3xl overflow-hidden">
+        <div className="relative glass-card rounded-[3rem] border border-stone-200 dark:border-white/10 bg-white/80 dark:bg-stone-900/40 backdrop-blur-3xl overflow-hidden shadow-2xl">
           <div className="grid md:grid-cols-[300px_1fr] h-[85vh]">
             {/* Sidebar Status */}
             <div className="bg-white/[0.02] border-r border-white/5 p-10 flex flex-col justify-between hidden md:flex">
@@ -284,8 +280,8 @@ export default function RegisterPage() {
               {step === 1 && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="space-y-1">
-                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Vault <span className="text-saffron-500">Initiation</span></h2>
-                    <p className="text-[10px] text-stone-500 font-black uppercase tracking-[0.4em]">Establish New Restaurant Node</p>
+                    <h2 className="text-3xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Vault <span className="text-saffron-500">Initiation</span></h2>
+                    <p className="text-[10px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-[0.4em]">Establish New Restaurant Node</p>
                   </div>
 
                   <div className="space-y-6">
@@ -294,13 +290,13 @@ export default function RegisterPage() {
                       <div className="grid gap-4">
                         <div className="relative group/field">
                           <Building2 size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-500 group-focus-within/field:text-saffron-500 transition-colors" />
-                          <input
+                             <input
                             type="text"
                             required
                             value={formData.restaurantName}
                             onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
                             placeholder="RESTAURANT IDENTITY"
-                            className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                           />
                         </div>
 
@@ -318,13 +314,13 @@ export default function RegisterPage() {
                           </div>
                           <div className="relative group/field">
                             <Phone size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-500 group-focus-within/field:text-saffron-500 transition-colors" />
-                            <input
+                             <input
                               type="text"
                               required
                               value={formData.phone}
                               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                               placeholder="PHONE (+91XXXXXXXXXX)"
-                              className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                              className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                             />
                           </div>
                         </div>
@@ -433,8 +429,8 @@ export default function RegisterPage() {
                       <ArrowLeft size={18} className="text-white" />
                     </button>
                     <div className="space-y-1">
-                      <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Tier <span className="text-saffron-500">Selection</span></h2>
-                      <p className="text-[10px] text-stone-500 font-black uppercase tracking-[0.4em]">Select Your Operational Scale</p>
+                      <h2 className="text-3xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Tier <span className="text-saffron-500">Selection</span></h2>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-[0.4em]">Select Your Operational Scale</p>
                     </div>
                   </div>
 
@@ -460,8 +456,8 @@ export default function RegisterPage() {
                           </div>
                           <div className="flex-1 space-y-1">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-xl font-black text-white uppercase tracking-tight">{plan.name}</h4>
-                              <p className="text-xl font-black text-white tracking-tighter">₹{plan.price}<span className="text-[10px] text-stone-500">/mo</span></p>
+                             <h4 className="text-xl font-black text-stone-950 dark:text-white uppercase tracking-tight">{plan.name}</h4>
+                              <p className="text-xl font-black text-stone-950 dark:text-white tracking-tighter">₹{plan.price}<span className="text-[10px] text-stone-500">/mo</span></p>
                             </div>
                             <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wide">{plan.description}</p>
                             <div className="flex flex-wrap gap-2 pt-3">
@@ -491,8 +487,8 @@ export default function RegisterPage() {
                       <ArrowLeft size={18} className="text-white" />
                     </button>
                     <div className="space-y-1">
-                      <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Secure <span className="text-saffron-500">Payment</span></h2>
-                      <p className="text-[10px] text-stone-500 font-black uppercase tracking-[0.4em]">Complete Node Deployment</p>
+                      <h2 className="text-3xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Secure <span className="text-saffron-500">Payment</span></h2>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-[0.4em]">Complete Node Deployment</p>
                     </div>
                   </div>
 

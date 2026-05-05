@@ -57,25 +57,9 @@ const PLANS = [
     limits: { branches: 1, tables: 20 },
   },
   {
-    name: 'GROWTH',
-    label: 'Growth',
-    price: 1999,
-    icon: TrendingUp,
-    color: 'from-saffron-400 to-saffron-600',
-    badgeColor: 'bg-saffron-500/10 text-saffron-400 border-saffron-500/20',
-    features: [
-      'Up to 3 Branch locations',
-      'Up to 100 Tables',
-      'Advanced Inventory',
-      'Sales Forecasting',
-      'Priority Support',
-    ],
-    limits: { branches: 3, tables: 100 },
-  },
-  {
     name: 'PREMIUM',
     label: 'Premium',
-    price: 3999,
+    price: 2499,
     icon: Crown,
     color: 'from-emerald-500 to-emerald-700',
     badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
@@ -177,7 +161,7 @@ export default function SubscriptionPage() {
             <h1 className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">
               Stone <span className="text-saffron-500 italic">Vault</span>
             </h1>
-            <p className="text-stone-400 font-black uppercase text-[9px] tracking-widest max-w-md">
+            <p className="text-stone-500 dark:text-stone-400 font-black uppercase text-[9px] tracking-widest max-w-md">
               Secure your operations with industrial-grade scaling and premium restaurant telemetry.
             </p>
           </div>
@@ -249,7 +233,7 @@ export default function SubscriptionPage() {
       {/* Current Plan Status */}
       <div className="glass-card rounded-[2.5rem] p-6 border border-white/10 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
-          {currentPlan ? <currentPlan.icon size={200} className="text-white" /> : <Zap size={200} className="text-white" />}
+          {currentPlan ? <currentPlan.icon size={200} className="text-stone-950 dark:text-white" /> : <Zap size={200} className="text-stone-950 dark:text-white" />}
         </div>
 
         <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-10">
@@ -260,12 +244,12 @@ export default function SubscriptionPage() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
                 <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isExpired ? 'bg-red-500' : 'bg-saffron-500'}`} />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 dark:text-white/50">
                   {isExpired ? 'Lease Expired' : 'Active Deployment'}
                 </span>
               </div>
-              <h2 className="text-2xl font-black text-white uppercase tracking-tighter">{currentPlan?.label || activePlan}</h2>
-              <div className="flex items-center gap-4 text-stone-400">
+              <h2 className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">{currentPlan?.label || activePlan}</h2>
+              <div className="flex items-center gap-4 text-stone-500 dark:text-stone-400">
                 <span className="text-lg font-bold tracking-tight">₹{(currentPlan?.price || 0).toLocaleString()}<span className="text-sm font-medium opacity-50">/MO</span></span>
                 {subscription?.planExpiresAt && (
                   <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10">
@@ -286,9 +270,9 @@ export default function SubscriptionPage() {
               { label: 'Menu Items', value: subscription?.usage?.menuItems, icon: Shield },
               { label: 'Orders', value: subscription?.usage?.orders, icon: IndianRupee },
             ].map(stat => (
-              <div key={stat.label} className="group/stat relative p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-saffron-500/30 transition-all duration-500">
-                <p className="text-lg font-black text-white group-hover/stat:text-saffron-500 transition-colors">{stat.value || 0}</p>
-                <p className="text-[8px] text-stone-400 font-black uppercase tracking-[0.2em] mt-1">{stat.label}</p>
+              <div key={stat.label} className="group/stat relative p-3 rounded-2xl bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 hover:border-saffron-500/30 transition-all duration-500">
+                <p className="text-lg font-black text-stone-950 dark:text-white group-hover/stat:text-saffron-500 transition-colors">{stat.value || 0}</p>
+                <p className="text-[8px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-[0.2em] mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -320,7 +304,7 @@ export default function SubscriptionPage() {
               >
                 {/* Decorative Background Icon */}
                 <div className="absolute -bottom-10 -right-10 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none">
-                  <plan.icon size={280} className="text-white" />
+                  <plan.icon size={280} className="text-stone-950 dark:text-white" />
                 </div>
 
                 {plan.popular && !isCurrent && (
@@ -330,7 +314,7 @@ export default function SubscriptionPage() {
                 )}
 
                 {isCurrent && (
-                  <div className="absolute top-0 right-10 px-6 py-2 bg-white/10 border border-t-0 border-white/20 text-white text-[10px] font-black rounded-b-2xl uppercase tracking-widest">
+                  <div className="absolute top-0 right-10 px-6 py-2 bg-stone-950/10 dark:bg-white/10 border border-t-0 border-stone-200 dark:border-white/20 text-stone-950 dark:text-white text-[10px] font-black rounded-b-2xl uppercase tracking-widest">
                     Current Active Lease
                   </div>
                 )}
@@ -342,31 +326,29 @@ export default function SubscriptionPage() {
                     </div>
                     <div className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <span className="text-sm font-black text-stone-400 mt-2">₹</span>
-                        <p className="text-4xl font-black text-white tracking-tighter">{plan.price.toLocaleString()}</p>
+                        <span className="text-sm font-black text-stone-500 dark:text-stone-400 mt-2">₹</span>
+                        <p className="text-4xl font-black text-stone-950 dark:text-white tracking-tighter">{plan.price.toLocaleString()}</p>
                       </div>
-                      <p className="text-[9px] text-stone-400 font-black uppercase tracking-[0.2em]">Per Cycle</p>
+                      <p className="text-[9px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-[0.2em]">Per Cycle</p>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">{plan.label}</h3>
-                    <p className="text-sm text-stone-400 font-medium leading-relaxed max-w-[280px]">
+                    <h3 className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter mb-2">{plan.label}</h3>
+                    <p className="text-sm text-stone-500 dark:text-stone-400 font-medium leading-relaxed max-w-[280px]">
                       {plan.name === 'STARTER'
                         ? 'Optimized for high-velocity single location operations.'
-                        : plan.name === 'GROWTH'
-                          ? 'Strategic scaling for growing restaurant networks.'
-                          : 'Enterprise-grade orchestration for multi-branch restaurant empires.'}
+                        : 'Enterprise-grade orchestration for multi-branch restaurant empires.'}
                     </p>
                   </div>
 
                   <div className="grid gap-3">
                     {plan.features.map((f) => (
                       <div key={f} className="flex items-center gap-3 group/feat">
-                        <div className="w-5 h-5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover/feat:border-saffron-500/50 transition-colors">
+                        <div className="w-5 h-5 rounded-lg bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/10 flex items-center justify-center group-hover/feat:border-saffron-500/50 transition-colors">
                           <Check size={12} className="text-saffron-500" />
                         </div>
-                        <span className="text-xs font-bold text-stone-400 uppercase tracking-wider group-hover/feat:text-white transition-colors">{f}</span>
+                        <span className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider group-hover/feat:text-stone-950 dark:group-hover/feat:text-white transition-colors">{f}</span>
                       </div>
                     ))}
                   </div>
@@ -420,8 +402,8 @@ export default function SubscriptionPage() {
                     <Check size={20} className="text-saffron-500" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-white uppercase tracking-wider">{p.plan} Subscription</p>
-                    <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mt-0.5">{p.method}</p>
+                    <p className="text-sm font-black text-stone-950 dark:text-white uppercase tracking-wider">{p.plan} Subscription</p>
+                    <p className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase tracking-widest mt-0.5">{p.method}</p>
                   </div>
                 </div>
                 <div className="text-right">

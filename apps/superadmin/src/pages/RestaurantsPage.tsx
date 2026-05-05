@@ -9,7 +9,7 @@ interface Restaurant {
   id: string; 
   name: string; 
   slug: string; 
-  plan: 'STARTER' | 'GROWTH' | 'PREMIUM'; 
+  plan: 'STARTER' | 'PREMIUM'; 
   isActive: boolean; 
   status: 'PENDING_VERIFICATION' | 'ACTIVE' | 'SUSPENDED';
   createdAt: string; 
