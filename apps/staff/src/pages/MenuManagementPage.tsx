@@ -64,6 +64,7 @@ export default function MenuManagementPage() {
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
+  const [isManagingAddons, setIsManagingAddons] = useState(false);
 
   // Form states
   const [itemFormData, setItemFormData] = useState({
@@ -72,9 +73,15 @@ export default function MenuManagementPage() {
     price: '',
     categoryId: '',
     isVeg: true,
+    preparationTimeMinutes: '15',
     imageUrl: '',
     variants: [] as Array<{ name: string; additionalPrice: string }>,
     addonIds: [] as string[],
+  });
+
+  const [addonFormData, setAddonFormData] = useState({
+    name: '',
+    price: '',
   });
 
   const [categoryFormData, setCategoryFormData] = useState({
