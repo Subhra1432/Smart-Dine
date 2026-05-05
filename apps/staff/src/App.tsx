@@ -100,7 +100,7 @@ export default function App() {
           </ProtectedRoute>
         }>
           <Route path="/kitchen" element={
-            <ProtectedRoute allowedRoles={['MANAGER', 'KITCHEN_STAFF']}>
+            <ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'KITCHEN_STAFF']}>
               <KitchenPage />
             </ProtectedRoute>
           } />
@@ -149,7 +149,7 @@ export default function App() {
           } />
 
           <Route path="/billing" element={
-            <ProtectedRoute allowedRoles={['MANAGER', 'CASHIER']}>
+            <ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'CASHIER']}>
               <BillingPage />
             </ProtectedRoute>
           } />

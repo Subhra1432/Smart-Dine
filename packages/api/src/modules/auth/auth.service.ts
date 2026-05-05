@@ -366,11 +366,11 @@ function generateTokens(
   };
 
   const accessToken = jwt.sign(accessPayload, String(env.JWT_ACCESS_SECRET), {
-    
+    expiresIn: env.JWT_ACCESS_EXPIRES_IN
   });
 
   const refreshToken = jwt.sign(refreshPayload, String(env.JWT_REFRESH_SECRET), {
-    
+    expiresIn: env.JWT_REFRESH_EXPIRES_IN
   });
 
   return { accessToken, refreshToken };

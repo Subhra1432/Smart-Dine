@@ -1373,11 +1373,16 @@ export default function MenuPage() {
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2 mb-6">
-                        {order.items.map((item: any, i: number) => (
+                        {order.items.slice(0, 3).map((item: any, i: number) => (
                           <div key={i} className="text-[10px] font-bold text-white/50 bg-white/[0.05] px-3 py-1 rounded-lg border border-white/5">
                             <span className="text-[#D97706] mr-1">{item.quantity}x</span> {item.menuItem.name}
                           </div>
                         ))}
+                        {order.items.length > 3 && (
+                          <div className="text-[10px] font-bold text-[#D97706] bg-[#D97706]/5 px-3 py-1 rounded-lg border border-[#D97706]/10 animate-pulse">
+                            + {order.items.length - 3} more
+                          </div>
+                        )}
                       </div>
                       <div className="flex justify-between items-center pt-4 border-t border-white/5">
                         <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">Total Transaction</span>

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const apiTarget = process.env.API_URL || 'http://localhost:4000';
+const apiTarget = process.env.API_URL || 'http://localhost:4001';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -29,7 +29,7 @@ export default defineConfig({
     proxy: {
       '/api': apiTarget,
       '/socket.io': {
-        target: apiTarget.replace('http', 'ws'),
+        target: apiTarget,
         ws: true
       }
     }

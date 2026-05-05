@@ -26,7 +26,7 @@ Dine_Smart-main/
 │   └── superadmin/        # Super Admin panel  (Vite + React, port 5175)
 │
 └── packages/
-    └── api/               # Express + TypeScript backend (port 4000)
+    └── api/               # Express + TypeScript backend (port 4001)
         ├── src/
         │   ├── routes/    # All REST API routes
         │   ├── services/  # Business logic
@@ -95,7 +95,7 @@ CLOUDINARY_CLOUD_NAME="your-cloud-name"
 CLOUDINARY_API_KEY="your-cloudinary-key"
 CLOUDINARY_API_SECRET="your-cloudinary-secret"
 
-PORT=4000
+PORT=4001
 NODE_ENV=development
 CLIENT_URL="http://localhost:5173"
 STAFF_URL="http://localhost:5174"
@@ -115,7 +115,7 @@ npx prisma db seed          # Creates super admin + demo restaurant
 From the root (using separate terminals or a process manager):
 
 ```bash
-npm run dev:api          # API on :4000
+npm run dev:api          # API on :4001
 npm run dev:customer     # Customer PWA on :5173
 npm run dev:staff        # Staff panel on :5174
 npm run dev:superadmin   # Super Admin on :5175
@@ -134,7 +134,7 @@ npm run dev:superadmin   # Super Admin on :5175
 
 ## 📡 API Reference (v1)
 
-Base URL: `http://localhost:4000/api/v1`
+Base URL: `http://localhost:4001/api/v1`
 
 ### Public (no auth)
 | Method | Endpoint | Description |
@@ -252,7 +252,7 @@ cd apps/superadmin && npm run build
 | `JWT_REFRESH_SECRET` | ✅ | Refresh token signing secret |
 | `GEMINI_API_KEY` | ✅ | Google Gemini for AI recommendations |
 | `CLOUDINARY_*` | ✅ | Image upload credentials |
-| `PORT` | ✅ | API server port (default: 4000) |
+| `PORT` | ✅ | API server port (default: 4001) |
 | `NODE_ENV` | ✅ | `development` or `production` |
 | `CLIENT_URL` | ✅ | CORS: customer PWA origin |
 | `STAFF_URL` | ✅ | CORS: staff panel origin |

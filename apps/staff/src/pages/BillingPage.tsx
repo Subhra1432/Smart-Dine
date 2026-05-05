@@ -514,7 +514,7 @@ export default function BillingPage() {
                     </div>
 
                     <div className="relative z-10 space-y-3">
-                      {order.items?.map((item: any, idx: number) => (
+                      {order.items?.slice(0, 3).map((item: any, idx: number) => (
                         <div key={idx} className="flex items-center justify-between group/item">
                           <div className="flex items-center gap-2">
                             {(order.status === 'PENDING' || order.status === 'UNCONFIRMED') ? (
@@ -536,6 +536,11 @@ export default function BillingPage() {
                           <span className="text-[12px] font-black text-stone-950 dark:text-white tabular-nums">₹{item.totalPrice.toFixed(2)}</span>
                         </div>
                       ))}
+                      {order.items?.length > 3 && (
+                        <div className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-tight italic mt-2">
+                          more {order.items.length - 3} items
+                        </div>
+                      )}
                     </div>
 
                     <div className="relative z-10 pt-4 mt-4 border-t border-white/50 dark:border-white/5 flex items-center justify-between">

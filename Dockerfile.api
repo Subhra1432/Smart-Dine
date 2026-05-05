@@ -21,6 +21,6 @@ RUN cd packages/api && npx prisma generate
 # Build
 RUN npm run build --workspace=@dinesmart/shared 2>/dev/null || true
 
-EXPOSE 4000
+EXPOSE 4001
 
 CMD ["npx", "tsx", "packages/api/src/app.ts"]

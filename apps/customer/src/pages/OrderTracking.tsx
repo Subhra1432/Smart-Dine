@@ -81,12 +81,16 @@ export default function OrderTracking() {
     useEffect(() => {
         if (!order) return;
 
-        const socket = io('/', {
-            path: '/socket.io',
-            transports: ['websocket'],
+        const socket = io('/restaurant', {
+            transports: ['websocket', 'polling'],
+            withCredentials: true,
+            auth: { role: 'customer' }
         });
 
-        socket.emit('join:order', order.id);
+        socket.on('connect', () => {
+            console.log('✅ Tracking: Socket connected (ID:', socket.id, ')');
+            socket.emit('join:table', order.table.id);
+        });
 
         socket.on('order:status_updated', (data: { id: string; status: string }) => {
             if (data.id === order.id) {
@@ -102,6 +106,12 @@ export default function OrderTracking() {
                         fontWeight: 'bold'
                     }
                 });
+            }
+        });
+
+        socket.on('order:item_status_updated', (data: { orderId: string }) => {
+            if (data.orderId === order.id) {
+                refetch();
             }
         });
 
@@ -329,7 +339,7 @@ export default function OrderTracking() {
                     )}
 
                     <div className="p-8 space-y-6">
-                        {order.items.map((item) => (
+                        {order.items.slice(0, 3).map((item) => (
                             <div key={item.id} className="flex items-start justify-between">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-1">
@@ -363,6 +373,15 @@ export default function OrderTracking() {
                                 <span className="text-sm font-bold pt-1">₹{item.totalPrice}</span>
                             </div>
                         ))}
+
+                        {order.items.length > 3 && (
+                            <div className="flex items-center gap-3 py-2 px-4 bg-white/5 rounded-xl border border-dashed border-white/10">
+                                <div className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
+                                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+                                    + {order.items.length - 3} more items in this order
+                                </span>
+                            </div>
+                        )}
 
                         <div className="pt-6 border-t border-white/5 space-y-4">
                             <div className="flex justify-between text-xs font-medium text-white/40">

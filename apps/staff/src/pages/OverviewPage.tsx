@@ -282,11 +282,16 @@ export default function OverviewPage() {
                   </td>
                   <td className="px-6 py-3">
                     <div className="flex flex-col gap-1">
-                      {order.items.map((i: any, idx: number) => (
+                      {order.items.slice(0, 3).map((i: any, idx: number) => (
                         <div key={idx} className="text-[9px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-tight flex items-center gap-1.5">
                           <span className="text-primary font-black uppercase">{i.quantity}x</span> {i.menuItem.name}
                         </div>
                       ))}
+                      {order.items.length > 3 && (
+                        <div className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-tight italic mt-1">
+                          more {order.items.length - 3} items
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td className="py-3 px-2 text-right">

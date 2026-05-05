@@ -50,7 +50,6 @@ services:
     container_name: dinesmart-api
     restart: unless-stopped
     ports:
-      - '4000:4000'
       - '4001:4001'
     volumes:
       - .:/app
@@ -88,7 +87,7 @@ services:
       - .:/app
       - app_node_modules:/app/node_modules
     environment:
-      - API_URL=http://api:4000
+      - API_URL=http://api:4001
       - VITE_CUSTOMER_URL=http://localhost:5173
     depends_on:
       deps:
@@ -107,7 +106,7 @@ services:
       - .:/app
       - app_node_modules:/app/node_modules
     environment:
-      - API_URL=http://api:4000
+      - API_URL=http://api:4001
       - VITE_CUSTOMER_URL=http://localhost:5173
     depends_on:
       deps:
@@ -126,7 +125,7 @@ services:
       - .:/app
       - app_node_modules:/app/node_modules
     environment:
-      - API_URL=http://api:4000
+      - API_URL=http://api:4001
     depends_on:
       deps:
         condition: service_completed_successfully

@@ -33,7 +33,7 @@ export default function KitchenPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { clearAuth, user } = useAuthStore();
-  const isKitchenStaff = user?.role === 'KITCHEN_STAFF';
+  const canManageKitchen = user?.role === 'KITCHEN_STAFF' || user?.role === 'MANAGER' || user?.role === 'OWNER';
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [audioContextUnlocked, setAudioContextUnlocked] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -160,10 +160,16 @@ export default function KitchenPage() {
       queryClient.invalidateQueries({ queryKey: ['kitchenOrders'] });
     });
 
+    socket.on('order:status_updated', (data) => {
+      console.log('🔄 KDS: Order status updated event received!', data);
+      queryClient.invalidateQueries({ queryKey: ['kitchenOrders'] });
+    });
+
     return () => {
       socket.off('order:new');
       socket.off('payment:request_at_desk');
       socket.off('order:item_status_updated');
+      socket.off('order:status_updated');
       socket.disconnect();
     };
   }, [queryClient]); // Stable dependencies
@@ -173,24 +179,33 @@ export default function KitchenPage() {
     toast.success('Audio system active');
   };
 
-  const handleItemStatus = (itemIds: string[], status: string) => {
-    itemIds.forEach(itemId => {
-      statusMutation.mutate({ itemId, status }, {
-        onSuccess: () => {
-          if (status === 'READY') toast.success('ITEM PREPARED');
-        }
-      });
-    });
+  const handleItemStatus = async (itemIds: string[], status: string) => {
+    try {
+      await Promise.all(
+        itemIds.map(itemId => 
+          statusMutation.mutateAsync({ itemId, status })
+        )
+      );
+      if (status === 'READY') toast.success('ITEMS PREPARED');
+      queryClient.invalidateQueries({ queryKey: ['kitchenOrders'] });
+    } catch (err) {
+      console.error('Batch update failed:', err);
+    }
   };
 
-  const handleOrderAction = (order: KitchenOrder, action: 'START' | 'DONE') => {
-    order.items.forEach(item => {
-        if (action === 'START' && item.status === 'PENDING') {
-            handleItemStatus([item.id], 'PREPARING');
-        } else if (action === 'DONE' && (item.status === 'PREPARING' || item.status === 'PENDING')) {
-            handleItemStatus([item.id], 'READY');
-        }
+  const handleOrderAction = async (order: KitchenOrder, action: 'START' | 'DONE') => {
+    const itemsToUpdate = order.items.filter(item => {
+      if (action === 'START') return item.status === 'PENDING';
+      if (action === 'DONE') return item.status === 'PREPARING' || item.status === 'PENDING';
+      return false;
     });
+
+    if (itemsToUpdate.length === 0) return;
+
+    const status = action === 'START' ? 'PREPARING' : 'READY';
+    const itemIds = itemsToUpdate.map(i => i.id);
+
+    await handleItemStatus(itemIds, status);
     toast.success(action === 'START' ? 'ALL ITEMS INITIALIZED' : 'BATCH COMPLETED');
   };
 
@@ -351,7 +366,7 @@ export default function KitchenPage() {
                           </div>
 
                           <div className="flex flex-col gap-2">
-                            {isKitchenStaff && item.status === 'PENDING' && (
+                            {canManageKitchen && item.status === 'PENDING' && (
                               <button
                                 onClick={() => handleItemStatus(item.ids, 'PREPARING')}
                                 className="w-10 h-10 rounded-xl bg-white dark:bg-stone-800 hover:bg-primary dark:hover:bg-primary hover:text-white dark:hover:text-stone-950 text-stone-300 dark:text-stone-600 border border-stone-100 dark:border-white/5 hover:border-primary transition-all duration-500 flex items-center justify-center shadow-sm active:scale-90"
@@ -359,7 +374,7 @@ export default function KitchenPage() {
                                 <Flame size={18} />
                               </button>
                             )}
-                            {isKitchenStaff && item.status === 'PREPARING' && (
+                            {canManageKitchen && item.status === 'PREPARING' && (
                               <button
                                 onClick={() => handleItemStatus(item.ids, 'READY')}
                                 className="w-10 h-10 rounded-xl bg-primary text-stone-950 dark:text-stone-950 hover:bg-primary/90 transition-all duration-500 flex items-center justify-center shadow-lg shadow-primary/30 active:scale-90"
@@ -379,7 +394,7 @@ export default function KitchenPage() {
                   </div>
 
                   {/* Batch Controls */}
-                  {isKitchenStaff && (
+                  {canManageKitchen && (
                     <div className="mt-8 pt-6 border-t border-stone-200/30 dark:border-white/5 grid grid-cols-2 gap-3.5">
                       <button
                         onClick={() => handleOrderAction(order, 'START')}
