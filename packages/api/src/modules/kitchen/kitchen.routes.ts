@@ -55,7 +55,7 @@ router.get('/orders', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Update individual item status
-router.put('/order-items/:itemId/status', requireRole(['KITCHEN_STAFF']), asyncHandler(async (req: Request, res: Response) => {
+router.put('/order-items/:itemId/status', requireRole(['KITCHEN_STAFF', 'MANAGER', 'OWNER']), asyncHandler(async (req: Request, res: Response) => {
   const { status } = updateOrderItemStatusSchema.parse(req.body);
   const itemId = req.params['itemId']!;
 

@@ -365,11 +365,11 @@ function generateTokens(
     tokenVersion,
   };
 
-  const accessToken = jwt.sign(accessPayload, env.JWT_ACCESS_SECRET, {
+  const accessToken = jwt.sign(accessPayload, String(env.JWT_ACCESS_SECRET), {
     expiresIn: env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn']
   });
 
-  const refreshToken = jwt.sign(refreshPayload, env.JWT_REFRESH_SECRET, {
+  const refreshToken = jwt.sign(refreshPayload, String(env.JWT_REFRESH_SECRET), {
     expiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn']
   });
 
@@ -390,7 +390,7 @@ export async function superAdminLogin(email: string, password: string) {
 
   const token = jwt.sign(
     { superAdminId: admin.id, scope: 'superadmin' },
-    env.JWT_SUPERADMIN_SECRET,
+    String(env.JWT_SUPERADMIN_SECRET),
     { expiresIn: '8h' as SignOptions['expiresIn'] }
   );
 
@@ -409,7 +409,7 @@ export async function superAdminGoogleLogin(googleToken: string) {
 
   const token = jwt.sign(
     { superAdminId: admin.id, scope: 'superadmin' },
-    env.JWT_SUPERADMIN_SECRET,
+    String(env.JWT_SUPERADMIN_SECRET),
     { expiresIn: '8h' as SignOptions['expiresIn'] }
   );
 
