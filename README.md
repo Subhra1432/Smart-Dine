@@ -1,10 +1,10 @@
-# 🍽️ DineSmart — Multi-Tenant SaaS Restaurant Platform
+# DineSmart — Multi-Tenant SaaS Restaurant Platform
 
 > A production-ready, real-time restaurant management platform with AI-powered recommendations, a branded customer PWA, and a live Kitchen Display System (KDS).
 
 ---
 
-## ✨ What is DineSmart?
+## What is DineSmart?
 
 DineSmart is a **multi-tenant SaaS** platform that lets any restaurant onboard, configure their menu, and immediately serve customers via a branded QR-code menu. It combines:
 
@@ -16,7 +16,7 @@ DineSmart is a **multi-tenant SaaS** platform that lets any restaurant onboard, 
 
 ---
 
-## 🏗️ Monorepo Structure
+## Monorepo Structure
 
 ```
 Dine_Smart-main/
@@ -38,7 +38,7 @@ Dine_Smart-main/
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -57,7 +57,7 @@ Dine_Smart-main/
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## Quick Start (Local Development)
 
 ### Prerequisites
 - Node.js ≥ 18
@@ -123,7 +123,7 @@ npm run dev:superadmin   # Super Admin on :5175
 
 ---
 
-## 🔑 Default Credentials
+## Default Credentials
 
 | Role | Email | Password |
 |---|---|---|
@@ -132,7 +132,7 @@ npm run dev:superadmin   # Super Admin on :5175
 
 ---
 
-## 📡 API Reference (v1)
+## API Reference (v1)
 
 Base URL: `http://localhost:4001/api/v1`
 
@@ -173,7 +173,7 @@ Base URL: `http://localhost:4001/api/v1`
 
 ---
 
-## 📱 Feature Highlights
+## Feature Highlights
 
 ### Customer PWA
 - **QR-code menu** — Scan table QR → instant menu, no app install.
@@ -203,7 +203,7 @@ Base URL: `http://localhost:4001/api/v1`
 
 ---
 
-## 🔔 Real-time Events (Socket.io)
+## Real-time Events (Socket.io)
 
 | Event | Direction | Payload |
 |---|---|---|
@@ -215,7 +215,7 @@ Base URL: `http://localhost:4001/api/v1`
 
 ---
 
-## 🚢 Production Deployment (Render)
+## Production Deployment (Render)
 
 1. **API service** — Node.js, build cmd `npm run build`, start cmd `node dist/index.js`.
 2. **Environment variables** — Set all vars from `.env` in the Render dashboard.
@@ -241,7 +241,7 @@ cd apps/superadmin && npm run build
 
 ---
 
-## 🗂️ Key Environment Variables
+## Key Environment Variables
 
 | Variable | Required | Description |
 |---|---|---|
@@ -262,7 +262,7 @@ cd apps/superadmin && npm run build
 
 ---
 
-## 🛡️ Security Notes
+## Security Notes
 
 - JWT tokens are rotated on every refresh; refresh tokens are stored server-side in Redis.
 - OTP codes expire in 5 minutes and are single-use.
@@ -271,6 +271,6 @@ cd apps/superadmin && npm run build
 
 ---
 
-## 📄 License
+## License
 
 MIT © 2024 DineSmart
