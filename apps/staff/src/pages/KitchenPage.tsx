@@ -3,14 +3,13 @@
 // Design System: Saffron & Stone (Industrial)
 // ═══════════════════════════════════════════
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getKitchenOrders, updateItemStatus } from '../lib/api';
 import { useAuthStore } from '../store/auth';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
-import { NOTIFICATION_SOUND } from '../assets/audio';
-import { Clock, ChefHat, Check, LogOut, Volume2, VolumeX, ShieldCheck, Flame, Timer, Activity } from 'lucide-react';
+import { Clock, ChefHat, Check, Volume2, VolumeX, ShieldCheck, Flame, Timer, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageLoader } from '../components/PageLoader';
 
@@ -36,13 +35,7 @@ export default function KitchenPage() {
   const canManageKitchen = user?.role === 'KITCHEN_STAFF' || user?.role === 'MANAGER' || user?.role === 'OWNER';
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [audioContextUnlocked, setAudioContextUnlocked] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    const audioUrl = useAuthStore.getState().restaurant?.notificationSoundUrl || NOTIFICATION_SOUND;
-    audioRef.current = new Audio(audioUrl);
-    audioRef.current.load();
-  }, [user]);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Auto-determine branch from login credentials
   const selectedBranchId = user?.branchId || '';
@@ -58,8 +51,9 @@ export default function KitchenPage() {
   const statusMutation = useMutation({
     mutationFn: ({ itemId, status }: { itemId: string; status: string }) => updateItemStatus(itemId, status),
     onMutate: async ({ itemId, status }) => {
-      await queryClient.cancelQueries({ queryKey: ['kitchenOrders'] });
-      const previousOrders = queryClient.getQueryData<KitchenOrder[]>(['kitchenOrders']);
+      const queryKey = ['kitchenOrders', selectedBranchId];
+      await queryClient.cancelQueries({ queryKey });
+      const previousOrders = queryClient.getQueryData<KitchenOrder[]>(queryKey);
 
       if (previousOrders) {
         const nextOrders = previousOrders.map(order => ({
@@ -68,7 +62,7 @@ export default function KitchenPage() {
             item.id === itemId ? { ...item, status } : item
           )
         }));
-        queryClient.setQueryData(['kitchenOrders'], nextOrders);
+        queryClient.setQueryData(queryKey, nextOrders);
       }
 
       return { previousOrders };
@@ -84,32 +78,62 @@ export default function KitchenPage() {
     }
   });
 
-  const playNotificationSound = async () => {
-    if (!audioEnabledRef.current || !audioRef.current) return;
+  // Synthesize a notification beep via Web Audio API — no file needed
+  const playNotificationSound = useCallback(() => {
+    if (!audioEnabledRef.current) return;
     try {
-      audioRef.current.currentTime = 0;
-      await audioRef.current.play();
-    } catch (err: any) {
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const now = ctx.currentTime;
+      // First chime
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(880, now);
+      osc1.frequency.exponentialRampToValueAtTime(660, now + 0.15);
+      gain1.gain.setValueAtTime(0.25, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc1.start(now);
+      osc1.stop(now + 0.3);
+
+      // Second chime (slightly delayed)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1100, now + 0.2);
+      osc2.frequency.exponentialRampToValueAtTime(880, now + 0.45);
+      gain2.gain.setValueAtTime(0.2, now + 0.2);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      osc2.start(now + 0.2);
+      osc2.stop(now + 0.5);
+    } catch (err) {
       console.error('KDS Audio Playback failed:', err);
-      if (err.name === 'NotAllowedError') {
-        setAudioContextUnlocked(false);
-      }
     }
-  };
+  }, []);
 
   const unlockAudio = async () => {
     try {
-      if (audioRef.current) {
-        audioRef.current.muted = true;
-        await audioRef.current.play();
-        audioRef.current.muted = false;
-        audioRef.current.currentTime = 0;
+      // AudioContext MUST be created inside a user gesture (click)
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        audioCtxRef.current = new AudioCtx();
+        await audioCtxRef.current.resume();
       }
       setAudioContextUnlocked(true);
-      playNotificationSound();
+      // Play a test chime to confirm audio works
+      setTimeout(() => playNotificationSound(), 50);
       toast.success('Audio Intelligence Synchronized');
     } catch (err) {
       console.error('Failed to unlock audio:', err);
+      // ALWAYS dismiss the overlay — audio failure is non-blocking
+      setAudioContextUnlocked(true);
+      toast('Kitchen Display Active', { icon: '🍳' });
     }
   };
 
@@ -120,7 +144,8 @@ export default function KitchenPage() {
 
   // Socket.io Integration
   useEffect(() => {
-    const socket = io('/restaurant', {
+    const socketBase = (import.meta as any).env.VITE_API_URL || '';
+    const socket = io(`${socketBase}/restaurant`, {
       transports: ['websocket', 'polling'],
       withCredentials: true
     });
