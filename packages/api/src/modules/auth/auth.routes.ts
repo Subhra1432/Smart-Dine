@@ -23,6 +23,8 @@ router.get('/me', authenticate, asyncHandler(authController.getMe));
 router.get('/superadmin/me', authenticateSuperAdmin, asyncHandler(authController.getSuperAdminMe));
 router.post('/superadmin/login', authRateLimiter, asyncHandler(authController.superAdminLogin));
 router.post('/superadmin/google', authRateLimiter, asyncHandler(authController.superAdminGoogleLogin));
+router.post('/superadmin/2fa/setup', authRateLimiter, asyncHandler(authController.setupSuperAdmin2FA));
+router.post('/superadmin/2fa/verify', authRateLimiter, asyncHandler(authController.verifySuperAdmin2FA));
 
 // Public document upload for registration (no auth required)
 router.post('/upload-document', authRateLimiter, upload.single('file'), asyncHandler(async (req: Request, res: Response) => {

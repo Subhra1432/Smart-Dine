@@ -173,3 +173,25 @@ export async function getSuperAdminMe(req: Request, res: Response) {
 
   res.json({ success: true, data: { admin } });
 }
+
+export async function setupSuperAdmin2FA(req: Request, res: Response) {
+  const { token } = req.body;
+  if (!token) throw new Error('Token is required');
+
+  const result = await authService.handleSuperAdmin2FA(token);
+  res.json({ success: true, data: result });
+}
+
+export async function verifySuperAdmin2FA(req: Request, res: Response) {
+  const { token, code } = req.body;
+  if (!token || !code) throw new Error('Token and code are required');
+
+  const result = await authService.verifySuperAdmin2FA(token, code);
+
+  res.cookie('superAdminToken', result.token, {
+    ...COOKIE_OPTIONS,
+    maxAge: 8 * 60 * 60 * 1000,
+  });
+
+  res.json({ success: true, data: { admin: result.admin } });
+}

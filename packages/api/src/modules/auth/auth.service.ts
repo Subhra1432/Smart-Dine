@@ -2,9 +2,9 @@
 // DineSmart OS — Auth Service
 // ═══════════════════════════════════════════
 
-import bcrypt from 'bcryptjs';
-import jwt, { type SignOptions } from 'jsonwebtoken';
-import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
+import { authenticator } from 'otplib';
+import qrcode from 'qrcode';
 import { prisma } from '../../config/database.js';
 import { env } from '../../config/env.js';
 import { AppError } from '../../middleware/errorHandler.js';
@@ -388,30 +388,119 @@ export async function superAdminLogin(email: string, password: string) {
     throw new AppError(401, 'Invalid credentials');
   }
 
-  const token = jwt.sign(
-    { superAdminId: admin.id, scope: 'superadmin' },
-    String(env.JWT_SUPERADMIN_SECRET),
-    { expiresIn: '8h' as SignOptions['expiresIn'] }
-  );
-
-  return { token, admin: { id: admin.id, email: admin.email } };
+  return handleSuperAdmin2FA(admin);
 }
 
 export async function superAdminGoogleLogin(googleToken: string) {
-  // In a real implementation, you would verify the token with Google
-  // For now, we simulate a successful login for the main admin email
-  // if the "token" looks like a valid JWT or placeholder
-  
-  const admin = await prisma.superAdmin.findFirst(); // Just get the first admin for demo
-  if (!admin) {
-    throw new AppError(401, 'No superadmin account found');
+  if (!env.GOOGLE_CLIENT_ID) {
+    logger.error('GOOGLE_CLIENT_ID is missing from environment variables');
+    throw new AppError(500, 'Server misconfiguration: Missing Google Client ID');
   }
 
-  const token = jwt.sign(
-    { superAdminId: admin.id, scope: 'superadmin' },
+  const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: googleToken,
+      audience: env.GOOGLE_CLIENT_ID, 
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      throw new AppError(400, 'Invalid Google Token: No email found');
+    }
+
+    const admin = await prisma.superAdmin.findUnique({
+      where: { email: payload.email },
+    });
+
+    if (!admin) {
+      logger.warn(`Unauthorized SuperAdmin access attempt from email: ${payload.email}`);
+      throw new AppError(403, 'Unauthorized Access: You are not authorized as a SuperAdmin');
+    }
+
+    return handleSuperAdmin2FA(admin);
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    logger.error('Google token verification failed:', error);
+    throw new AppError(401, 'Invalid or expired Google Token');
+  }
+}
+
+async function handleSuperAdmin2FA(admin: any) {
+  // Generate a temporary token valid for 15 minutes for 2FA verification/setup
+  const tempToken = jwt.sign(
+    { superAdminId: admin.id, pending2FA: true },
     String(env.JWT_SUPERADMIN_SECRET),
-    { expiresIn: '8h' as SignOptions['expiresIn'] }
+    { expiresIn: '15m' }
   );
 
-  return { token, admin: { id: admin.id, email: admin.email } };
+  if (!admin.isTwoFactorEnabled) {
+    // Generate new secret for setup
+    const secret = authenticator.generateSecret();
+    const otpauthUrl = authenticator.keyuri(admin.email, 'DineSmart SuperAdmin', secret);
+    const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl);
+    
+    // Store secret temporarily in the database before it's confirmed
+    await prisma.superAdmin.update({
+      where: { id: admin.id },
+      data: { twoFactorSecret: secret }
+    });
+
+    return { 
+      requiresSetup2FA: true, 
+      tempToken, 
+      qrCodeDataUrl,
+      admin: { id: admin.id, email: admin.email }
+    };
+  }
+
+  return { 
+    requires2FA: true, 
+    tempToken,
+    admin: { id: admin.id, email: admin.email }
+  };
+}
+
+export async function verifySuperAdmin2FA(tempToken: string, code: string, isSetup = false) {
+  try {
+    const decoded = jwt.verify(tempToken, String(env.JWT_SUPERADMIN_SECRET)) as any;
+    
+    if (!decoded.pending2FA) {
+      throw new AppError(400, 'Invalid token type');
+    }
+
+    const admin = await prisma.superAdmin.findUnique({ where: { id: decoded.superAdminId } });
+    
+    if (!admin || !admin.twoFactorSecret) {
+      throw new AppError(400, '2FA is not configured properly');
+    }
+
+    const isValid = authenticator.verify({
+      token: code,
+      secret: admin.twoFactorSecret
+    });
+
+    if (!isValid) {
+      throw new AppError(401, 'Invalid authenticator code');
+    }
+
+    if (isSetup) {
+      await prisma.superAdmin.update({
+        where: { id: admin.id },
+        data: { isTwoFactorEnabled: true }
+      });
+    }
+
+    const token = jwt.sign(
+      { superAdminId: admin.id, scope: 'superadmin' },
+      String(env.JWT_SUPERADMIN_SECRET),
+      { expiresIn: '8h' as SignOptions['expiresIn'] }
+    );
+
+    return { token, admin: { id: admin.id, email: admin.email } };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError(401, 'Session expired. Please log in again.');
+  }
 }

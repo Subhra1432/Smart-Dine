@@ -21,6 +21,7 @@ const envSchema = z.object({
   JWT_SUPERADMIN_SECRET: z.string().min(32),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+  GOOGLE_CLIENT_ID: z.string().optional(),
   CSRF_SECRET: z.string().min(32),
   STRIPE_SECRET_KEY: z.string().default('sk_test_placeholder'),
   STRIPE_PUBLISHABLE_KEY: z.string().default('pk_test_placeholder'),

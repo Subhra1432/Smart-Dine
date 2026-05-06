@@ -80,10 +80,12 @@ enum RestaurantStatus {
 // ── Models ───────────────────────────────
 
 model SuperAdmin {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  passwordHash       String
+  twoFactorSecret    String?
+  isTwoFactorEnabled Boolean  @default(false)
+  createdAt          DateTime @default(now())
 
   @@map("super_admins")
 }
