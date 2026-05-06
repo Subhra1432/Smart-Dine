@@ -80,6 +80,11 @@ export default function OverviewPage() {
       queryClient.invalidateQueries({ queryKey: ['overview'] });
     });
 
+    socket.on('order:status_updated', () => {
+      queryClient.invalidateQueries({ queryKey: ['overview'] });
+      queryClient.invalidateQueries({ queryKey: ['revenue'] });
+    });
+
     return () => { socket.disconnect(); };
   }, [queryClient]);
 
@@ -90,7 +95,7 @@ export default function OverviewPage() {
     { label: 'Popular Item', value: overview?.popularItem || 'N/A', icon: Star, color: 'text-stone-950 dark:text-white', bg: 'bg-stone-100 dark:bg-stone-800' },
     { label: 'Pending Payments', value: overview?.pendingPayments || 0, icon: CreditCard, color: 'text-primary', bg: 'bg-primary/10' },
     { label: 'Projected Loss', value: `₹${((overview?.totalOrders || 0) * 0.05 * (overview?.avgOrderValue || 0)).toLocaleString()}`, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
-    { label: 'Active Sessions', value: overview?.recentOrders?.filter(o => o.status !== 'COMPLETED').length || 0, icon: Clock, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'Active Sessions', value: overview?.activeOrdersCount || 0, icon: Clock, color: 'text-primary', bg: 'bg-primary/10' },
   ];
 
   if (isLoading) {

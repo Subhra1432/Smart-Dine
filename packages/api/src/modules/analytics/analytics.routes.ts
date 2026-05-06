@@ -235,18 +235,21 @@ router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [todayOrders, todayRevenue, pendingPayments, totalTables] = await Promise.all([
+  const [todayOrders, todayRevenue, pendingPayments, totalTables, activeOrdersCount] = await Promise.all([
     prisma.order.count({
-      where: { restaurantId, createdAt: { gte: today } },
+      where: { restaurantId, createdAt: { gte: today }, isArchived: false },
     }),
     prisma.order.aggregate({
-      where: { restaurantId, createdAt: { gte: today }, paymentStatus: 'PAID' },
+      where: { restaurantId, createdAt: { gte: today }, paymentStatus: 'PAID', isArchived: false },
       _sum: { total: true },
     }),
     prisma.order.count({
-      where: { restaurantId, paymentStatus: 'UNPAID', status: { notIn: ['CANCELLED'] } },
+      where: { restaurantId, paymentStatus: 'UNPAID', status: { notIn: ['CANCELLED'] }, isArchived: false },
     }),
     prisma.table.count({ where: { restaurantId } }),
+    prisma.order.count({
+      where: { restaurantId, status: { notIn: ['COMPLETED', 'CANCELLED'] }, isArchived: false },
+    }),
   ]);
 
   const revenue = todayRevenue._sum.total || 0;
@@ -255,14 +258,18 @@ router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
   // Payment method split
   const paymentSplit = await prisma.order.groupBy({
     by: ['paymentMethod'],
-    where: { restaurantId, createdAt: { gte: today }, paymentStatus: 'PAID' },
+    where: { restaurantId, createdAt: { gte: today }, paymentStatus: 'PAID', isArchived: false },
     _count: true,
     _sum: { total: true },
   });
 
   // Recent orders
   const recentOrders = await prisma.order.findMany({
-    where: { restaurantId },
+    where: { 
+      restaurantId, 
+      isArchived: false,
+      status: { notIn: ['COMPLETED', 'CANCELLED'] }
+    },
     include: { table: true, items: { include: { menuItem: true } } },
     orderBy: { createdAt: 'desc' },
     take: 10,
@@ -276,6 +283,7 @@ router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
       avgOrderValue: Math.round(avgOrderValue * 100) / 100,
       pendingPayments,
       tableTurnoverRate: totalTables > 0 ? Math.round((todayOrders / totalTables) * 100) / 100 : 0,
+      activeOrdersCount,
       paymentSplit,
       recentOrders,
     },
