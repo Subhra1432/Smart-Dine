@@ -141,8 +141,6 @@ export default function RestaurantsPage() {
                 <th className="text-center py-4 px-3">Joined Date</th>
                 <th className="text-center py-4 px-3">Tier Plan</th>
                 <th className="text-center py-4 px-3">Cluster</th>
-                <th className="text-center py-4 px-3">Revenue (30D)</th>
-                <th className="text-center py-4 px-3">Traffic</th>
                 <th className="text-center py-4 px-3">Connectivity</th>
                 <th className="text-right py-4 px-6">Operations</th>
               </tr>
@@ -179,12 +177,6 @@ export default function RestaurantsPage() {
                     <p className="text-[9px] font-black text-stone-950 dark:text-white uppercase tracking-widest bg-stone-100 dark:bg-primary/10 px-2.5 py-1 rounded-lg inline-block">
                       {r._count.branches} Nodes
                     </p>
-                  </td>
-                  <td className="py-4 px-3 text-center">
-                    <p className="text-[13px] font-black text-primary tracking-tighter">₹{r.monthlyRevenue?.toLocaleString() || '0'}</p>
-                  </td>
-                  <td className="py-4 px-3 text-center">
-                    <p className="text-[9px] font-black text-stone-950 dark:text-white uppercase tracking-widest">{r._count.orders} TX</p>
                   </td>
                   <td className="py-4 px-3 text-center">
                     <div className="flex items-center justify-center gap-1.5">
