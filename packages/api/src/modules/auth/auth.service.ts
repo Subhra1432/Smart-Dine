@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════
 
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { prisma } from '../../config/database.js';
 import { env } from '../../config/env.js';
@@ -365,12 +365,12 @@ function generateTokens(
     tokenVersion,
   };
 
-  const accessToken = jwt.sign(accessPayload, String(env.JWT_ACCESS_SECRET), {
-    expiresIn: env.JWT_ACCESS_EXPIRES_IN
+  const accessToken = jwt.sign(accessPayload, env.JWT_ACCESS_SECRET, {
+    expiresIn: env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn']
   });
 
-  const refreshToken = jwt.sign(refreshPayload, String(env.JWT_REFRESH_SECRET), {
-    expiresIn: env.JWT_REFRESH_EXPIRES_IN
+  const refreshToken = jwt.sign(refreshPayload, env.JWT_REFRESH_SECRET, {
+    expiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn']
   });
 
   return { accessToken, refreshToken };
@@ -391,7 +391,7 @@ export async function superAdminLogin(email: string, password: string) {
   const token = jwt.sign(
     { superAdminId: admin.id, scope: 'superadmin' },
     env.JWT_SUPERADMIN_SECRET,
-    { expiresIn: '8h' }
+    { expiresIn: '8h' as SignOptions['expiresIn'] }
   );
 
   return { token, admin: { id: admin.id, email: admin.email } };
@@ -410,7 +410,7 @@ export async function superAdminGoogleLogin(googleToken: string) {
   const token = jwt.sign(
     { superAdminId: admin.id, scope: 'superadmin' },
     env.JWT_SUPERADMIN_SECRET,
-    { expiresIn: '8h' }
+    { expiresIn: '8h' as SignOptions['expiresIn'] }
   );
 
   return { token, admin: { id: admin.id, email: admin.email } };
