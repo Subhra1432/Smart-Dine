@@ -1,3 +1,12 @@
+---
+title: DineSmart
+emoji: 🍽️
+colorFrom: yellow
+colorTo: orange
+sdk: docker
+pinned: false
+---
+
 # DineSmart: Multi-Tenant SaaS Restaurant Platform
 
 DineSmart is a comprehensive, production-ready restaurant management ecosystem designed for the modern hospitality industry. It provides a multi-tenant SaaS architecture that enables restaurant owners to digitize their operations, from QR-based customer ordering to real-time kitchen management and platform-wide administrative control.
