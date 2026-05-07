@@ -488,42 +488,46 @@ export async function handleSuperAdmin2FA(admin: any): Promise<SuperAdminLoginRe
 
 export async function verifySuperAdmin2FA(token: string, code: string, isSetup = false): Promise<SuperAdminAuthResult> {
   try {
+    logger.info('🔐 Starting 2FA Verification...', { isSetup });
+    
     const decoded = jwt.verify(token, String(env.JWT_SUPERADMIN_SECRET)) as any;
-
-    if (!decoded.pending2FA) {
-      throw new AppError(400, 'Invalid token type');
-    }
+    if (!decoded.pending2FA) throw new AppError(400, 'Invalid token type');
 
     const admin = await prisma.superAdmin.findUnique({ where: { id: decoded.superAdminId } });
-
     if (!admin || !admin.twoFactorSecret) {
       throw new AppError(400, '2FA is not configured properly');
     }
 
+    logger.info('📡 Verifying TOTP Code...', { adminId: admin.id });
     const isValid = authenticator.verify({
       token: code,
       secret: admin.twoFactorSecret
     });
 
     if (!isValid) {
+      logger.warn('❌ Invalid TOTP Code attempt', { adminId: admin.id });
       throw new AppError(401, 'Invalid authenticator code');
     }
 
     if (isSetup) {
+      logger.info('💾 Finalizing 2FA Setup in DB...');
       await prisma.superAdmin.update({
         where: { id: admin.id },
         data: { isTwoFactorEnabled: true }
       });
     }
 
+    logger.info('🎟️ Generating Final Auth Token...');
     const authToken = jwt.sign(
       { superAdminId: admin.id, scope: 'superadmin' },
       String(env.JWT_SUPERADMIN_SECRET),
-      { expiresIn: '8h' as SignOptions['expiresIn'] }
+      { expiresIn: '8h' }
     );
 
+    logger.info('✅ 2FA Verification Successful');
     return { token: authToken, admin: { id: admin.id, email: admin.email } };
   } catch (error) {
+    logger.error('🚨 2FA Verification Error:', error);
     if (error instanceof AppError) throw error;
     throw new AppError(401, 'Session expired. Please log in again.');
   }
