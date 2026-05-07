@@ -9,7 +9,7 @@ interface LoginPageProps {
 }
 
 const API = import.meta.env.VITE_API_URL || '';
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '723523522668-ao64djnvl4jkk3k6nrsp2p5t3smtdk7.apps.googleusercontent.com';
 
 type Step = 'LOGIN' | 'SETUP_2FA' | 'VERIFY_2FA';
 
