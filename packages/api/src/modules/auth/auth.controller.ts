@@ -130,16 +130,32 @@ export async function getMe(req: Request, res: Response) {
 
 export async function superAdminLogin(req: Request, res: Response) {
   const { email, password } = loginSchema.parse(req.body);
-  const result = await authService.superAdminLogin(email, password);
-  res.json({ success: true, data: result as any });
+  const result = await authService.superAdminLogin(email, password) as any;
+
+  if (result.token) {
+    res.cookie('superAdminToken', result.token, {
+      ...COOKIE_OPTIONS,
+      maxAge: 8 * 60 * 60 * 1000,
+    });
+  }
+
+  res.json({ success: true, data: result });
 }
 
 export async function superAdminGoogleLogin(req: Request, res: Response) {
   const { token } = req.body;
   if (!token) throw new Error('Google token is required');
 
-  const result = await authService.superAdminGoogleLogin(token);
-  res.json({ success: true, data: result as any });
+  const result = await authService.superAdminGoogleLogin(token) as any;
+
+  if (result.token) {
+    res.cookie('superAdminToken', result.token, {
+      ...COOKIE_OPTIONS,
+      maxAge: 8 * 60 * 60 * 1000,
+    });
+  }
+
+  res.json({ success: true, data: result });
 }
 
 export async function getSuperAdminMe(req: Request, res: Response) {
