@@ -1046,9 +1046,9 @@ export default function MenuPage() {
         {filteredCategories.map((cat) => (
           (activeCategory === 'all' || activeCategory === cat.id) && cat.items.length > 0 && (
             <section key={cat.id} id={`cat-${cat.id}`} className="mt-4 px-4 animate-fade-in-up">
-              <h3 className="font-serif font-semibold text-lg text-on-background mb-3 sticky top-[106px] bg-background/95 py-1.5 z-20 backdrop-blur-sm">
+              <h3 className="font-serif font-bold text-xl text-white mb-3 sticky top-[106px] bg-[#0A0A0A]/95 py-2.5 z-20 backdrop-blur-md border-b border-white/5">
                 {cat.name}
-                <span className="text-sm font-sans font-normal text-on-surface-variant ml-2">({cat.items.length})</span>
+                <span className="text-sm font-sans font-bold text-white/40 ml-2">({cat.items.length})</span>
               </h3>
               <div className="grid grid-cols-1 gap-4">
                 {cat.items.map((item) => (
