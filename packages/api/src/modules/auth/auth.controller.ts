@@ -178,10 +178,17 @@ export async function setupSuperAdmin2FA(req: Request, res: Response) {
 }
 
 export async function verifySuperAdmin2FA(req: Request, res: Response) {
+  logger.info('📩 [Controller] Received 2FA verification request');
   const { token, code, isSetup } = req.body;
-  if (!token || !code) throw new Error('Token and code are required');
+  
+  if (!token || !code) {
+    logger.warn('⚠️ Missing token or code in 2FA request');
+    throw new Error('Token and code are required');
+  }
 
+  logger.info('⚙️ [Controller] Calling authService.verifySuperAdmin2FA...');
   const result = await authService.verifySuperAdmin2FA(token, code, !!isSetup) as any;
+  logger.info('✅ [Controller] authService returned success');
 
   res.cookie('superAdminToken', result.token, {
     ...COOKIE_OPTIONS,
