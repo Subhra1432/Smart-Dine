@@ -3,8 +3,12 @@
 // ═══════════════════════════════════════════
 
 import { OAuth2Client } from 'google-auth-library';
-import { authenticator } from 'otplib';
+import { authenticator } from '../../utils/totp.js';
 import qrcode from 'qrcode';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import type { SignOptions } from 'jsonwebtoken';
+import crypto from 'node:crypto';
 import { prisma } from '../../config/database.js';
 import { env } from '../../config/env.js';
 import { AppError } from '../../middleware/errorHandler.js';
@@ -376,8 +380,28 @@ function generateTokens(
   return { accessToken, refreshToken };
 }
 
+export interface SuperAdminLoginResult {
+  requires2FA?: boolean;
+  requiresSetup2FA?: boolean;
+  tempToken: string;
+  token?: string;
+  qrCodeDataUrl?: string;
+  admin: {
+    id: string;
+    email: string;
+  };
+}
+
+export interface SuperAdminAuthResult {
+  token: string;
+  admin: {
+    id: string;
+    email: string;
+  };
+}
+
 // Super Admin auth
-export async function superAdminLogin(email: string, password: string) {
+export async function superAdminLogin(email: string, password: string): Promise<SuperAdminLoginResult> {
   const admin = await prisma.superAdmin.findUnique({ where: { email } });
   if (!admin) {
     throw new AppError(401, 'Invalid credentials');
@@ -391,7 +415,7 @@ export async function superAdminLogin(email: string, password: string) {
   return handleSuperAdmin2FA(admin);
 }
 
-export async function superAdminGoogleLogin(googleToken: string) {
+export async function superAdminGoogleLogin(googleToken: string): Promise<SuperAdminLoginResult> {
   if (!env.GOOGLE_CLIENT_ID) {
     logger.error('GOOGLE_CLIENT_ID is missing from environment variables');
     throw new AppError(500, 'Server misconfiguration: Missing Google Client ID');
@@ -427,7 +451,7 @@ export async function superAdminGoogleLogin(googleToken: string) {
   }
 }
 
-async function handleSuperAdmin2FA(admin: any) {
+export async function handleSuperAdmin2FA(admin: any): Promise<SuperAdminLoginResult> {
   // Generate a temporary token valid for 15 minutes for 2FA verification/setup
   const tempToken = jwt.sign(
     { superAdminId: admin.id, pending2FA: true },
@@ -442,7 +466,7 @@ async function handleSuperAdmin2FA(admin: any) {
     const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl);
     
     // Store secret temporarily in the database before it's confirmed
-    await prisma.superAdmin.update({
+    await (prisma.superAdmin as any).update({
       where: { id: admin.id },
       data: { twoFactorSecret: secret }
     });
@@ -462,23 +486,23 @@ async function handleSuperAdmin2FA(admin: any) {
   };
 }
 
-export async function verifySuperAdmin2FA(tempToken: string, code: string, isSetup = false) {
+export async function verifySuperAdmin2FA(token: string, code: string, isSetup = false): Promise<SuperAdminAuthResult> {
   try {
-    const decoded = jwt.verify(tempToken, String(env.JWT_SUPERADMIN_SECRET)) as any;
+    const decoded = jwt.verify(token, String(env.JWT_SUPERADMIN_SECRET)) as any;
     
     if (!decoded.pending2FA) {
       throw new AppError(400, 'Invalid token type');
     }
 
-    const admin = await prisma.superAdmin.findUnique({ where: { id: decoded.superAdminId } });
+    const admin = await (prisma.superAdmin as any).findUnique({ where: { id: decoded.superAdminId } });
     
-    if (!admin || !admin.twoFactorSecret) {
+    if (!admin || !(admin as any).twoFactorSecret) {
       throw new AppError(400, '2FA is not configured properly');
     }
 
     const isValid = authenticator.verify({
       token: code,
-      secret: admin.twoFactorSecret
+      secret: (admin as any).twoFactorSecret
     });
 
     if (!isValid) {
@@ -486,19 +510,19 @@ export async function verifySuperAdmin2FA(tempToken: string, code: string, isSet
     }
 
     if (isSetup) {
-      await prisma.superAdmin.update({
+      await (prisma.superAdmin as any).update({
         where: { id: admin.id },
         data: { isTwoFactorEnabled: true }
       });
     }
 
-    const token = jwt.sign(
+    const authToken = jwt.sign(
       { superAdminId: admin.id, scope: 'superadmin' },
       String(env.JWT_SUPERADMIN_SECRET),
       { expiresIn: '8h' as SignOptions['expiresIn'] }
     );
 
-    return { token, admin: { id: admin.id, email: admin.email } };
+    return { token: authToken, admin: { id: admin.id, email: admin.email } };
   } catch (error) {
     if (error instanceof AppError) throw error;
     throw new AppError(401, 'Session expired. Please log in again.');

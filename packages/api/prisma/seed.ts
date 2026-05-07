@@ -45,15 +45,25 @@ export async function main() {
     console.log('ℹ️ Database already contains data. Skipping cleanup. (Set RESET_DB=true to force cleanup)');
   }
 
-  // Create Super Admin
-  const superAdminHash = await bcrypt.hash('superadmin123', 12);
-  await prisma.superAdmin.create({
-    data: {
-      email: 'admin@dinesmart.ai',
-      passwordHash: superAdminHash,
-    },
-  });
-  console.log('✅ Super Admin created: admin@dinesmart.ai / superadmin123');
+  // Create Super Admins
+  const adminCredentials = [
+    { email: 'admin@dinesmart.ai', password: 'superadmin123' },
+    { email: 'ankitkar969275@gmail.com', password: 'Ankit@969275' },
+    { email: 'subhrakantabehera691@gmail.com', password: 'Subhra@1432' }
+  ];
+
+  for (const cred of adminCredentials) {
+    const hash = await bcrypt.hash(cred.password, 12);
+    await prisma.superAdmin.upsert({
+      where: { email: cred.email },
+      update: { passwordHash: hash },
+      create: {
+        email: cred.email,
+        passwordHash: hash,
+      },
+    });
+  }
+  console.log('✅ Super Admins seeded');
 
   // Create Demo Restaurant
   const restaurant = await prisma.restaurant.create({

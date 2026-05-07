@@ -42,7 +42,13 @@ export function initSocketServer(httpServer: HttpServer): Server {
     // If no token in auth, try to get it from cookies (essential for httpOnly cookies)
     if (!token && socket.handshake.headers.cookie) {
       const cookieStr = socket.handshake.headers.cookie;
-      token = cookieStr.split('; ').find(row => row.startsWith('accessToken='))?.split('=')[1];
+      const cookies = Object.fromEntries(
+        cookieStr.split('; ').map(c => {
+          const [key, ...v] = c.trim().split('=');
+          return [key, v.join('=')];
+        })
+      );
+      token = cookies['accessToken'] || cookies['superAdminToken'];
     }
     
     // Customer connections don't need auth

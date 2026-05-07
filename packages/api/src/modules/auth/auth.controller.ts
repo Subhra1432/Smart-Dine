@@ -130,34 +130,18 @@ export async function getMe(req: Request, res: Response) {
 export async function superAdminLogin(req: Request, res: Response) {
   const { email, password } = loginSchema.parse(req.body);
   const result = await authService.superAdminLogin(email, password);
-
-  res.cookie('superAdminToken', result.token, {
-    ...COOKIE_OPTIONS,
-    maxAge: 8 * 60 * 60 * 1000,
-  });
-
-  res.json({ success: true, data: { admin: result.admin } });
+  res.json({ success: true, data: result as any });
 }
 
 export async function superAdminGoogleLogin(req: Request, res: Response) {
   const { token } = req.body;
   if (!token) throw new Error('Google token is required');
 
-  // Logic to verify Google token would go here
-  // For now, we use placeholder logic that verifies against the superadmin email
   const result = await authService.superAdminGoogleLogin(token);
-
-  res.cookie('superAdminToken', result.token, {
-    ...COOKIE_OPTIONS,
-    maxAge: 8 * 60 * 60 * 1000,
-  });
-
-  res.json({ success: true, data: { admin: result.admin } });
+  res.json({ success: true, data: result as any });
 }
 
 export async function getSuperAdminMe(req: Request, res: Response) {
-  const { prisma } = await import('../../config/database.js');
-  
   if (!req.superAdmin?.superAdminId) {
     throw new Error('Invalid superadmin session');
   }
@@ -178,15 +162,26 @@ export async function setupSuperAdmin2FA(req: Request, res: Response) {
   const { token } = req.body;
   if (!token) throw new Error('Token is required');
 
-  const result = await authService.handleSuperAdmin2FA(token);
+  // Verify the temp token first
+  const jwtModule = await import('jsonwebtoken');
+  const jsonwebtoken = (jwtModule as any).default || jwtModule;
+  const decoded = jsonwebtoken.verify(token, String(env.JWT_SUPERADMIN_SECRET)) as any;
+  
+  const admin = await prisma.superAdmin.findUnique({
+    where: { id: decoded.superAdminId }
+  });
+
+  if (!admin) throw new Error('Admin not found');
+
+  const result: any = await authService.handleSuperAdmin2FA(admin);
   res.json({ success: true, data: result });
 }
 
 export async function verifySuperAdmin2FA(req: Request, res: Response) {
-  const { token, code } = req.body;
+  const { token, code, isSetup } = req.body;
   if (!token || !code) throw new Error('Token and code are required');
 
-  const result = await authService.verifySuperAdmin2FA(token, code);
+  const result = await authService.verifySuperAdmin2FA(token, code, !!isSetup) as any;
 
   res.cookie('superAdminToken', result.token, {
     ...COOKIE_OPTIONS,

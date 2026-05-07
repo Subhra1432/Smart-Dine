@@ -57,13 +57,13 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
   const handleNextStep = async (data: any) => {
     if (data.requiresSetup2FA) {
-      setTempToken(data.token);
+      setTempToken(data.tempToken);
       setLoading(true);
       try {
         const res = await fetch(`${API}/api/v1/auth/superadmin/2fa/setup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: data.token }),
+          body: JSON.stringify({ token: data.tempToken }),
         });
         const setupData = await res.json();
         if (!setupData.success) throw new Error(setupData.error || 'Failed to setup 2FA');
@@ -75,7 +75,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
         setLoading(false);
       }
     } else if (data.requires2FA) {
-      setTempToken(data.token);
+      setTempToken(data.tempToken);
       setStep('VERIFY_2FA');
     } else if (data.admin) {
       toast.success('Welcome back, Command Center');
@@ -140,7 +140,11 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       const res = await fetch(`${API}/api/v1/auth/superadmin/2fa/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tempToken, code: totpCode }),
+        body: JSON.stringify({ 
+          token: tempToken, 
+          code: totpCode,
+          isSetup: step === 'SETUP_2FA'
+        }),
         credentials: 'include'
       });
       
