@@ -24,7 +24,6 @@ enum Role {
 
 enum Plan {
   STARTER
-  GROWTH
   PREMIUM
 }
 

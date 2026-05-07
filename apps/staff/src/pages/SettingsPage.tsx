@@ -2,7 +2,7 @@
 // DineSmart — Settings Page
 // ═══════════════════════════════════════════
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { getProfile, updateProfile, getBranches, getTables, getUsers, getCoupons, updateUser, deleteUser, clearOrderHistory } from '../lib/api';
@@ -43,6 +43,7 @@ export default function SettingsPage() {
   const [clearingHistory, setClearingHistory] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'tables' | 'team' | 'coupons' | 'security'>('general');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [tableFormData, setTableFormData] = useState({ number: '', capacity: '', branchId: '' });
   const [userFormData, setUserFormData] = useState({ email: '', password: '', role: 'CASHIER', branchId: '' });
@@ -52,7 +53,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (profile) {
       setBrandingFormData({
-        bannerText: (profile as any).bannerText || '✨ WELCOME TO DINESMART — SAVOR THE EXPERIENCE ✨',
+        bannerText: (profile as any).bannerText || 'WELCOME TO DINESMART — SAVOR THE EXPERIENCE',
         bannerImageUrl: (profile as any).bannerImageUrl || ''
       });
     }
@@ -73,6 +74,23 @@ export default function SettingsPage() {
   const handleUpdateBranding = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfileMutation.mutate(brandingFormData);
+  };
+
+  const handleBannerSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const toastId = toast.loading('Uploading matrix assets...');
+    try {
+      const res = await uploadMenuImage(formData);
+      setBrandingFormData(prev => ({ ...prev, bannerImageUrl: res.url }));
+      toast.success('Matrix assets synchronized', { id: toastId });
+    } catch (err) {
+      toast.error('Synchronization failed', { id: toastId });
+    }
   };
 
   const handleAddBranch = async (e: React.FormEvent) => {
@@ -331,19 +349,59 @@ export default function SettingsPage() {
                           type="text" 
                           value={brandingFormData.bannerText}
                           onChange={e => setBrandingFormData({ ...brandingFormData, bannerText: e.target.value })}
-                          placeholder="e.g. ✨ FLAT 20% OFF ON ALL ORDERS ✨"
+                          placeholder="e.g. FLAT 20% OFF ON ALL ORDERS"
                           className="w-full px-6 py-4 bg-stone-50/50 dark:bg-stone-900/50 border border-stone-100 dark:border-white/5 rounded-2xl text-stone-950 dark:text-white focus:border-saffron-500/50 transition-all font-black uppercase tracking-widest text-xs"
                         />
                       </div>
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Banner Image URL</label>
-                        <input 
-                          type="text" 
-                          value={brandingFormData.bannerImageUrl}
-                          onChange={e => setBrandingFormData({ ...brandingFormData, bannerImageUrl: e.target.value })}
-                          placeholder="HTTPS://..."
-                          className="w-full px-6 py-4 bg-stone-50/50 dark:bg-stone-900/50 border border-stone-100 dark:border-white/5 rounded-2xl text-stone-950 dark:text-white focus:border-saffron-500/50 transition-all font-black tracking-widest text-xs"
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Visual Branding Asset</label>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleBannerSelect}
+                          accept="image/*"
+                          className="hidden"
                         />
+                        <div 
+                          onClick={() => fileInputRef.current?.click()}
+                          className="relative aspect-[21/9] rounded-3xl border-2 border-dashed border-stone-200 dark:border-white/10 overflow-hidden cursor-pointer group/upload hover:border-saffron-500/50 transition-all bg-stone-50/50 dark:bg-stone-900/50"
+                        >
+                          {brandingFormData.bannerImageUrl ? (
+                            <>
+                              <img 
+                                src={brandingFormData.bannerImageUrl} 
+                                alt="Banner Preview" 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover/upload:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-stone-950/40 opacity-0 group-hover/upload:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                                <div className="flex flex-col items-center gap-2">
+                                  <Pencil size={24} className="text-white" />
+                                  <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Replace Asset</span>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setBrandingFormData(prev => ({ ...prev, bannerImageUrl: '' }));
+                                }}
+                                className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-xl opacity-0 group-hover/upload:opacity-100 transition-opacity hover:bg-red-600 shadow-xl"
+                              >
+                                <X size={14} />
+                              </button>
+                            </>
+                          ) : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                              <div className="w-16 h-16 rounded-2xl bg-stone-100 dark:bg-white/5 flex items-center justify-center text-stone-400 group-hover/upload:scale-110 group-hover/upload:text-saffron-500 transition-all">
+                                <Plus size={24} />
+                              </div>
+                              <div className="text-center">
+                                <p className="text-[10px] font-black text-stone-950 dark:text-white uppercase tracking-widest">Deploy Banner Asset</p>
+                                <p className="text-[8px] text-stone-400 font-bold uppercase tracking-[0.2em] mt-1">Recommended: 21:9 Aspect Ratio</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                     

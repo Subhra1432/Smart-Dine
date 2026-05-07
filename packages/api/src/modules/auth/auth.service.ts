@@ -36,7 +36,7 @@ export async function registerRestaurant(data: {
   gstBill?: string;
   gstBillUrl?: string;
   registrationCertUrl?: string;
-  plan: 'STARTER' | 'GROWTH' | 'PREMIUM';
+  plan: 'STARTER' | 'PREMIUM';
 }) {
   const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
   if (existingUser) {

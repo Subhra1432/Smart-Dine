@@ -41,7 +41,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
           window.google.accounts.id.renderButton(buttonDiv, {
             theme: 'filled_black',
             size: 'large',
-            width: 375, // Adjust width slightly to better fit container padding
+            width: buttonDiv.offsetWidth || 340,
             shape: 'pill',
             text: 'continue_with'
           });
@@ -266,7 +266,12 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
               </div>
 
               {/* Google Login Button Container */}
-              <div id="google-signin-button" className="flex justify-center" />
+              <div className="relative group/google">
+                <div className="absolute inset-0 bg-stone-100/5 dark:bg-white/5 rounded-2xl border border-stone-200/50 dark:border-white/5 group-hover/google:border-saffron-500/30 transition-all duration-500" />
+                <div className="relative z-10 flex justify-center py-2 px-1">
+                  <div id="google-signin-button" className="w-full flex justify-center" />
+                </div>
+              </div>
 
               <div className="pt-4 flex items-center justify-center gap-2">
                 <span className="h-[1px] w-4 bg-stone-800" />

@@ -18,7 +18,7 @@ export const registerSchema = z.object({
   gstBill: z.string().min(5, 'GST Bill is required').max(100),
   gstBillUrl: z.string().optional(),
   registrationCertUrl: z.string().optional(),
-  plan: z.enum(['STARTER', 'GROWTH', 'PREMIUM']),
+  plan: z.enum(['STARTER', 'PREMIUM']),
 });
 
 export const loginSchema = z.object({
@@ -278,7 +278,7 @@ export const analyticsQuerySchema = z.object({
 // ── Super Admin Schemas ──────────────────
 
 export const updatePlanSchema = z.object({
-  plan: z.enum(['STARTER', 'GROWTH', 'PREMIUM']),
+  plan: z.enum(['STARTER', 'PREMIUM']),
   planExpiresAt: z.string().datetime().optional(),
 });
 

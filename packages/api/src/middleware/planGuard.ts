@@ -140,7 +140,7 @@ export function requireCouponLimit() {
       res.status(403).json({
         success: false,
         error: 'PLAN_LIMIT_EXCEEDED',
-        message: `Plan limit reached: ${limits.maxCoupons} coupons. Upgrade to Growth or Premium for more.`,
+        message: `Plan limit reached: ${limits.maxCoupons} coupons. Upgrade to Premium for more.`,
         upgradeUrl: '/billing',
       } as Record<string, unknown>);
       return;

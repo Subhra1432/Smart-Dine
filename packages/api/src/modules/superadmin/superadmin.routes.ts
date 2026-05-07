@@ -191,8 +191,7 @@ router.get('/stats', asyncHandler(async (req: Request, res: Response) => {
 
   const planPrices: Record<string, number> = {
     STARTER: 999,
-    GROWTH: 1999,
-    PREMIUM: 3999
+    PREMIUM: 2499
   };
   const mrr = planCounts.reduce((sum, p) => sum + (planPrices[p.plan] || 0) * p._count, 0);
 

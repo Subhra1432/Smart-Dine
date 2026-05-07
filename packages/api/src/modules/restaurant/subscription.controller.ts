@@ -48,7 +48,7 @@ export async function handleStripeWebhook(req: Request, res: Response) {
           prisma.restaurant.update({
             where: { id: restaurantId },
             data: {
-              plan: plan as 'STARTER' | 'GROWTH' | 'PREMIUM',
+              plan: plan as 'STARTER' | 'PREMIUM',
               planExpiresAt: expiresAt,
               isActive: true,
             },
@@ -57,7 +57,7 @@ export async function handleStripeWebhook(req: Request, res: Response) {
           prisma.subscriptionPayment.create({
             data: {
               restaurantId: restaurantId,
-              plan: plan as 'STARTER' | 'GROWTH' | 'PREMIUM',
+              plan: plan as 'STARTER' | 'PREMIUM',
               amount: session.amount_total / 100,
               method: 'CARD (STRIPE)',
               status: 'COMPLETED',

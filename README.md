@@ -142,6 +142,22 @@ The platform integrates with Google's Gemini AI to analyze customer carts and su
 - **Staff**: Role-based access control (RBAC) with JWT rotation.
 - **Super Admin**: Enhanced security with mandatory Two-Factor Authentication (2FA) and dedicated session handling.
 
+## Subscription Tiers
+
+DineSmart offers a streamlined subscription model designed to scale with your business:
+
+### 1. Starter Protocol (₹999/mo)
+Designed for single-location establishments:
+- **Branch Limit**: 1 Branch
+- **Table Limit**: 20 Spatial Anchors
+- **Core Features**: QR Ordering, real-time KDS, basic analytics, and staff management.
+
+### 2. Premium Protocol (₹2,499/mo)
+For scaling restaurant groups and luxury establishments:
+- **Branch Limit**: Unlimited
+- **Table Limit**: Unlimited
+- **Advanced Features**: AI-powered upselling, inventory management, loyalty programs, white-label branding, and multi-branch analytics.
+
 ## Production Deployment
 
 The platform is designed to be deployed on modern cloud infrastructure:
