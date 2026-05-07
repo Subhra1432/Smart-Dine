@@ -5,6 +5,7 @@ colorFrom: yellow
 colorTo: orange
 sdk: docker
 pinned: false
+app_port: 7860
 ---
 
 # DineSmart: Multi-Tenant SaaS Restaurant Platform
