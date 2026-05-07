@@ -117,7 +117,7 @@ export const PLAN_LIMITS: Record<Plan, {
     inventory: true,
     analytics: true,
     whiteLabel: true,
-    monthlyPrice: 3999,
+    monthlyPrice: 2499,
   },
 };
 

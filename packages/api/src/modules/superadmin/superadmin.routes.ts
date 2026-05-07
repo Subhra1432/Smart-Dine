@@ -157,9 +157,9 @@ router.put('/restaurants/:id', asyncHandler(async (req: Request, res: Response) 
 
   const updated = await prisma.restaurant.update({
     where: { id: req.params['id']! },
-    data: { 
+    data: {
       name: name || restaurant.name,
-      notificationSoundUrl 
+      notificationSoundUrl
     },
   });
 
@@ -189,10 +189,10 @@ router.get('/stats', asyncHandler(async (req: Request, res: Response) => {
     _count: true,
   });
 
-  const planPrices: Record<string, number> = { 
-    STARTER: 999, 
-    GROWTH: 1999, 
-    PREMIUM: 3999 
+  const planPrices: Record<string, number> = {
+    STARTER: 999,
+    GROWTH: 1999,
+    PREMIUM: 3999
   };
   const mrr = planCounts.reduce((sum, p) => sum + (planPrices[p.plan] || 0) * p._count, 0);
 
@@ -220,8 +220,8 @@ router.put('/restaurants/:id/approve', asyncHandler(async (req: Request, res: Re
 
   const updated = await prisma.restaurant.update({
     where: { id: req.params['id']! },
-    data: { 
-      status: 'ACTIVE', 
+    data: {
+      status: 'ACTIVE',
       isActive: true,
       // Wipe documents after verification as requested
       panCardUrl: null,
