@@ -29,15 +29,17 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
     const initGoogle = () => {
       if (step !== 'LOGIN') return;
-      if (window.google) {
+      if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: handleGoogleCallback,
+          auto_select: false
         });
         const buttonDiv = document.getElementById('google-signin-button');
-        if (buttonDiv) {
+        if (buttonDiv && isMounted) {
           window.google.accounts.id.renderButton(buttonDiv, {
             theme: 'filled_black',
             size: 'large',
@@ -46,13 +48,13 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
             text: 'continue_with'
           });
         }
-      } else {
-        // Retry after a short delay if script hasn't loaded yet
+      } else if (isMounted) {
         setTimeout(initGoogle, 500);
       }
     };
 
     initGoogle();
+    return () => { isMounted = false; };
   }, [step]);
 
   const handleNextStep = async (data: any) => {
@@ -172,7 +174,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-saffron-400/5 rounded-full blur-[80px] animate-pulse delay-700" />
       
       {/* Grid Overlay */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+      <div className="absolute inset-0 bg-stone-950/20 opacity-20 mix-blend-overlay pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
       <div className="relative z-10 w-full max-w-[440px] px-6">
