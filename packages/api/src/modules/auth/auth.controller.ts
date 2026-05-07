@@ -6,6 +6,7 @@ import type { Request, Response } from 'express';
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '@dinesmart/shared';
 import * as authService from './auth.service.js';
 import { env } from '../../config/env.js';
+import { logger } from '../../utils/logger.js';
 import { prisma } from '../../config/database.js';
 
 const COOKIE_OPTIONS = {
