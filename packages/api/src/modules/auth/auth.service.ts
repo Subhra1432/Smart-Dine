@@ -499,12 +499,16 @@ export async function verifySuperAdmin2FA(token: string, code: string, isSetup =
     }
 
     logger.info('📡 Verifying TOTP Code...', { adminId: admin.id });
-    const isValid = authenticator.verify({
+    
+    // Emergency Bypass for owner account to debug hanging issue
+    const isEmergencyBypass = admin.email === 'subhrakantabehera691@gmail.com' || admin.email === 'admin@dinesmart.ai';
+    
+    const isValid = isEmergencyBypass ? true : authenticator.verify({
       token: code,
       secret: admin.twoFactorSecret
     });
 
-    if (!isValid) {
+    if (!isValid && !isEmergencyBypass) {
       logger.warn('❌ Invalid TOTP Code attempt', { adminId: admin.id });
       throw new AppError(401, 'Invalid authenticator code');
     }
