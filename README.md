@@ -1,11 +1,11 @@
 ---
-title: DineSmart
+title: Dine_Smart
 emoji: 🍽️
 colorFrom: yellow
-colorTo: orange
+colorTo: red
 sdk: docker
-pinned: false
 app_port: 7860
+pinned: false
 ---
 
 # DineSmart: Multi-Tenant SaaS Restaurant Platform
