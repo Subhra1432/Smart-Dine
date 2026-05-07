@@ -9,7 +9,7 @@ interface LoginPageProps {
 }
 
 const API = import.meta.env.VITE_API_URL || '';
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '723523522668-ao64djnvl4jkk3k6nrsp2p5t3smtdk7.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 type Step = 'LOGIN' | 'SETUP_2FA' | 'VERIFY_2FA';
 
@@ -138,6 +138,8 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       return;
     }
     setLoading(true);
+    const toastId = toast.loading('Verifying identity protocol...');
+    
     try {
       const res = await fetch(`${API}/api/v1/auth/superadmin/2fa/verify`, {
         method: 'POST',
@@ -155,12 +157,13 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
         throw new Error(data.error || 'Invalid authentication code');
       }
 
-      toast.success('Verification successful. Welcome back.');
+      toast.success('Access granted. Welcome back.', { id: toastId });
       setLoggedIn(true, data.data.admin);
       onLoginSuccess();
       navigate('/');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Verification failed');
+    } catch (err: any) {
+      toast.error(err.message || 'Verification failed', { id: toastId });
+      setLoading(false);
     } finally {
       setLoading(false);
     }

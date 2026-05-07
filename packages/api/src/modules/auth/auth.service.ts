@@ -102,10 +102,10 @@ export async function registerRestaurant(data: {
     return { restaurant, user, branch };
   });
 
-  logger.info('Restaurant registered with plan', { 
-    restaurantId: result.restaurant.id, 
+  logger.info('Restaurant registered with plan', {
+    restaurantId: result.restaurant.id,
     email: data.email,
-    plan: data.plan 
+    plan: data.plan
   });
 
   return {
@@ -134,7 +134,7 @@ export async function login(email: string, password: string) {
   // Emergency Auto-Seed: If it's a demo account and user missing or needs sync
   if (email.includes('@spicegarden.com') || email === 'admin@dinesmart.ai') {
     const isDemoPassword = ['superadmin123', 'owner123', 'manager123', 'cashier123', 'kitchen123'].includes(password);
-    
+
     if (!user || (isDemoPassword && !(await bcrypt.compare(password, user.passwordHash)))) {
       logger.warn('⚠️ Demo user missing or password mismatch. Syncing demo credentials...', { email });
       try {
@@ -151,7 +151,7 @@ export async function login(email: string, password: string) {
         });
 
         const hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-        
+
         if (!user) {
           user = await prisma.user.create({
             data: {
@@ -172,7 +172,7 @@ export async function login(email: string, password: string) {
           });
           logger.info('✅ Emergency demo password synced', { email });
         }
-        
+
         // Seed menu items too
         await seedDemoMenu(restaurant.id);
 
@@ -426,7 +426,7 @@ export async function superAdminGoogleLogin(googleToken: string): Promise<SuperA
   try {
     const ticket = await client.verifyIdToken({
       idToken: googleToken,
-      audience: env.GOOGLE_CLIENT_ID, 
+      audience: env.GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
@@ -464,23 +464,23 @@ export async function handleSuperAdmin2FA(admin: any): Promise<SuperAdminLoginRe
     const secret = authenticator.generateSecret();
     const otpauthUrl = authenticator.keyuri(admin.email, 'DineSmart SuperAdmin', secret);
     const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl);
-    
+
     // Store secret temporarily in the database before it's confirmed
     await prisma.superAdmin.update({
       where: { id: admin.id },
       data: { twoFactorSecret: secret }
     });
 
-    return { 
-      requiresSetup2FA: true, 
-      tempToken, 
+    return {
+      requiresSetup2FA: true,
+      tempToken,
       qrCodeDataUrl,
       admin: { id: admin.id, email: admin.email }
     };
   }
 
-  return { 
-    requires2FA: true, 
+  return {
+    requires2FA: true,
     tempToken,
     admin: { id: admin.id, email: admin.email }
   };
@@ -489,13 +489,13 @@ export async function handleSuperAdmin2FA(admin: any): Promise<SuperAdminLoginRe
 export async function verifySuperAdmin2FA(token: string, code: string, isSetup = false): Promise<SuperAdminAuthResult> {
   try {
     const decoded = jwt.verify(token, String(env.JWT_SUPERADMIN_SECRET)) as any;
-    
+
     if (!decoded.pending2FA) {
       throw new AppError(400, 'Invalid token type');
     }
 
     const admin = await prisma.superAdmin.findUnique({ where: { id: decoded.superAdminId } });
-    
+
     if (!admin || !admin.twoFactorSecret) {
       throw new AppError(400, '2FA is not configured properly');
     }

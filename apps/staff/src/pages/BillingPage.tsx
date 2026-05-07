@@ -910,23 +910,6 @@ export default function BillingPage() {
         </div>
       )}
 
-      {/* Audio Unlock Overlay */}
-      {!audioContextUnlocked && (
-        <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-10 fade-in duration-500">
-          <button
-            onClick={unlockAudio}
-            className="group relative flex items-center gap-3 px-6 py-4 bg-stone-900 dark:bg-white rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300"
-          >
-            <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-stone-800 dark:bg-stone-100 text-primary animate-pulse">
-              <Volume2 size={20} />
-            </div>
-            <div className="relative text-left">
-              <p className="text-sm font-black text-white dark:text-stone-900 uppercase tracking-wider">Initialize Audio</p>
-              <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Required for Alerts</p>
-            </div>
-          </button>
-        </div>
       )}
     </div>
   );
