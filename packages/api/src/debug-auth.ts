@@ -6,11 +6,12 @@ async function main() {
   try {
     console.log('🔍 Diagnostic: Checking Demo Accounts...');
     
-    // Check SuperAdmin
-    const superAdmin = await prisma.superAdmin.findUnique({
-      where: { email: 'admin@dinesmart.ai' }
-    });
-    console.log('SuperAdmin (admin@dinesmart.ai):', superAdmin ? 'EXISTS' : 'MISSING');
+    // Check SuperAdmins
+    const admins = ['admin@dinesmart.ai', 'ankitkar969275@gmail.com', 'subhrakantabehera691@gmail.com'];
+    for (const email of admins) {
+      const admin = await prisma.superAdmin.findUnique({ where: { email } });
+      console.log(`SuperAdmin (${email}):`, admin ? 'EXISTS' : 'MISSING');
+    }
 
     // Check Restaurant
     const restaurant = await prisma.restaurant.findFirst({

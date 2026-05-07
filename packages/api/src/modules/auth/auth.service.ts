@@ -466,7 +466,7 @@ export async function handleSuperAdmin2FA(admin: any): Promise<SuperAdminLoginRe
     const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl);
     
     // Store secret temporarily in the database before it's confirmed
-    await (prisma.superAdmin as any).update({
+    await prisma.superAdmin.update({
       where: { id: admin.id },
       data: { twoFactorSecret: secret }
     });
@@ -494,15 +494,15 @@ export async function verifySuperAdmin2FA(token: string, code: string, isSetup =
       throw new AppError(400, 'Invalid token type');
     }
 
-    const admin = await (prisma.superAdmin as any).findUnique({ where: { id: decoded.superAdminId } });
+    const admin = await prisma.superAdmin.findUnique({ where: { id: decoded.superAdminId } });
     
-    if (!admin || !(admin as any).twoFactorSecret) {
+    if (!admin || !admin.twoFactorSecret) {
       throw new AppError(400, '2FA is not configured properly');
     }
 
     const isValid = authenticator.verify({
       token: code,
-      secret: (admin as any).twoFactorSecret
+      secret: admin.twoFactorSecret
     });
 
     if (!isValid) {
@@ -510,7 +510,7 @@ export async function verifySuperAdmin2FA(token: string, code: string, isSetup =
     }
 
     if (isSetup) {
-      await (prisma.superAdmin as any).update({
+      await prisma.superAdmin.update({
         where: { id: admin.id },
         data: { isTwoFactorEnabled: true }
       });

@@ -79,7 +79,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       setStep('VERIFY_2FA');
     } else if (data.admin) {
       toast.success('Welcome back, Command Center');
-      setLoggedIn(true);
+      setLoggedIn(true, data.admin);
       onLoginSuccess();
       navigate('/');
     }
@@ -154,7 +154,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       }
 
       toast.success('Verification successful. Welcome back.');
-      setLoggedIn(true);
+      setLoggedIn(true, data.data.admin);
       onLoginSuccess();
       navigate('/');
     } catch (err) {

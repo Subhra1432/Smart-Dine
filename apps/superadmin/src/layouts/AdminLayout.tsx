@@ -23,7 +23,7 @@ export default function AdminLayout() {
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const logout = useAuthStore((state) => state.logout);
+   const { logout, admin } = useAuthStore();
   const location = useLocation();
 
   const { data: restaurants } = useQuery({
@@ -153,12 +153,14 @@ export default function AdminLayout() {
             <div className="flex items-center gap-4">
               <div className="relative group">
                 <div className="w-11 h-11 rounded-xl bg-stone-950 dark:bg-stone-800 border border-white/20 flex items-center justify-center text-white text-lg font-black shadow-xl group-hover:scale-105 transition-all duration-700">
-                  A
+                  {admin?.email?.[0]?.toUpperCase() || 'A'}
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-saffron-500 border-2 border-white dark:border-stone-800 rounded-full shadow-md animate-pulse" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-black text-stone-950 dark:text-white truncate uppercase tracking-widest">Admin</p>
+                <p className="text-[11px] font-black text-stone-950 dark:text-white truncate uppercase tracking-widest">
+                  {admin?.email?.split('@')[0] || 'Admin'}
+                </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <Shield size={10} className="text-saffron-500" />
                   <p className="text-[9px] text-stone-400 font-black uppercase tracking-[0.2em]">Root Authority</p>

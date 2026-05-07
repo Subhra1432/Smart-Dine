@@ -473,26 +473,26 @@ export default function BillingPage() {
 
       {/* Table Sidebar Matrix */}
       {selectedTable && (
-        <div className="fixed inset-y-0 right-0 w-full sm:w-[380px] glass-panel !bg-white/95 dark:!bg-stone-950/95 border-l border-white dark:border-white/5 z-50 overflow-hidden animate-in slide-in-from-right duration-500 shadow-2xl flex flex-col !rounded-none backdrop-blur-3xl">
-          <div className="p-5 border-b border-stone-100 dark:border-white/5 flex items-center justify-between sticky top-0 z-10 bg-inherit">
+        <div className="fixed inset-y-4 right-4 w-full sm:w-[400px] bg-white/40 dark:bg-stone-950/60 border border-white/30 dark:border-white/10 z-50 overflow-hidden animate-in slide-in-from-right duration-500 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col rounded-[2.5rem] backdrop-blur-[40px]">
+          <div className="p-6 border-b border-stone-200/30 dark:border-white/10 flex items-center justify-between sticky top-0 z-10 bg-transparent">
             <div>
-              <h2 className="text-lg font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Table #{selectedTable.number}</h2>
-              <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] mt-1.5">Active Protocol Management</p>
+              <h2 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Table #{selectedTable.number}</h2>
+              <p className="text-[9px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-2">Active Protocol Management</p>
             </div>
             <button
               onClick={() => setSelectedTableId(null)}
-              className="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 dark:text-stone-600 hover:text-stone-950 dark:hover:text-white transition-all active:rotate-90 duration-300"
+              className="p-3 rounded-2xl bg-white/50 dark:bg-white/5 border border-white/40 dark:border-white/10 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-500 hover:text-stone-950 dark:text-stone-400 dark:hover:text-white transition-all active:scale-95 duration-300 shadow-sm"
             >
               <X size={18} />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
             {selectedTable.activeOrders && selectedTable.activeOrders.length > 0 ? (
               <div className="space-y-6">
                 {selectedTable.activeOrders.map((order) => (
-                  <div key={order.id} className="glass-card !bg-stone-50/50 dark:!bg-stone-900/50 p-4 border border-white dark:border-white/5 shadow-inner relative overflow-hidden group/order !rounded-xl">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-[40px]" />
+                  <div key={order.id} className="relative group/order overflow-hidden p-5 rounded-[2rem] border border-white/40 dark:border-white/10 bg-white/60 dark:bg-stone-900/40 backdrop-blur-2xl shadow-xl">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-[40px] pointer-events-none" />
 
                     <div className="relative z-10 flex justify-between items-start mb-4">
                       <div>
@@ -631,13 +631,13 @@ export default function BillingPage() {
                 {/* Table Settlement Control */}
                 <div className="space-y-4 pt-4">
                   <div className="flex items-center gap-2">
-                    <div className="h-[1px] flex-1 bg-stone-100 dark:bg-white/5" />
-                    <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em]">Settlement Matrix</p>
-                    <div className="h-[1px] flex-1 bg-stone-100 dark:bg-white/5" />
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-300 dark:via-white/20 to-transparent" />
+                    <p className="text-[9px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em]">Settlement Matrix</p>
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-300 dark:via-white/20 to-transparent" />
                   </div>
                   {selectedTable.activeOrders.every(o => o.paymentStatus === 'PAID') ? (
-                    <div className="p-6 bg-green-500/10 border border-green-500/20 rounded-2xl flex flex-col items-center justify-center gap-3 text-center animate-in fade-in zoom-in duration-500">
-                      <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                    <div className="p-8 bg-green-500/10 border border-green-500/20 rounded-[2rem] flex flex-col items-center justify-center gap-4 text-center animate-in fade-in zoom-in duration-500 backdrop-blur-md">
+                      <div className="w-16 h-16 rounded-3xl bg-green-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.3)]">
                         <CheckCircle size={24} className="text-green-500" />
                       </div>
                       <div>

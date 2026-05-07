@@ -38,6 +38,7 @@ export function initSocketServer(httpServer: HttpServer): Server {
 
   restaurantNs.use((socket, next) => {
     let token = socket.handshake.auth?.token as string | undefined;
+    let isSuperAdmin = false;
     
     // If no token in auth, try to get it from cookies (essential for httpOnly cookies)
     if (!token && socket.handshake.headers.cookie) {
@@ -48,7 +49,13 @@ export function initSocketServer(httpServer: HttpServer): Server {
           return [key, v.join('=')];
         })
       );
-      token = cookies['accessToken'] || cookies['superAdminToken'];
+      
+      if (cookies['superAdminToken']) {
+        token = cookies['superAdminToken'];
+        isSuperAdmin = true;
+      } else {
+        token = cookies['accessToken'];
+      }
     }
     
     // Customer connections don't need auth
@@ -62,8 +69,14 @@ export function initSocketServer(httpServer: HttpServer): Server {
     }
 
     try {
-      const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as JwtAccessPayload;
-      (socket as any).user = decoded;
+      const secret = isSuperAdmin ? env.JWT_SUPERADMIN_SECRET : env.JWT_ACCESS_SECRET;
+      const decoded = jwt.verify(token, String(secret)) as any;
+      
+      if (isSuperAdmin) {
+        (socket as any).superAdmin = decoded;
+      } else {
+        (socket as any).user = decoded;
+      }
       next();
     } catch (err) {
       logger.error('Socket connection rejected: Invalid token', { socketId: socket.id, error: err });

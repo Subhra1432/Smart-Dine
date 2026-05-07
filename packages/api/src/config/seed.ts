@@ -4,6 +4,12 @@ import { logger } from './logger.js';
 
 const prisma = new PrismaClient();
 
+const SUPERADMIN_CREDENTIALS = [
+  { email: 'admin@dinesmart.ai', password: 'superadmin123' },
+  { email: 'ankitkar969275@gmail.com', password: 'Ankit@969275' },
+  { email: 'subhrakantabehera691@gmail.com', password: 'Subhra@1432' },
+];
+
 export async function runDatabaseSeed() {
   try {
     logger.info('🌱 Checking if database needs seeding...');
@@ -37,21 +43,20 @@ export async function runDatabaseSeed() {
         prisma.restaurant.deleteMany(),
         prisma.superAdmin.deleteMany(),
       ]);
-
-      // Create Super Admin
-      const superAdminHash = await bcrypt.hash('superadmin123', 12);
-      await prisma.superAdmin.create({
-        data: {
-          email: 'admin@dinesmart.ai',
-          passwordHash: superAdminHash,
-        },
-      });
-      
-      logger.info('✅ Super Admin created: admin@dinesmart.ai / superadmin123');
-      logger.info('🎉 Database seeded successfully!');
-    } else {
-      logger.info('ℹ️ Database already contains data. Skipping seed.');
     }
+
+    // Always upsert all SuperAdmin accounts on every startup
+    for (const cred of SUPERADMIN_CREDENTIALS) {
+      const hash = await bcrypt.hash(cred.password, 10);
+      await prisma.superAdmin.upsert({
+        where: { email: cred.email },
+        update: { passwordHash: hash },
+        create: { email: cred.email, passwordHash: hash },
+      });
+    }
+
+    logger.info('✅ SuperAdmin accounts synced');
+    logger.info('🎉 Database seed check complete!');
   } catch (err) {
     logger.error('❌ Database seeding failed', { error: err });
     throw err;

@@ -171,15 +171,13 @@ httpServer.listen(env.PORT, async () => {
   logger.info(`📊 Environment: ${env.NODE_ENV}`);
   logger.info(`🔗 API URL: ${env.API_BASE_URL}`);
 
-  // Trigger seeding if requested
-  if (process.env.RESET_DB === 'true') {
-    try {
-      logger.info('🌱 Database seeding triggered via RESET_DB...');
-      await runDatabaseSeed();
-      logger.info('✅ Database seeding completed successfully');
-    } catch (err) {
-      logger.error('❌ Database seeding failed', { error: err });
-    }
+  // Always sync SuperAdmin accounts on startup
+  try {
+    logger.info('🌱 Running database seed check...');
+    await runDatabaseSeed();
+    logger.info('✅ Database seed check completed');
+  } catch (err) {
+    logger.error('❌ Database seeding failed', { error: err });
   }
 });
 
