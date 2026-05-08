@@ -27,6 +27,10 @@ RUN npx prisma generate --schema=packages/api/prisma/schema.prisma
 # Build Shared Package First
 RUN npm run build --workspace=@dinesmart/shared
 
+# Build Arguments
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
 # Build All Frontends and API
 RUN npm run build:customer && \
     npm run build:staff && \

@@ -120,7 +120,7 @@ export default function AdminLayout() {
           {/* Navigation Matrix */}
           <nav className="flex-1 px-6 pt-4 pb-6 space-y-1.5 overflow-y-auto scrollbar-hide">
             <div className="px-4 mb-4">
-              <span className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.6em] opacity-60">Master Protocols</span>
+              <span className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.6em] opacity-60">Command Matrix</span>
             </div>
             {navItems.map((item) => (
               <NavLink
@@ -147,6 +147,36 @@ export default function AdminLayout() {
               </NavLink>
             ))}
           </nav>
+
+          {/* Intelligence Support Node */}
+          <div className="mx-6 mb-8 p-6 rounded-[2rem] bg-stone-100/50 dark:bg-stone-900/50 border border-white dark:border-white/5 relative overflow-hidden group shadow-sm backdrop-blur-md">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-saffron-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-saffron-500/10 transition-all duration-1000" />
+
+            <h3 className="text-[9px] font-black text-stone-400 uppercase tracking-[0.4em] mb-6 relative z-10 opacity-60">System Support</h3>
+            <div className="space-y-6 relative z-10">
+              <a
+                href="mailto:support@dinesmart.ai"
+                className="flex items-center gap-4 text-[10px] font-black text-stone-500 dark:text-stone-400 hover:text-stone-950 dark:hover:text-white transition-all duration-500 uppercase tracking-tight group/link"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white dark:bg-stone-800 flex items-center justify-center shadow-sm border border-stone-100 dark:border-white/5 group-hover/link:border-saffron-500/40 group-hover/link:shadow-xl transition-all duration-700">
+                  <Bell size={16} />
+                </div>
+                Support Link
+              </a>
+
+              <a
+                href="https://wa.me/919937000000"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-4 text-[10px] font-black text-stone-500 dark:text-stone-400 hover:text-stone-950 dark:hover:text-white transition-all duration-500 uppercase tracking-tight group/link"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white dark:bg-stone-800 flex items-center justify-center shadow-sm border border-stone-100 dark:border-white/5 group-hover/link:border-saffron-500/40 group-hover/link:shadow-xl transition-all duration-700">
+                  <Shield size={16} />
+                </div>
+                Direct Node
+              </a>
+            </div>
+          </div>
 
           {/* User Status Interface */}
           <div className="p-8 border-t border-stone-100 dark:border-white/5 bg-white/40 dark:bg-stone-900/60 backdrop-blur-2xl">
