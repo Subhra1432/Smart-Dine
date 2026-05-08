@@ -166,7 +166,7 @@ try {
   logger.warn('⚠️ Workers initialization skipped (Redis issue)', { error: err });
 }
 
-httpServer.listen(env.PORT, async () => {
+httpServer.listen(env.PORT, '0.0.0.0', async () => {
   logger.info(`🚀 DineSmart OS API running on port ${env.PORT}`);
   logger.info(`📊 Environment: ${env.NODE_ENV}`);
   logger.info(`🔗 API URL: ${env.API_BASE_URL}`);
