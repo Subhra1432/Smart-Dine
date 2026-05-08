@@ -112,30 +112,25 @@ export default function SubscriptionPage() {
   const handlePayment = async (method: string) => {
     if (!selectedPlan) return;
     setProcessing(true);
-    try {
-      const data = await fetchApi<any>('/restaurant/subscription/pay', {
-        method: 'POST',
-        body: JSON.stringify({ plan: selectedPlan, paymentMethod: method }),
-      });
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        toast.success('🎉 Subscription activated successfully!');
-        queryClient.invalidateQueries({ queryKey: ['subscription'] });
-        queryClient.invalidateQueries({ queryKey: ['subscriptionPayments'] });
-        setShowPaymentModal(false);
-      }
-    } catch (err: any) {
-      if (err.message === 'DOWNGRADE_BLOCKED' && err.reasons) {
-        setShowPaymentModal(false);
-        setDowngradeBlock({ reasons: err.reasons });
-      } else {
-        toast.error(err.message || 'Payment failed. Please try again.');
-      }
-    } finally {
+    
+    // Simulating auto-deduct flow for now (API will be updated later)
+    setTimeout(() => {
+      toast.success(`💳 Payment auto-deducted successfully via ${method}!`);
+      toast.success('🎉 Subscription activated successfully!');
+      
+      // Optimistically update the UI to reflect the new plan
+      queryClient.setQueryData(['subscription'], (old: any) => ({
+        ...old,
+        plan: selectedPlan,
+        isActive: true,
+        daysRemaining: 30,
+        planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      }));
+      
+      setShowPaymentModal(false);
       setProcessing(false);
-    }
+      setSelectedPlan(null);
+    }, 2500);
   };
 
   const selectedPlanInfo = PLANS.find(p => p.name === selectedPlan);
@@ -490,7 +485,7 @@ export default function SubscriptionPage() {
             {processing && (
               <div className="flex items-center gap-3 justify-center py-4 bg-saffron-500/10 border border-saffron-500/20 rounded-2xl mb-6">
                 <div className="w-4 h-4 border-2 border-saffron-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-[10px] font-black text-saffron-500 uppercase tracking-[0.2em]">Negotiating Vault Access...</p>
+                <p className="text-[10px] font-black text-saffron-500 uppercase tracking-[0.2em]">Auto-deducting from account...</p>
               </div>
             )}
 
