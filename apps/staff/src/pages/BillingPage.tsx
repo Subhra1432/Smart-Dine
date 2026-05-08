@@ -786,54 +786,54 @@ export default function BillingPage() {
 
       {/* Item Appendment Matrix */}
       {addingItemToOrderId && (
-        <div className="fixed inset-0 bg-stone-950/60 backdrop-blur-xl flex items-center justify-end z-[100] animate-in fade-in duration-500">
-          <div className="bg-white dark:bg-stone-950 w-full max-w-xl h-full flex flex-col shadow-[-40px_0_100px_rgba(0,0,0,0.1)] border-l border-white dark:border-white/5 animate-in slide-in-from-right duration-500">
-            <div className="p-8 border-b border-stone-100 dark:border-white/5 flex items-center justify-between bg-stone-50/30 dark:bg-stone-900/30">
+        <div className="fixed inset-0 bg-stone-950/40 backdrop-blur-sm flex items-center justify-end z-[100] animate-in fade-in duration-500 p-4">
+          <div className="bg-white/40 dark:bg-stone-950/60 w-full max-w-xl h-full flex flex-col shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] border border-white/30 dark:border-white/10 animate-in slide-in-from-right duration-500 rounded-[2.5rem] backdrop-blur-[40px] overflow-hidden">
+            <div className="p-8 border-b border-stone-200/30 dark:border-white/10 flex items-center justify-between bg-transparent">
               <div>
                 <h3 className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Append Module</h3>
-                <p className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] mt-2">Injecting Nodes into Protocol #{addingItemToOrderId.slice(-6).toUpperCase()}</p>
+                <p className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-2">Injecting Nodes into Protocol #{addingItemToOrderId.slice(-6).toUpperCase()}</p>
               </div>
               <button
                 onClick={() => setAddingItemToOrderId(null)}
-                className="p-3 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl transition-all text-stone-400 dark:text-stone-600 hover:text-stone-950 dark:hover:text-white active:rotate-90 duration-300"
+                className="p-3 bg-white/50 dark:bg-white/5 hover:bg-stone-100 dark:hover:bg-white/10 rounded-2xl transition-all border border-white/40 dark:border-white/10 text-stone-500 dark:text-stone-400 hover:text-stone-950 dark:hover:text-white active:scale-95 shadow-sm duration-300"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
             <div className="p-6">
               <div className="relative group">
-                <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 dark:text-stone-700 group-focus-within:text-primary transition-colors" />
+                <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500 group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
                   placeholder="QUERY COMPONENT ARCHIVE..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-14 pr-6 py-4 bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all text-stone-950 dark:text-white placeholder:text-stone-300 dark:placeholder:text-stone-700 shadow-inner"
+                  className="w-full pl-14 pr-6 py-4 bg-white/50 dark:bg-white/5 border border-white/40 dark:border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-stone-950 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-sm backdrop-blur-md"
                 />
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 pt-0 space-y-4 custom-scrollbar">
               {filteredMenuItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => handleAddItem(item.id)}
                   disabled={addingItemLoading}
-                  className="w-full flex items-center justify-between p-4 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 rounded-2xl border border-stone-100 dark:border-white/5 hover:border-primary/20 transition-all text-left group disabled:opacity-50 shadow-sm hover:shadow-md hover:scale-[1.01]"
+                  className="w-full flex items-center justify-between p-5 bg-white/60 dark:bg-stone-900/40 backdrop-blur-2xl hover:bg-white/80 dark:hover:bg-white/10 rounded-[2rem] border border-white/40 dark:border-white/10 hover:border-primary/40 transition-all text-left group disabled:opacity-50 shadow-xl hover:shadow-2xl hover:scale-[1.02]"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-300 dark:text-stone-700 border border-stone-50 dark:border-white/5 overflow-hidden shadow-inner group-hover:border-primary/20 transition-all">
+                    <div className="w-16 h-16 rounded-xl bg-stone-100/50 dark:bg-stone-800/50 flex items-center justify-center text-stone-400 dark:text-stone-500 border border-stone-200/50 dark:border-white/5 overflow-hidden shadow-inner group-hover:border-primary/20 transition-all">
                       {item.imageUrl ? <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <Plus size={20} />}
                     </div>
                     <div>
                       <p className="font-black text-sm text-stone-950 dark:text-white uppercase tracking-tight group-hover:text-primary transition-colors">{item.name}</p>
-                      <p className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] mt-1">{item.category?.name || 'GENERIC UNIT'}</p>
+                      <p className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-1">{item.category?.name || 'GENERIC UNIT'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-lg font-black text-stone-950 dark:text-white tracking-tighter tabular-nums">₹{item.price}</span>
-                    <div className="p-3 bg-stone-950 dark:bg-stone-800 text-white dark:text-primary rounded-lg group-hover:bg-primary dark:group-hover:bg-primary dark:group-hover:text-stone-950 transition-all shadow-xl shadow-stone-950/10">
+                    <div className="p-3 bg-stone-950 dark:bg-stone-800 text-white dark:text-primary rounded-xl group-hover:bg-primary dark:group-hover:bg-primary dark:group-hover:text-stone-950 transition-all shadow-xl shadow-stone-950/10">
                       <ChevronRight size={18} />
                     </div>
                   </div>
