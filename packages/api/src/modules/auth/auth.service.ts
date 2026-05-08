@@ -451,18 +451,34 @@ export async function superAdminGoogleLogin(googleToken: string): Promise<SuperA
   }
 }
 
-export async function handleSuperAdmin2FA(admin: any): Promise<SuperAdminLoginResult> {
-  // Direct login — skip 2FA for now to resolve the spinning issue
-  const authToken = jwt.sign(
-    { superAdminId: admin.id, scope: 'superadmin' },
-    String(env.JWT_SUPERADMIN_SECRET),
-    { expiresIn: '8h' }
-  );
+export async function handleSuperAdmin2FA(admin: any): Promise<any> {
+  if (!admin.is2FAEnabled || !admin.twoFactorSecret) {
+    const tempToken = jwt.sign(
+      { superAdminId: admin.id, pending2FASetup: true },
+      String(env.JWT_SUPERADMIN_SECRET),
+      { expiresIn: '15m' }
+    );
+    return { requiresSetup2FA: true, tempToken };
+  }
 
-  return {
-    token: authToken,
-    admin: { id: admin.id, email: admin.email }
-  } as any;
+  const tempToken = jwt.sign(
+    { superAdminId: admin.id, pending2FA: true },
+    String(env.JWT_SUPERADMIN_SECRET),
+    { expiresIn: '5m' }
+  );
+  return { requires2FA: true, tempToken };
+}
+
+export async function generateSuperAdmin2FASecret(adminId: string) {
+  const secret = authenticator.generateSecret();
+  const qrCodeDataUrl = await authenticator.generateQRCode(secret.otpauth_url!);
+  
+  await prisma.superAdmin.update({
+    where: { id: adminId },
+    data: { twoFactorSecret: secret.base32, is2FAEnabled: false }
+  });
+
+  return { qrCodeDataUrl };
 }
 
 export async function verifySuperAdmin2FA(token: string, code: string, isSetup = false): Promise<SuperAdminAuthResult> {
@@ -470,7 +486,7 @@ export async function verifySuperAdmin2FA(token: string, code: string, isSetup =
     logger.info('🔐 Starting 2FA Verification...', { isSetup });
     
     const decoded = jwt.verify(token, String(env.JWT_SUPERADMIN_SECRET)) as any;
-    if (!decoded.pending2FA) throw new AppError(400, 'Invalid token type');
+    if (!decoded.pending2FA && !decoded.pending2FASetup) throw new AppError(400, 'Invalid token type');
 
     const admin = await prisma.superAdmin.findUnique({ where: { id: decoded.superAdminId } });
     if (!admin || !admin.twoFactorSecret) {

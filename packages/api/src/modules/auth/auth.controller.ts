@@ -190,7 +190,7 @@ export async function setupSuperAdmin2FA(req: Request, res: Response) {
 
   if (!admin) throw new Error('Admin not found');
 
-  const result: any = await authService.handleSuperAdmin2FA(admin);
+  const result = await authService.generateSuperAdmin2FASecret(admin.id);
   res.json({ success: true, data: result });
 }
 
