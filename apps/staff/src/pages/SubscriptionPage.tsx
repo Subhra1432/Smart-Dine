@@ -86,6 +86,7 @@ export default function SubscriptionPage() {
   const [processing, setProcessing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showAllPayments, setShowAllPayments] = useState(false);
   const [downgradeBlock, setDowngradeBlock] = useState<{ reasons: string[] } | null>(null);
 
   const { data: subscription, isLoading } = useQuery<SubscriptionInfo>({
@@ -110,27 +111,69 @@ export default function SubscriptionPage() {
   };
 
   const handlePayment = async (method: string) => {
-    if (!selectedPlan) return;
+    if (!selectedPlan || !selectedPlanInfo) return;
     setProcessing(true);
-    
-    // Simulating auto-deduct flow for now (API will be updated later)
-    setTimeout(() => {
-      toast.success(`💳 Payment auto-deducted successfully via ${method}!`);
-      toast.success('🎉 Subscription activated successfully!');
+
+    try {
+      // API will be updated later to generate real order_id. 
+      // Using standard checkout integration for now.
+      if (!(window as any).Razorpay) {
+        throw new Error('Payment gateway failed to load. Please check your connection.');
+      }
+
+      const options = {
+        key: (import.meta as any).env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dummy_key', // Fallback for UI testing
+        amount: Math.round(selectedPlanInfo.price * 1.18 * 100), // paise
+        currency: 'INR',
+        name: 'DineSmart OS',
+        description: `${selectedPlanInfo.label} Subscription`,
+        image: '/favicon.svg',
+        // order_id: 'order_dummy', // Will be fetched from backend later
+        handler: function (response: any) {
+          // Backend verification will go here
+          toast.success(`💳 Payment successful!`);
+          toast.success('🎉 Subscription activated successfully!');
+          
+          queryClient.setQueryData(['subscription'], (old: any) => ({
+            ...old,
+            plan: selectedPlan,
+            isActive: true,
+            daysRemaining: 30,
+            planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          }));
+          
+          setShowPaymentModal(false);
+          setProcessing(false);
+          setSelectedPlan(null);
+        },
+        prefill: {
+          name: user?.email?.split('@')[0] || 'Admin',
+          email: user?.email || '',
+          contact: '9999999999' // Placeholder
+        },
+        theme: {
+          color: '#f59e0b' // saffron-500
+        },
+        modal: {
+          ondismiss: function() {
+            setProcessing(false);
+            toast.error('Payment cancelled by user');
+          }
+        }
+      };
+
+      const rzp1 = new (window as any).Razorpay(options);
+      rzp1.on('payment.failed', function (response: any) {
+        toast.error(`Payment Failed: ${response.error.description}`);
+        setProcessing(false);
+      });
       
-      // Optimistically update the UI to reflect the new plan
-      queryClient.setQueryData(['subscription'], (old: any) => ({
-        ...old,
-        plan: selectedPlan,
-        isActive: true,
-        daysRemaining: 30,
-        planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      }));
-      
-      setShowPaymentModal(false);
+      rzp1.open();
+
+    } catch (error: any) {
+      toast.error(error.message || 'Payment initialization failed');
       setProcessing(false);
-      setSelectedPlan(null);
-    }, 2500);
+    }
   };
 
   const selectedPlanInfo = PLANS.find(p => p.name === selectedPlan);
@@ -386,7 +429,7 @@ export default function SubscriptionPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {payments.map((p: any) => (
+            {payments.slice(0, 3).map((p: any) => (
               <div key={p.id} className="group flex items-center justify-between p-6 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300">
                 <div className="flex items-center gap-5">
                   <div className="w-12 h-12 rounded-2xl bg-saffron-500/10 flex items-center justify-center border border-saffron-500/20 group-hover:scale-110 transition-transform">
@@ -403,9 +446,63 @@ export default function SubscriptionPage() {
                 </div>
               </div>
             ))}
+            
+            {payments.length > 3 && (
+              <button
+                onClick={() => setShowAllPayments(true)}
+                className="w-full py-4 mt-2 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 text-[10px] font-black text-stone-400 hover:text-white uppercase tracking-[0.2em] transition-all"
+              >
+                View All Transactions ({payments.length})
+              </button>
+            )}
           </div>
         )}
       </div>
+
+      {/* All Payments Modal */}
+      {showAllPayments && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="glass-card rounded-[3rem] p-8 w-full max-w-2xl border border-white/10 shadow-[0_0_100px_-20px_rgba(0,0,0,0.5)] animate-in zoom-in-95 duration-500 flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between mb-6 shrink-0">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-2">
+                  <CreditCard size={20} className="text-saffron-500" />
+                  All Transactions
+                </h3>
+                <p className="text-[10px] text-stone-500 font-black uppercase tracking-[0.2em]">
+                  Complete Vault History
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAllPayments(false)}
+                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-stone-400 hover:text-white transition-all border border-white/10"
+              >
+                <XIcon size={20} />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent flex-1">
+              {payments.map((p: any) => (
+                <div key={p.id} className="group flex items-center justify-between p-6 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300">
+                  <div className="flex items-center gap-5">
+                    <div className="w-12 h-12 rounded-2xl bg-saffron-500/10 flex items-center justify-center border border-saffron-500/20 group-hover:scale-110 transition-transform">
+                      <Check size={20} className="text-saffron-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-white uppercase tracking-wider">{p.plan} Subscription</p>
+                      <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mt-0.5">{p.method}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-black text-saffron-500">₹{p.amount?.toLocaleString()}</p>
+                    <p className="text-[10px] text-stone-500 font-black uppercase tracking-tighter mt-1">{new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Payment Modal */}
       {showPaymentModal && selectedPlanInfo && (
