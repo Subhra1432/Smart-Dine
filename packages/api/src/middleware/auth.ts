@@ -35,7 +35,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
 }
 
 export function authenticateSuperAdmin(req: Request, res: Response, next: NextFunction): void {
-  const token = req.cookies?.superAdminToken as string | undefined;
+  const token = req.cookies?.superAdminToken || req.headers.authorization?.split(' ')[1] as string | undefined;
 
   if (!token) {
     res.status(401).json({ success: false, error: 'Super admin authentication required' });

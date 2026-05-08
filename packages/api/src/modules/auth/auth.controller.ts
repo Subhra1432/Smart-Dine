@@ -212,5 +212,5 @@ export async function verifySuperAdmin2FA(req: Request, res: Response) {
     maxAge: 8 * 60 * 60 * 1000,
   });
 
-  res.json({ success: true, data: { admin: result.admin } });
+  res.json({ success: true, data: { admin: result.admin, token: result.token } });
 }

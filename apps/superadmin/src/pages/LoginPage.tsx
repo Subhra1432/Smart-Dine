@@ -164,7 +164,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       }
 
       toast.success('Access granted. Welcome back.', { id: toastId });
-      setLoggedIn(true, data.data.admin);
+      setLoggedIn(true, data.data.admin, data.data.token);
       onLoginSuccess();
       navigate('/');
     } catch (err: any) {
