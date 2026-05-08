@@ -141,6 +141,9 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
     const toastId = toast.loading('Verifying identity protocol...');
     
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
       const res = await fetch(`${API}/api/v1/auth/superadmin/2fa/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -149,8 +152,11 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
           code: totpCode,
           isSetup: step === 'SETUP_2FA'
         }),
-        credentials: 'include'
+        credentials: 'include',
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       const data = await res.json();
       if (!res.ok || !data.success) {
