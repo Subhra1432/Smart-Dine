@@ -459,7 +459,7 @@ export default function BillingPage() {
                         if (table.status === 'FREE') handleStartOrder(table.id);
                         else setSelectedTableId(table.id);
                       }}
-                      className="w-full py-2 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-lg text-[8px] font-black uppercase tracking-[0.3em] hover:bg-primary dark:hover:bg-primary/90 transition-all active:scale-95 shadow-xl shadow-stone-950/10 dark:shadow-primary/10"
+                      className="w-full py-3 bg-white/40 dark:bg-stone-900/40 backdrop-blur-md border border-white/40 dark:border-white/5 text-stone-500 dark:text-stone-400 hover:text-stone-950 dark:hover:text-white rounded-xl text-[9px] font-black uppercase tracking-[0.4em] hover:border-primary/50 dark:hover:border-primary/30 transition-all active:scale-95 shadow-sm group-hover:shadow-md"
                     >
                       {table.status === 'FREE' ? 'Initialize' : 'Engage'}
                     </button>
