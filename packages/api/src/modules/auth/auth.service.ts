@@ -452,7 +452,7 @@ export async function superAdminGoogleLogin(googleToken: string): Promise<SuperA
 }
 
 export async function handleSuperAdmin2FA(admin: any): Promise<any> {
-  if (!admin.is2FAEnabled || !admin.twoFactorSecret) {
+  if (!admin.isTwoFactorEnabled || !admin.twoFactorSecret) {
     const tempToken = jwt.sign(
       { superAdminId: admin.id, pending2FASetup: true },
       String(env.JWT_SUPERADMIN_SECRET),
@@ -470,12 +470,16 @@ export async function handleSuperAdmin2FA(admin: any): Promise<any> {
 }
 
 export async function generateSuperAdmin2FASecret(adminId: string) {
+  const admin = await prisma.superAdmin.findUnique({ where: { id: adminId } });
+  if (!admin) throw new AppError(404, 'Admin not found');
+
   const secret = authenticator.generateSecret();
-  const qrCodeDataUrl = await authenticator.generateQRCode(secret.otpauth_url!);
+  const uri = authenticator.keyuri(admin.email, 'DineSmart OS', secret);
+  const qrCodeDataUrl = await authenticator.generateQRCode(uri);
   
   await prisma.superAdmin.update({
     where: { id: adminId },
-    data: { twoFactorSecret: secret.base32, is2FAEnabled: false }
+    data: { twoFactorSecret: secret, isTwoFactorEnabled: false }
   });
 
   return { qrCodeDataUrl };

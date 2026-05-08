@@ -125,4 +125,8 @@ export const authenticator = {
   generateSecret,
   keyuri,
   verify: (options: { token: string; secret: string }) => verifyToken(options.token, options.secret),
+  async generateQRCode(uri: string): Promise<string> {
+    const QRCode = await import('qrcode');
+    return QRCode.default.toDataURL(uri);
+  }
 };
