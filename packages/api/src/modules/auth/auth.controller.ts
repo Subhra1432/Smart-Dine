@@ -12,7 +12,7 @@ import { prisma } from '../../config/database.js';
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  sameSite: 'lax' as const,
   path: '/',
 };
 
