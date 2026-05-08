@@ -130,7 +130,7 @@ export const createOrderSchema = z.object({
     quantity: z.number().int().positive('Quantity must be positive'),
     addonIds: z.array(z.string().uuid()).default([]),
     specialInstructions: z.string().max(500).default(''),
-  })).min(1, 'At least one item is required'),
+  })).default([]),
   couponCode: z.string().optional(),
   customerPhone: z.string().regex(/^\+?[1-9]\d{7,14}$/).optional(),
   customerName: z.string().max(100).optional(),
@@ -173,8 +173,8 @@ export const orderFilterSchema = z.object({
   branchId: z.string().uuid().optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  page: z.coerce.number().int().positive().catch(1),
+  limit: z.coerce.number().int().positive().max(100).catch(20),
 });
 
 export const refundSchema = z.object({
