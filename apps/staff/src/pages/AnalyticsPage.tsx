@@ -275,7 +275,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Attention Nodes (Slow Moving) */}
-        <div className="glass-panel p-6 space-y-6 border-white/20 dark:border-white/5 !bg-white/40 dark:!bg-stone-900/40 shadow-2xl shadow-stone-200/40 dark:shadow-none">
+        <div className="glass-panel p-6 space-y-6 border-white/20 dark:border-white/5 !bg-white/40 dark:!bg-stone-900/40 shadow-2xl shadow-stone-200/40 dark:shadow-none h-fit">
           <h2 className="text-[10px] font-black text-stone-400 dark:text-stone-600 tracking-[0.3em] uppercase flex items-center gap-3">
             <TrendingDown size={18} className="text-stone-950 dark:text-white" /> Attention Required Nodes
           </h2>
@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
           <h2 className="text-[10px] font-black text-stone-400 dark:text-stone-600 tracking-[0.3em] uppercase flex items-center gap-3 mb-8">
             <Layers size={18} className="text-stone-950 dark:text-white" /> Spatial Efficiency Matrix
           </h2>
-          <div className="overflow-x-auto flex-grow scrollbar-hide">
+          <div className="overflow-x-auto overflow-y-auto max-h-[400px] flex-grow scrollbar-thin scrollbar-thumb-stone-200 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="text-[9px] font-black text-stone-300 dark:text-stone-700 uppercase tracking-[0.2em] border-b border-stone-100 dark:border-white/5">
