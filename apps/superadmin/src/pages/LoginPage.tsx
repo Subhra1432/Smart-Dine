@@ -60,7 +60,6 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const handleNextStep = async (data: any) => {
     if (data.requiresSetup2FA) {
       setTempToken(data.tempToken);
-      setLoading(true);
       try {
         const res = await fetch(`${API}/api/v1/auth/superadmin/2fa/setup`, {
           method: 'POST',
@@ -79,9 +78,10 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
     } else if (data.requires2FA) {
       setTempToken(data.tempToken);
       setStep('VERIFY_2FA');
+      setLoading(false);
     } else if (data.admin) {
       toast.success('Welcome back, Command Center');
-      setLoggedIn(true, data.admin);
+      setLoggedIn(true, data.admin, data.token);
       onLoginSuccess();
       navigate('/');
     }
@@ -163,13 +163,17 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
         throw new Error(data.error || 'Invalid authentication code');
       }
 
-      toast.success('Access granted. Welcome back.', { id: toastId });
+      toast.dismiss(toastId);
+      toast.success('Access granted. Welcome back.');
       setLoggedIn(true, data.data.admin, data.data.token);
       onLoginSuccess();
       navigate('/');
     } catch (err: any) {
-      toast.error(err.message || 'Verification failed', { id: toastId });
-      setLoading(false);
+      if (err.name === 'AbortError') {
+        toast.error('Request timed out. Please try again.', { id: toastId });
+      } else {
+        toast.error(err.message || 'Verification failed', { id: toastId });
+      }
     } finally {
       setLoading(false);
     }

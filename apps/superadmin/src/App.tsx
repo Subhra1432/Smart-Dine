@@ -16,9 +16,19 @@ export default function App() {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
+    const { token, admin } = useAuthStore.getState();
+    
+    // If no token stored, skip the /me check and go to login
+    if (!token) {
+      logout();
+      setIsInitializing(false);
+      return;
+    }
+
     getMe()
-      .then(() => {
-        setLoggedIn(true);
+      .then((data) => {
+        // Keep existing token, update admin from server response
+        setLoggedIn(true, data?.admin || admin || undefined, token);
       })
       .catch(() => {
         logout();
@@ -26,7 +36,7 @@ export default function App() {
       .finally(() => {
         setIsInitializing(false);
       });
-  }, [setLoggedIn, logout]);
+  }, []);
 
   if (isInitializing) {
     return <SplashLoading isLoading={true} />;
