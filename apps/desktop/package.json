@@ -1,0 +1,30 @@
+{
+  "name": "@dinesmart/desktop",
+  "version": "1.0.0",
+  "description": "DineSmart Staff Desktop Portal",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win"
+  },
+  "author": "DineSmart",
+  "license": "ISC",
+  "dependencies": {
+    "electron-is-dev": "^2.0.0"
+  },
+  "devDependencies": {
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.dinesmart.staff",
+    "productName": "DineSmart Staff",
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  }
+}

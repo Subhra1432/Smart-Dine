@@ -462,7 +462,7 @@ export default function OrderTracking() {
                 {/* Quick Actions */}
                 <div className="pb-12 grid grid-cols-2 gap-4">
                     <Link
-                        to={`/menu?restaurant=${order.restaurant.slug}&table=${order.table.id}`}
+                        to={`/menu/${order.restaurant.slug}?table=${order.table.id}`}
                         className="p-6 bg-brand-primary/10 border border-brand-primary/20 rounded-[2rem] flex flex-col items-center justify-center gap-3 hover:bg-brand-primary/20 transition-all"
                     >
                         <UtensilsCrossed size={20} className="text-brand-primary" />

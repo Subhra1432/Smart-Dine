@@ -47,21 +47,21 @@ export default function CouponManagementPage() {
     mutationFn: (id: string) => toggleCoupon(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coupons'] });
-      toast.success('Node Frequency Toggled');
+      toast.success('Coupon status updated');
     },
   });
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteCoupon(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coupons'] });
-      toast.success('Campaign Purged');
+      toast.success('Coupon deleted');
     },
   });
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await createCoupon(formData);
-      toast.success('Campaign deployed successfully');
+      toast.success('Coupon created successfully');
       queryClient.invalidateQueries({ queryKey: ['coupons'] });
       setIsCreating(false);
       setFormData({
@@ -69,19 +69,19 @@ export default function CouponManagementPage() {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)
       });
     } catch (err: any) {
-      const message = err.details?.[0]?.message || err.message || 'Failed to initialize campaign';
+      const message = err.details?.[0]?.message || err.message || 'Failed to create coupon';
       toast.error(message);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Decommission this coupon node?')) return;
+    if (!confirm('Delete this coupon?')) return;
     try {
       await deleteCoupon(id);
-      toast.success('Node decommissioned');
+      toast.success('Coupon deleted');
       queryClient.invalidateQueries({ queryKey: ['coupons'] });
     } catch (err: any) {
-      toast.error(err.message || 'Decommissioning failed');
+      toast.error(err.message || 'Failed to delete coupon');
     }
   };
 
@@ -92,10 +92,10 @@ export default function CouponManagementPage() {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
-            <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Growth Engineering</p>
+            <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Marketing</p>
           </div>
           <h1 className="text-3xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">
-            Discount <span className="text-stone-300 dark:text-stone-700 italic">Nodes</span>
+            Discount <span className="text-stone-300 dark:text-stone-700 italic">Coupons</span>
           </h1>
         </div>
 
@@ -105,7 +105,7 @@ export default function CouponManagementPage() {
         >
           <div className="flex items-center gap-3 relative z-10">
             <Plus size={16} strokeWidth={3} />
-            <span>Initialize Campaign</span>
+            <span>Create Coupon</span>
           </div>
         </button>
       </div>
@@ -143,7 +143,7 @@ export default function CouponManagementPage() {
                         coupon.isActive ? 'bg-primary animate-pulse' : 'bg-stone-300 dark:bg-stone-600'
                       )} />
                       <span className="text-[9px] font-black uppercase tracking-widest">
-                        {new Date(coupon.expiresAt) < new Date() ? 'Decommissioned' : coupon.isActive ? 'Operational' : 'Suspended'}
+                        {new Date(coupon.expiresAt) < new Date() ? 'Expired' : coupon.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </div>
                   </div>
@@ -158,10 +158,10 @@ export default function CouponManagementPage() {
 
               <div className="bg-stone-50/50 dark:bg-stone-950/40 backdrop-blur-xl rounded-3xl p-5 space-y-5 border border-stone-100 dark:border-white/5 relative z-10 group-hover:bg-white dark:group-hover:bg-stone-900 transition-colors">
                 <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em]">Benefit Vector</span>
+                  <span className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em]">Discount</span>
                   <div className="px-4 py-1.5 bg-stone-950 dark:bg-primary rounded-xl shadow-xl">
                     <span className="font-black text-[9px] text-white dark:text-stone-950 uppercase tracking-widest">
-                      {coupon.discountType === 'PERCENT' ? `${coupon.discountValue}% REBATE` : `₹${coupon.discountValue} FLAT REWARD`}
+                      {coupon.discountType === 'PERCENT' ? `${coupon.discountValue}% OFF` : `₹${coupon.discountValue} OFF`}
                     </span>
                   </div>
                 </div>
@@ -170,14 +170,14 @@ export default function CouponManagementPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <p className="text-[10px] font-black text-stone-300 dark:text-stone-700 uppercase tracking-[0.3em]">Temporal Frame</p>
+                    <p className="text-[10px] font-black text-stone-300 dark:text-stone-700 uppercase tracking-[0.3em]">Expires On</p>
                     <div className="flex items-center gap-3 text-[11px] font-black text-stone-950 dark:text-white uppercase tracking-tight">
                       <Clock size={12} className="text-primary" />
                       {format(new Date(coupon.expiresAt), 'dd MMM yyyy').toUpperCase()}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-[9px] font-black text-stone-300 dark:text-stone-700 uppercase tracking-[0.2em]">Usage Depth</p>
+                    <p className="text-[9px] font-black text-stone-300 dark:text-stone-700 uppercase tracking-[0.2em]">Uses</p>
                     <p className="text-xl font-black text-stone-950 dark:text-white tracking-tighter">
                       {coupon.usedCount}<span className="text-stone-300 dark:text-stone-700">/{coupon.maxUses}</span>
                     </p>
@@ -186,11 +186,11 @@ export default function CouponManagementPage() {
               </div>
 
               <button
-                onClick={() => { navigator.clipboard.writeText(coupon.code); toast.success('Frequency Synchronized'); }}
+                onClick={() => { navigator.clipboard.writeText(coupon.code); toast.success('Code copied'); }}
                 className="w-full mt-6 py-4 bg-stone-50 dark:bg-stone-950/40 hover:bg-white dark:hover:bg-stone-950 border border-stone-100 dark:border-white/5 text-stone-950 dark:text-white font-black text-[9px] uppercase tracking-[0.3em] rounded-xl transition-all active:scale-95 flex items-center justify-center gap-3 group/copy shadow-sm"
               >
                 <Copy size={14} className="text-stone-300 dark:text-stone-700 group-hover/copy:text-primary transition-colors" />
-                Duplicate Token
+                Copy Code
               </button>
             </div>
           ))}
@@ -201,16 +201,16 @@ export default function CouponManagementPage() {
                 <Ticket size={64} strokeWidth={1} />
               </div>
               <div className="space-y-4 px-8">
-                <h3 className="text-4xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">No Active Nodes</h3>
+                <h3 className="text-4xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">No Coupons</h3>
                 <p className="text-stone-500 dark:text-stone-400 max-w-sm mx-auto leading-relaxed font-black uppercase text-[10px] tracking-widest">
-                  Deploy strategic promotional nodes to optimize customer lifecycle and retention metrics.
+                  Create discount coupons to attract more customers.
                 </p>
               </div>
               <button
                 onClick={() => setIsCreating(true)}
                 className="mt-12 px-12 py-5 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.3em] transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-stone-950/20 dark:shadow-primary/20"
               >
-                Launch Initial Campaign
+                Create Coupon
               </button>
             </div>
           )}
@@ -234,17 +234,17 @@ export default function CouponManagementPage() {
                   <Plus size={24} strokeWidth={3} />
                 </div>
               </div>
-              <h3 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">New Campaign</h3>
-              <p className="text-stone-400 dark:text-stone-600 text-[8px] font-black uppercase tracking-[0.4em] mt-2">Node Configuration Matrix</p>
+              <h3 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">New Coupon</h3>
+              <p className="text-stone-400 dark:text-stone-600 text-[8px] font-black uppercase tracking-[0.4em] mt-2">Fill details</p>
             </div>
 
             <form onSubmit={handleCreate} className="p-6 pb-6 space-y-4">
               <div className="space-y-2">
-                <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Identity Token</label>
+                <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Coupon Code</label>
                 <input
                   required
                   type="text"
-                  placeholder="e.g. FLASH_OMEGA"
+                  placeholder="e.g. SUMMER50"
                   value={formData.code}
                   onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                   className="w-full px-6 py-4 bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-white/5 rounded-2xl text-stone-950 dark:text-white font-mono text-lg uppercase focus:bg-white dark:focus:bg-stone-900 focus:border-primary/50 outline-none transition-all placeholder:text-stone-200 dark:placeholder:text-stone-800"
@@ -253,7 +253,7 @@ export default function CouponManagementPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Benefit Class</label>
+                  <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Discount Type</label>
                   <div className="relative">
                     <select
                       value={formData.discountType}
@@ -267,7 +267,7 @@ export default function CouponManagementPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Rebate Value</label>
+                  <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Discount Value</label>
                   <div className="relative">
                     <div className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-300 dark:text-stone-700">
                       {formData.discountType === 'PERCENT' ? <Percent size={16} /> : <IndianRupee size={16} />}
@@ -287,7 +287,7 @@ export default function CouponManagementPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Min. Threshold</label>
+                  <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Min Order Value</label>
                   <div className="relative">
                     <div className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-300 dark:text-stone-700">
                       <IndianRupee size={16} />
@@ -302,7 +302,7 @@ export default function CouponManagementPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Usage Cap</label>
+                  <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Max Uses</label>
                   <input
                     type="number"
                     min="1"
@@ -314,7 +314,7 @@ export default function CouponManagementPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Temporal Expiration</label>
+                <label className="block text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-2">Expiry Date</label>
                 <div className="relative">
                   <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-300 dark:text-stone-700" size={16} />
                   <input
@@ -339,7 +339,7 @@ export default function CouponManagementPage() {
                   type="submit"
                   className="flex-1 py-3 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-xl text-[8px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-stone-950/20 dark:shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
                 >
-                  Deploy Node
+                  Create Coupon
                 </button>
               </div>
             </form>

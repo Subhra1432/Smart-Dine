@@ -165,6 +165,7 @@ export async function createOrder(data: CreateOrderInput) {
         branchId,
         tableId: data.tableId,
         sessionId,
+        type: data.type || 'DINE_IN',
         status: initialStatus,
         subtotal,
         tax,

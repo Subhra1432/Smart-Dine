@@ -22,6 +22,7 @@ interface OverviewData {
   activeOrdersCount: number;
   popularItem: string;
   paymentSplit: Array<{ paymentMethod: string; _count: number; _sum: { total: number } }>;
+  orderTypeSplit: Array<{ type: string; _count: number }>;
   recentOrders: Array<{
     id: string;
     tableId: string;
@@ -89,13 +90,14 @@ export default function OverviewPage() {
   }, [queryClient]);
 
   const statCards = [
-    { label: "Today's Revenue", value: `₹${(overview?.todayRevenue || 0).toLocaleString()}`, icon: IndianRupee, color: 'text-primary', bg: 'bg-primary/10' },
-    { label: 'Active Orders', value: overview?.activeOrdersCount || 0, icon: ShoppingBag, color: 'text-stone-950 dark:text-white', bg: 'bg-stone-100 dark:bg-stone-800' },
-    { label: 'Avg Order Value', value: `₹${(overview?.avgOrderValue || 0).toFixed(0)}`, icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10' },
-    { label: 'Popular Item', value: overview?.popularItem || 'N/A', icon: Star, color: 'text-stone-950 dark:text-white', bg: 'bg-stone-100 dark:bg-stone-800' },
-    { label: 'Pending Payments', value: overview?.pendingPayments || 0, icon: CreditCard, color: 'text-primary', bg: 'bg-primary/10' },
-    { label: 'Projected Loss', value: `₹${((overview?.totalOrders || 0) * 0.05 * (overview?.avgOrderValue || 0)).toLocaleString()}`, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
-    { label: 'Active Sessions', value: overview?.activeOrdersCount || 0, icon: Clock, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: "Today's Revenue", value: `₹${(overview?.todayRevenue || 0).toLocaleString()}`, icon: IndianRupee, color: 'text-primary', bg: 'bg-primary/10', path: '/admin/analytics' },
+    { label: 'Active Orders', value: overview?.activeOrdersCount || 0, icon: ShoppingBag, color: 'text-stone-950 dark:text-white', bg: 'bg-stone-100 dark:bg-stone-800', path: '/billing' },
+    { label: 'Avg Order Value', value: `₹${(overview?.avgOrderValue || 0).toFixed(0)}`, icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10', path: '/admin/analytics' },
+    { label: 'Popular Item', value: overview?.popularItem || 'N/A', icon: Star, color: 'text-stone-950 dark:text-white', bg: 'bg-stone-100 dark:bg-stone-800', path: '/admin/analytics' },
+    { label: 'Pending Payments', value: overview?.pendingPayments || 0, icon: CreditCard, color: 'text-primary', bg: 'bg-primary/10', path: '/billing' },
+    { label: 'Projected Loss', value: `₹${((overview?.totalOrders || 0) * 0.05 * (overview?.avgOrderValue || 0)).toLocaleString()}`, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10', path: '/admin/analytics' },
+    { label: 'Active Sessions', value: overview?.activeOrdersCount || 0, icon: Clock, color: 'text-primary', bg: 'bg-primary/10', path: '/billing' },
+    { label: 'Take Away Orders', value: overview?.orderTypeSplit?.find(p => p.type === 'TAKE_AWAY')?._count || 0, icon: ShoppingBag, color: 'text-amber-500', bg: 'bg-amber-500/10', path: '/billing', state: { autoSelectOrderType: 'TAKE_AWAY' } },
   ];
 
   if (isLoading) {
@@ -107,7 +109,7 @@ export default function OverviewPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
         <div className="flex-1">
           <h1 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none mb-1">
-            Operational <span className="text-primary italic">Intelligence</span>
+            Business <span className="text-primary italic">Overview</span>
           </h1>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -121,7 +123,11 @@ export default function OverviewPage() {
       {/* Stat Cards Matrix */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, idx) => (
-          <div key={idx} className="glass-card group relative p-4 overflow-hidden border border-stone-100/50 dark:border-white/5 hover:border-primary/20 transition-all duration-700">
+          <button
+            key={idx}
+            onClick={() => stat.path && navigate(stat.path, { state: (stat as any).state })}
+            className="glass-card group relative p-4 overflow-hidden border border-stone-100/50 dark:border-white/5 hover:border-primary/20 transition-all duration-700 text-left w-full"
+          >
             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-primary/10 transition-all duration-1000" />
 
             <div className="relative z-10 flex flex-col h-full">
@@ -132,7 +138,7 @@ export default function OverviewPage() {
               <p className="text-xl font-black text-stone-950 dark:text-white mb-1 tracking-tighter leading-none">{stat.value}</p>
               <p className="text-[9px] font-black uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500">{stat.label}</p>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -148,7 +154,7 @@ export default function OverviewPage() {
                   </div>
                   Revenue Growth
                 </h3>
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mt-1.5 ml-9.5">30-Day Financial Performance Matrix</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mt-1.5 ml-9.5">Last 30 Days Revenue</p>
               </div>
             </div>
 
@@ -191,9 +197,9 @@ export default function OverviewPage() {
                   <div className="w-7 h-7 rounded-lg bg-stone-950/10 dark:bg-white/5 flex items-center justify-center border border-stone-950/10 dark:border-white/5">
                     <Activity size={14} className="text-stone-950 dark:text-white" />
                   </div>
-                  Settlement Split
+                  Payment Methods
                 </h3>
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mt-1.5 ml-9.5">Distribution Analytics</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mt-1.5 ml-9.5">How customers pay</p>
               </div>
             </div>
 
@@ -247,13 +253,13 @@ export default function OverviewPage() {
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/10">
               <Zap size={14} className="text-primary" />
             </div>
-            Operational Feed
+            Recent Orders
           </h3>
           <button
             onClick={() => navigate('/billing')}
             className="px-4 py-2 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary dark:hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-stone-950/10 dark:shadow-primary/10"
           >
-            Access Global Ledger
+            View All Orders
           </button>
         </div>
 
@@ -261,13 +267,13 @@ export default function OverviewPage() {
           <table className="w-full">
             <thead>
               <tr className="text-[9px] font-black text-stone-400 dark:text-stone-500 border-b border-stone-100 dark:border-white/5 bg-stone-50/30 dark:bg-stone-900/30">
-                <th className="text-left py-3 px-6 uppercase tracking-[0.3em]">Transaction ID</th>
-                <th className="text-center py-3 px-2 uppercase tracking-[0.3em]">Node</th>
-                <th className="text-left py-3 px-2 uppercase tracking-[0.3em]">Resource Manifest</th>
-                <th className="text-right py-3 px-2 uppercase tracking-[0.3em]">Value</th>
-                <th className="text-center py-3 px-2 uppercase tracking-[0.3em]">State</th>
-                <th className="text-center py-3 px-2 uppercase tracking-[0.3em]">Settlement</th>
-                <th className="text-right py-3 px-6 uppercase tracking-[0.3em]">Sync Time</th>
+                <th className="text-left py-3 px-4 uppercase tracking-[0.3em]">Order ID</th>
+                <th className="text-center py-3 px-4 uppercase tracking-[0.3em]">Table</th>
+                <th className="text-left py-3 px-4 uppercase tracking-[0.3em]">Items Ordered</th>
+                <th className="text-right py-3 px-4 uppercase tracking-[0.3em]">Total</th>
+                <th className="text-center py-3 px-4 uppercase tracking-[0.3em]">Order Status</th>
+                <th className="text-center py-3 px-4 uppercase tracking-[0.3em]">Payment</th>
+                <th className="text-right py-3 px-4 uppercase tracking-[0.3em]">Time</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100/50 dark:divide-white/5">
@@ -277,15 +283,15 @@ export default function OverviewPage() {
                   onClick={() => navigate('/billing', { state: { autoSelectTableId: order.tableId } })}
                   className="hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer group/row"
                 >
-                  <td className="py-3 px-6">
+                  <td className="py-3 px-4">
                     <p className="text-[12px] font-black text-stone-950 dark:text-white font-mono tracking-tighter uppercase">#{order.id.slice(-8)}</p>
                   </td>
-                  <td className="py-3 px-2 text-center">
+                  <td className="py-3 px-4 text-center">
                     <div className="mx-auto w-8 h-8 rounded-lg bg-stone-950 dark:bg-stone-800 text-white flex items-center justify-center font-black text-[10px] shadow-lg group-hover/row:scale-110 transition-all duration-500 group-hover/row:bg-primary group-hover/row:text-stone-950">
                       <ShoppingBag size={14} />
                     </div>
                   </td>
-                  <td className="px-6 py-3">
+                  <td className="px-4 py-3">
                     <div className="flex flex-col gap-1">
                       {order.items.slice(0, 3).map((i: any, idx: number) => (
                         <div key={idx} className="text-[9px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-tight flex items-center gap-1.5">
@@ -299,10 +305,10 @@ export default function OverviewPage() {
                       )}
                     </div>
                   </td>
-                  <td className="py-3 px-2 text-right">
+                  <td className="py-3 px-4 text-right">
                     <span className="text-[13px] font-black text-stone-950 dark:text-white tracking-tight">₹{order.total.toLocaleString()}</span>
                   </td>
-                  <td className="px-6 py-3 text-center">
+                  <td className="px-4 py-3 text-center">
                     <span className={`px-2.5 py-1 rounded-md text-[7px] font-black uppercase tracking-[0.3em] border ${order.status === 'COMPLETED' ? 'bg-primary/10 text-primary border-primary/20' :
                         order.status === 'READY' ? 'bg-green-500/10 text-green-600 border-green-500/20' :
                           'bg-stone-900 dark:bg-stone-800 text-white border-transparent shadow-lg shadow-stone-950/20'
@@ -310,11 +316,11 @@ export default function OverviewPage() {
                       {order.status}
                     </span>
                   </td>
-                  <td className="py-3 px-2 text-center">
+                  <td className="py-3 px-4 text-center">
                     <span className={`px-2.5 py-1 rounded-md text-[7px] font-black uppercase tracking-[0.3em] shadow-sm border ${order.paymentStatus === 'PAID' ? 'bg-stone-950 dark:bg-primary text-white dark:text-stone-950 border-transparent' : 'bg-white dark:bg-stone-900 text-stone-400 dark:text-stone-600 border-stone-200 dark:border-white/5'
                       }`}>{order.paymentStatus}</span>
                   </td>
-                  <td className="py-3 px-6 text-right text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em]">
+                  <td className="py-3 px-4 text-right text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em]">
                     {new Date(order.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
                   </td>
                 </tr>
@@ -324,7 +330,7 @@ export default function OverviewPage() {
                   <td colSpan={7} className="py-32 text-center">
                     <div className="flex flex-col items-center gap-6 opacity-10 dark:opacity-20">
                       <ShoppingBag size={80} strokeWidth={1} />
-                      <p className="text-[12px] font-black uppercase tracking-[0.5em]">No Active Operations</p>
+                      <p className="text-[12px] font-black uppercase tracking-[0.5em]">No Active Orders</p>
                     </div>
                   </td>
                 </tr>

@@ -33,7 +33,7 @@ export const SplashLoading: React.FC<SplashLoadingProps> = ({ isLoading }) => {
           </h1>
           <div className="flex items-center gap-4 md:gap-8">
             <div className="h-[1px] w-8 md:w-12 bg-gradient-to-r from-transparent via-saffron-500/40 to-transparent" />
-            <p className="text-[8px] md:text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] md:tracking-[0.6em]">Node Activation</p>
+            <p className="text-[8px] md:text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] md:tracking-[0.6em]">Loading...</p>
             <div className="h-[1px] w-8 md:w-12 bg-gradient-to-l from-transparent via-saffron-500/40 to-transparent" />
           </div>
         </div>

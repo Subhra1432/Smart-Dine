@@ -15,6 +15,7 @@ function App() {
         <Route path="/offline" element={<OfflinePage />} />
         <Route path="/order/:sessionId" element={<OrderTracking />} />
         <Route path="/track/:sessionId" element={<OrderTracking />} />
+        <Route path="/menu" element={<MenuPage />} />
         <Route path="/menu/:slug" element={<MenuPage />} />
         <Route path="/:slug" element={<MenuPage />} />
         <Route path="*" element={

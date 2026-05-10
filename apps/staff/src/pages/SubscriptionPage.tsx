@@ -189,13 +189,13 @@ export default function SubscriptionPage() {
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2.5 mb-1">
               <span className="w-2 h-2 rounded-full bg-saffron-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
-              <p className="text-[9px] font-black text-saffron-500 uppercase tracking-[0.4em]">Billing & Growth</p>
+              <p className="text-[9px] font-black text-saffron-500 uppercase tracking-[0.4em]">Subscription</p>
             </div>
             <h1 className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">
-              Stone <span className="text-saffron-500 italic">Vault</span>
+              Subscription
             </h1>
             <p className="text-stone-500 dark:text-stone-400 font-black uppercase text-[9px] tracking-widest max-w-md">
-              Secure your operations with industrial-grade scaling and premium restaurant telemetry.
+              Manage your subscription and billing.
             </p>
           </div>
         </div>
@@ -214,12 +214,12 @@ export default function SubscriptionPage() {
             </div>
             <div className="flex-1">
               <p className={`text-lg font-black uppercase tracking-widest ${isExpired ? 'text-red-400' : 'text-saffron-500'}`}>
-                {isExpired ? 'Vault Access Expired' : 'Telemetry Interruption Imminent'}
+                {isExpired ? 'Subscription Expired' : 'Subscription Expiring Soon'}
               </p>
               <p className="text-sm text-stone-400 mt-1 font-medium">
                 {isExpired
-                  ? 'Industrial access has been suspended. Re-activate your vault to restore branch synchronization.'
-                  : `Vault lease expires in ${subscription?.daysRemaining} days. Renew credentials now to prevent operational downtime.`
+                  ? 'Your subscription has expired. Please renew to continue using all features.'
+                  : `Your subscription expires in ${subscription?.daysRemaining} days. Renew now to avoid interruption.`
                 }
               </p>
             </div>
@@ -237,9 +237,9 @@ export default function SubscriptionPage() {
                 <Lock size={32} className="text-red-400" />
               </div>
               <div className="flex-1">
-                <p className="text-xl font-black text-white uppercase tracking-tighter mb-2">Downgrade Locked</p>
+                <p className="text-xl font-black text-white uppercase tracking-tighter mb-2">Cannot Downgrade</p>
                 <p className="text-sm text-stone-400 mb-6 font-medium max-w-xl">
-                  Current operational load exceeds Starter parameters. De-provision resources before re-scaling.
+                  You have more branches or tables than the Starter plan allows. Please remove some before downgrading.
                 </p>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {downgradeBlock.reasons.map((r, i) => (
@@ -278,7 +278,7 @@ export default function SubscriptionPage() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
                 <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isExpired ? 'bg-red-500' : 'bg-saffron-500'}`} />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 dark:text-white/50">
-                  {isExpired ? 'Lease Expired' : 'Active Deployment'}
+                  {isExpired ? 'Expired' : 'Active'}
                 </span>
               </div>
               <h2 className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">{currentPlan?.label || activePlan}</h2>
@@ -317,7 +317,7 @@ export default function SubscriptionPage() {
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
           <h2 className="text-[10px] font-black text-stone-500 uppercase tracking-[0.5em] whitespace-nowrap">
-            {isExpired || isExpiringSoon ? 'Renewal Protocols' : 'Operational Tiers'}
+            {isExpired || isExpiringSoon ? 'Renew Plan' : 'Available Plans'}
           </h2>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         </div>
@@ -343,13 +343,13 @@ export default function SubscriptionPage() {
 
                 {plan.popular && !isCurrent && (
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 px-8 py-2 bg-saffron-500 text-black text-[10px] font-black rounded-b-3xl uppercase tracking-[0.3em] shadow-2xl">
-                    ✦ Highly Recommended ✦
+                    ✦ Most Popular ✦
                   </div>
                 )}
 
                 {isCurrent && (
                   <div className="absolute top-0 right-10 px-6 py-2 bg-stone-950/10 dark:bg-white/10 border border-t-0 border-stone-200 dark:border-white/20 text-stone-950 dark:text-white text-[10px] font-black rounded-b-2xl uppercase tracking-widest">
-                    Current Active Lease
+                    Current Plan
                   </div>
                 )}
 
@@ -363,7 +363,7 @@ export default function SubscriptionPage() {
                         <span className="text-sm font-black text-stone-500 dark:text-stone-400 mt-2">₹</span>
                         <p className="text-4xl font-black text-stone-950 dark:text-white tracking-tighter">{plan.price.toLocaleString()}</p>
                       </div>
-                      <p className="text-[9px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-[0.2em]">Per Cycle</p>
+                      <p className="text-[9px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-[0.2em]">Per Month</p>
                     </div>
                   </div>
 
@@ -371,8 +371,8 @@ export default function SubscriptionPage() {
                     <h3 className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter mb-2">{plan.label}</h3>
                     <p className="text-sm text-stone-500 dark:text-stone-400 font-medium leading-relaxed max-w-[280px]">
                       {plan.name === 'STARTER'
-                        ? 'Optimized for high-velocity single location operations.'
-                        : 'Enterprise-grade orchestration for multi-branch restaurant empires.'}
+                        ? 'Best for single location restaurants.'
+                        : 'Best for multi-branch restaurant chains.'}
                     </p>
                   </div>
 
@@ -397,10 +397,10 @@ export default function SubscriptionPage() {
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {isCurrent && !isExpired && !isExpiringSoon
-                        ? 'Current Active Tier'
+                        ? 'Current Plan'
                         : isCurrent
-                          ? `Renew Lease Protocol`
-                          : `Deploy ${plan.name} Protocol`
+                          ? `Renew Now`
+                          : `Subscribe to ${plan.label}`
                       }
                       {!isCurrent && <Zap size={14} className="fill-current" />}
                     </span>
@@ -417,15 +417,15 @@ export default function SubscriptionPage() {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-[10px] font-black text-stone-500 uppercase tracking-[0.5em] flex items-center gap-2">
             <CreditCard size={14} className="text-saffron-500" />
-            Transaction Logs
+            Payment History
           </h2>
         </div>
 
         {!payments?.length ? (
           <div className="text-center py-20 bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
             <Shield size={48} className="text-stone-600 mx-auto mb-4" />
-            <p className="text-sm font-black text-stone-400 uppercase tracking-widest">No Records Found</p>
-            <p className="text-xs text-stone-500 mt-2">Vault transaction history will materialize here.</p>
+            <p className="text-sm font-black text-stone-400 uppercase tracking-widest">No payments found</p>
+            <p className="text-xs text-stone-500 mt-2">Your payment history will appear here.</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -467,10 +467,10 @@ export default function SubscriptionPage() {
               <div className="space-y-1">
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-2">
                   <CreditCard size={20} className="text-saffron-500" />
-                  All Transactions
+                  Payment History
                 </h3>
                 <p className="text-[10px] text-stone-500 font-black uppercase tracking-[0.2em]">
-                  Complete Vault History
+                  Full Payment History
                 </p>
               </div>
               <button
@@ -513,9 +513,9 @@ export default function SubscriptionPage() {
 
             <div className="relative flex items-center justify-between mb-10">
               <div className="space-y-1">
-                <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Authorize Vault</h3>
+                <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Upgrade Plan</h3>
                 <p className="text-[10px] text-stone-500 font-black uppercase tracking-[0.2em]">
-                  Deployment: <span className="text-saffron-500">{selectedPlanInfo.label} Protocol</span>
+                  Plan: <span className="text-saffron-500">{selectedPlanInfo.label}</span>
                 </p>
               </div>
               <button
@@ -540,7 +540,7 @@ export default function SubscriptionPage() {
                   </div>
                   <div className="h-px bg-white/10" />
                   <div className="flex justify-between items-center pt-2">
-                    <span className="text-xs font-black text-saffron-500 uppercase tracking-[0.2em]">Total Payload</span>
+                    <span className="text-xs font-black text-saffron-500 uppercase tracking-[0.2em]">Total Amount</span>
                     <span className="text-2xl font-black text-white">₹{Math.round(selectedPlanInfo.price * 1.18).toLocaleString()}</span>
                   </div>
                 </div>
@@ -548,18 +548,18 @@ export default function SubscriptionPage() {
                 <div className="flex items-center gap-3 p-4 rounded-2xl bg-saffron-500/5 border border-saffron-500/10">
                   <Shield size={16} className="text-saffron-500" />
                   <p className="text-[9px] font-black text-stone-400 uppercase tracking-wider leading-relaxed">
-                    Industrial-grade encryption active. Transaction secured via DineSmart Vault.
+                    Secure payment via Razorpay.
                   </p>
                 </div>
               </div>
 
               {/* Payment Methods */}
               <div className="space-y-3">
-                <p className="text-[10px] font-black text-stone-500 uppercase tracking-[0.3em] mb-4 ml-1">Select Interface</p>
+                <p className="text-[10px] font-black text-stone-500 uppercase tracking-[0.3em] mb-4 ml-1">Select Payment Method</p>
                 {[
-                  { id: 'UPI', label: 'UPI Network', sub: 'Instant Sync', icon: Zap },
-                  { id: 'CARD', label: 'Credit Card', sub: 'Global Gateway', icon: CreditCard },
-                  { id: 'BANK_TRANSFER', label: 'Net Banking', sub: 'Direct Protocol', icon: Shield },
+                  { id: 'UPI', label: 'UPI', sub: 'Fast', icon: Zap },
+                  { id: 'CARD', label: 'Card', sub: 'Visa, Mastercard, etc.', icon: CreditCard },
+                  { id: 'BANK_TRANSFER', label: 'Net Banking', sub: 'All Indian Banks', icon: Shield },
                 ].map(m => (
                   <button
                     key={m.id}
@@ -582,13 +582,13 @@ export default function SubscriptionPage() {
             {processing && (
               <div className="flex items-center gap-3 justify-center py-4 bg-saffron-500/10 border border-saffron-500/20 rounded-2xl mb-6">
                 <div className="w-4 h-4 border-2 border-saffron-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-[10px] font-black text-saffron-500 uppercase tracking-[0.2em]">Auto-deducting from account...</p>
+                <p className="text-[10px] font-black text-saffron-500 uppercase tracking-[0.2em]">Processing payment...</p>
               </div>
             )}
 
             <div className="text-center">
               <p className="text-[9px] text-stone-500 font-black uppercase tracking-[0.2em]">
-                By initializing you accept the industrial service agreement.
+                By proceeding, you agree to the terms and conditions.
               </p>
             </div>
           </div>

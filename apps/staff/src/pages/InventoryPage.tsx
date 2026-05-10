@@ -172,8 +172,8 @@ export default function InventoryPage() {
       {/* Dynamic Header Matrix */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Resource <span className="text-primary italic">Manifest</span></h1>
-          <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] ml-1">Inventory Control & Supply Chain Protocol</p>
+          <h1 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Inventory <span className="text-primary italic">List</span></h1>
+          <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] ml-1">Manage your stock</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -187,7 +187,7 @@ export default function InventoryPage() {
             onClick={() => setIsCreating(true)}
             className="px-4 py-2 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-lg text-[9px] font-black uppercase tracking-[0.3em] hover:bg-primary dark:hover:bg-primary/90 transition-all active:scale-95 flex items-center gap-2 shadow-xl shadow-stone-950/10 dark:shadow-primary/10"
           >
-            <Plus size={14} /> Add Asset
+            <Plus size={14} /> Add Item
           </button>
         </div>
       </div>
@@ -195,10 +195,10 @@ export default function InventoryPage() {
       {/* Stats Matrix */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Assets', val: items?.length || 0, icon: Box, color: 'text-stone-950 dark:text-white', bg: 'bg-stone-100 dark:bg-stone-800' },
-          { label: 'Asset Value', val: `₹${(items?.reduce((sum, item) => sum + (item.currentStock * item.costPrice), 0) || 0).toLocaleString()}`, icon: IndianRupee, color: 'text-primary', bg: 'bg-primary/10' },
-          { label: 'Critical Value', val: `₹${(items?.filter(i => i.currentStock <= i.minThreshold).reduce((sum, item) => sum + (item.currentStock * item.costPrice), 0) || 0).toLocaleString()}`, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
-          { label: 'Active Clusters', val: categories?.length || 0, icon: Boxes, color: 'text-primary', bg: 'bg-primary/10' },
+          { label: 'Total Items', val: items?.length || 0, icon: Box, color: 'text-stone-950 dark:text-white', bg: 'bg-stone-100 dark:bg-stone-800' },
+          { label: 'Total Value', val: `₹${(items?.reduce((sum, item) => sum + (item.currentStock * item.costPrice), 0) || 0).toLocaleString()}`, icon: IndianRupee, color: 'text-primary', bg: 'bg-primary/10' },
+          { label: 'Low Stock Value', val: `₹${(items?.filter(i => i.currentStock <= i.minThreshold).reduce((sum, item) => sum + (item.currentStock * item.costPrice), 0) || 0).toLocaleString()}`, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
+          { label: 'Categories', val: categories?.length || 0, icon: Boxes, color: 'text-primary', bg: 'bg-primary/10' },
         ].map((stat, idx) => (
           <div key={idx} className="glass-card group relative p-4 overflow-hidden border border-stone-100 dark:border-white/5">
             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-primary/10 transition-all duration-1000" />
@@ -222,7 +222,7 @@ export default function InventoryPage() {
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-300 dark:text-stone-700" />
             <input 
               type="text" 
-              placeholder="SEARCH RESOURCE ARCHIVE..."
+              placeholder="Search inventory..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-11 pr-4 py-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-white/5 rounded-lg text-[9px] font-black uppercase tracking-[0.3em] focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all text-stone-950 dark:text-white placeholder:text-stone-300 dark:placeholder:text-stone-700 shadow-inner"
@@ -259,14 +259,14 @@ export default function InventoryPage() {
           <table className="w-full">
             <thead>
               <tr className="text-[9px] font-black text-stone-400 dark:text-stone-500 border-b border-stone-100 dark:border-white/5 bg-stone-50/20 dark:bg-stone-900/20">
-                <th className="text-left py-4 px-6 uppercase tracking-[0.3em]">Asset Metadata</th>
+                <th className="text-left py-4 px-6 uppercase tracking-[0.3em]">Item Name</th>
                 <th className="text-left py-4 px-2 uppercase tracking-[0.3em]">Category</th>
-                <th className="text-center py-4 px-2 uppercase tracking-[0.3em]">Quant Level</th>
+                <th className="text-center py-4 px-2 uppercase tracking-[0.3em]">Stock</th>
                 <th className="text-center py-4 px-2 uppercase tracking-[0.3em]">Threshold</th>
                 <th className="text-right py-4 px-2 uppercase tracking-[0.3em]">Unit Cost</th>
                 <th className="text-right py-4 px-2 uppercase tracking-[0.3em]">Total Value</th>
-                <th className="text-center py-4 px-2 uppercase tracking-[0.3em]">State</th>
-                <th className="text-right py-4 px-6 uppercase tracking-[0.3em]">Operations</th>
+                <th className="text-center py-4 px-2 uppercase tracking-[0.3em]">Status</th>
+                <th className="text-right py-4 px-6 uppercase tracking-[0.3em]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 dark:divide-white/5">
@@ -354,7 +354,7 @@ export default function InventoryPage() {
             </div>
             <form onSubmit={(e) => { e.preventDefault(); createCatMutation.mutate(catFormData); }} className="p-6 space-y-4">
               <div className="space-y-1">
-                <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Category Label</label>
+                <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Category Name</label>
                 <input 
                   type="text"
                   required
@@ -362,7 +362,7 @@ export default function InventoryPage() {
                   value={catFormData.name}
                   onChange={e => setCatFormData({ name: e.target.value })}
                   className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-white/5 rounded-lg text-[11px] font-black focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all text-stone-950 dark:text-white"
-                  placeholder="E.G. DAIRY / SPICES"
+                  placeholder="e.g. Dairy, Spices"
                 />
               </div>
               <button 
@@ -370,7 +370,7 @@ export default function InventoryPage() {
                 disabled={createCatMutation.isPending}
                 className="w-full py-4 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-xl text-[11px] font-black uppercase tracking-[0.4em] hover:bg-primary dark:hover:bg-primary/90 transition-all active:scale-[0.98] mt-4 shadow-xl shadow-stone-950/10 dark:shadow-primary/10 disabled:opacity-50"
               >
-                {createCatMutation.isPending ? 'PROCESSING...' : 'ESTABLISH CATEGORY'}
+                {createCatMutation.isPending ? 'PROCESSING...' : 'Create Category'}
               </button>
             </form>
           </div>
@@ -381,7 +381,7 @@ export default function InventoryPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-stone-950/40 backdrop-blur-md animate-in fade-in duration-300 overflow-y-auto">
           <div className="bg-white dark:bg-stone-900 rounded-[1.5rem] w-full max-w-lg my-6 overflow-hidden shadow-2xl border border-white/20 dark:border-white/5 animate-in zoom-in-95 duration-500">
             <div className="p-6 border-b border-stone-100 dark:border-white/5 flex items-center justify-between bg-stone-50/50 dark:bg-stone-950/50">
-              <h3 className="text-xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Asset Definition</h3>
+              <h3 className="text-xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Add Inventory Item</h3>
               <button onClick={() => setIsCreating(false)} className="p-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-all">
                 <X size={18} />
               </button>
@@ -411,7 +411,7 @@ export default function InventoryPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Deployment Branch</label>
+                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Branch</label>
                   <select 
                     required
                     value={formData.branchId}
@@ -423,7 +423,7 @@ export default function InventoryPage() {
                   </select>
                 </div>
                 <div className="col-span-2 space-y-1">
-                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Classification</label>
+                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Category</label>
                   <select 
                     value={formData.categoryId}
                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
@@ -434,7 +434,7 @@ export default function InventoryPage() {
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Initial Reserve</label>
+                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Current Stock</label>
                   <input 
                     required
                     type="number" 
@@ -445,7 +445,7 @@ export default function InventoryPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Critical Threshold</label>
+                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Low Stock Alert</label>
                   <input 
                     required
                     type="number" 
@@ -456,7 +456,7 @@ export default function InventoryPage() {
                   />
                 </div>
                 <div className="col-span-2 space-y-1">
-                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Unit Cost Acquisition (₹)</label>
+                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Cost Price per Unit (₹)</label>
                   <input 
                     required
                     type="number" 
@@ -480,7 +480,7 @@ export default function InventoryPage() {
                   disabled={createMutation.isPending}
                   className="flex-1 py-4 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-xl text-[11px] font-black uppercase tracking-[0.4em] shadow-xl shadow-stone-950/10 dark:shadow-primary/10 transition-all active:scale-[0.98] disabled:opacity-50"
                 >
-                  {createMutation.isPending ? 'SYNCING...' : 'REGISTER SKU'}
+                  {createMutation.isPending ? 'SYNCING...' : 'Add Item'}
                 </button>
               </div>
             </form>
@@ -492,14 +492,14 @@ export default function InventoryPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-stone-950/40 backdrop-blur-md animate-in fade-in duration-300">
           <div className="bg-white dark:bg-stone-900 rounded-[1.5rem] w-full max-w-sm overflow-hidden shadow-2xl border border-white/20 dark:border-white/5 animate-in zoom-in-95 duration-500">
             <div className="p-6 border-b border-stone-100 dark:border-white/5 flex items-center justify-between bg-stone-50/50 dark:bg-stone-950/50">
-              <h3 className="text-xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Stock Audit</h3>
+              <h3 className="text-xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Adjust Stock</h3>
               <button onClick={() => setAdjusting(null)} className="p-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-all">
                 <X size={18} />
               </button>
             </div>
             <div className="p-6 space-y-4">
               <div className="space-y-1">
-                <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Correction Quantity</label>
+                <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Quantity to Add/Remove</label>
                 <div className="flex items-center gap-3">
                   <input 
                     type="number" 
@@ -516,22 +516,22 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Audit Rationale</label>
+                <label className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] ml-1">Reason</label>
                 <select 
                   value={adjusting.reason}
                   onChange={(e) => setAdjusting({ ...adjusting, reason: e.target.value })}
                   className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-white/5 rounded-lg text-[11px] font-black focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all text-stone-950 dark:text-white appearance-none cursor-pointer"
                 >
-                  <option value="" className="bg-white dark:bg-stone-900">SELECT RATIONALE</option>
-                  <option value="Restock" className="bg-white dark:bg-stone-900">RESTOCK / ACQUISITION</option>
-                  <option value="Wastage" className="bg-white dark:bg-stone-900">WASTAGE / EXPIRATION</option>
-                  <option value="Manual Count Fix" className="bg-white dark:bg-stone-900">MANUAL RECONCILIATION</option>
-                  <option value="Return" className="bg-white dark:bg-stone-900">LOGISTICS RETURN</option>
+                  <option value="" className="bg-white dark:bg-stone-900">Select reason</option>
+                  <option value="Restock" className="bg-white dark:bg-stone-900">Restock</option>
+                  <option value="Wastage" className="bg-white dark:bg-stone-900">Wastage</option>
+                  <option value="Manual Count Fix" className="bg-white dark:bg-stone-900">Manual Count</option>
+                  <option value="Return" className="bg-white dark:bg-stone-900">Return</option>
                 </select>
               </div>
               <div className="p-3 rounded-lg bg-stone-950 dark:bg-black/40 border border-stone-800 dark:border-white/5">
                 <div className="flex justify-between text-[9px] font-black uppercase tracking-[0.5em]">
-                  <span className="text-stone-500">Projected Level</span>
+                  <span className="text-stone-500">New Stock Level</span>
                   <span className="text-white dark:text-primary text-[11px]">
                     {adjusting.current + (parseFloat(adjusting.qty) || 0)} {adjusting.unit.toUpperCase()}
                   </span>
@@ -541,7 +541,7 @@ export default function InventoryPage() {
                 onClick={handleStockUpdate}
                 className="w-full py-4 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-xl text-[11px] font-black uppercase tracking-[0.4em] hover:bg-primary dark:hover:bg-primary/90 transition-all active:scale-[0.98] shadow-xl shadow-stone-950/10 dark:shadow-primary/10"
               >
-                EXECUTE CORRECTION
+                Save
               </button>
             </div>
           </div>

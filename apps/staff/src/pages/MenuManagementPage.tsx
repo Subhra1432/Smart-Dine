@@ -58,7 +58,9 @@ interface Category {
 export default function MenuManagementPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState(
+    () => localStorage.getItem('menuManagementCategoryFilter') || 'all'
+  );
 
   // Modals state
   const [isCreatingItem, setIsCreatingItem] = useState(false);
@@ -256,10 +258,10 @@ export default function MenuManagementPage() {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
-            <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Inventory Architecture</p>
+            <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Menu Settings</p>
           </div>
           <h1 className="text-3xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">
-            Catalog <span className="text-stone-300 dark:text-stone-700 italic">Control</span>
+            Menu <span className="text-stone-300 dark:text-stone-700 italic">Management</span>
           </h1>
         </div>
 
@@ -269,7 +271,7 @@ export default function MenuManagementPage() {
             className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 bg-white/60 dark:bg-stone-900/60 backdrop-blur-xl border border-white dark:border-white/5 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-950 dark:text-white px-6 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm group"
           >
             <Sparkles size={16} className="text-stone-300 dark:text-stone-700 group-hover:text-primary transition-colors" />
-            Registry Manager
+            Manage Add-ons
           </button>
           <button
             onClick={() => {
@@ -280,7 +282,7 @@ export default function MenuManagementPage() {
             className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 bg-white/60 dark:bg-stone-900/60 backdrop-blur-xl border border-white dark:border-white/5 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-950 dark:text-white px-6 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm group"
           >
             <Plus size={16} className="text-stone-300 dark:text-stone-700 group-hover:text-primary transition-colors" />
-            Add Classification
+            Add Category
           </button>
           <button
             onClick={() => {
@@ -302,7 +304,7 @@ export default function MenuManagementPage() {
             className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 px-8 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-stone-950/20 dark:shadow-primary/20 transition-all active:scale-95 group"
           >
             <ChefHat size={16} className="text-primary dark:text-stone-950 group-hover:rotate-12 transition-transform duration-300" />
-            Initialize Asset
+            Add Item
           </button>
         </div>
       </div>
@@ -311,20 +313,26 @@ export default function MenuManagementPage() {
         <div className="md:col-span-8 space-y-5">
           <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
             <button
-              onClick={() => setCategoryFilter('all')}
+              onClick={() => {
+                setCategoryFilter('all');
+                localStorage.setItem('menuManagementCategoryFilter', 'all');
+              }}
               className={cn(
                 "px-6 py-3 rounded-xl text-[9px] font-black whitespace-nowrap transition-all border uppercase tracking-[0.2em]",
                 categoryFilter === 'all'
-                  ? 'bg-stone-950 dark:bg-primary border-stone-950 dark:border-primary text-white dark:text-stone-950 shadow-xl shadow-stone-950/20 dark:shadow-primary/20'
-                  : 'bg-white/60 dark:bg-stone-900/60 border-white dark:border-white/5 text-stone-400 dark:text-stone-600 hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-950 dark:hover:text-white'
+                  ? 'bg-stone-950 dark:bg-primary border-stone-950 dark:border-primary text-white dark:text-stone-950 shadow-xl shadow-stone-950/20 dark:shadow-primary/20 flex-shrink-0'
+                  : 'bg-white/60 dark:bg-stone-900/60 border-white dark:border-white/5 text-stone-400 dark:text-stone-600 hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-950 dark:hover:text-white flex-shrink-0'
               )}
             >
-              All Assets ({items?.length || 0})
+              All Items ({items?.length || 0})
             </button>
             {categories?.map((cat) => (
-              <div key={cat.id} className="relative group">
+              <div key={cat.id} className="relative group flex-shrink-0">
                 <button
-                  onClick={() => setCategoryFilter(cat.id)}
+                  onClick={() => {
+                    setCategoryFilter(cat.id);
+                    localStorage.setItem('menuManagementCategoryFilter', cat.id);
+                  }}
                   className={cn(
                     "px-6 py-3 rounded-xl text-[9px] font-black whitespace-nowrap transition-all border uppercase tracking-[0.2em] pr-10",
                     categoryFilter === cat.id
@@ -370,7 +378,7 @@ export default function MenuManagementPage() {
 
         <div className="md:col-span-4 glass-card p-6 flex flex-col justify-center border-white/20 dark:border-white/5 shadow-2xl shadow-stone-200/40 dark:shadow-none">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em]">System Vital</p>
+            <p className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em]">Summary</p>
             <div className="px-3 py-1 rounded-lg bg-primary/10 text-primary text-[8px] font-black uppercase tracking-[0.1em] border border-primary/10">Active</div>
           </div>
           <div className="flex items-end justify-between">
@@ -395,12 +403,12 @@ export default function MenuManagementPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-stone-100 dark:border-white/5 bg-stone-50/30 dark:bg-stone-950/30">
-                <th className="py-5 px-6 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600">Culinary Asset</th>
-                <th className="py-5 px-4 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600">Classification</th>
-                <th className="py-5 px-4 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600 text-center">Valuation</th>
-                <th className="py-5 px-4 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600 text-center">Process Time</th>
-                <th className="py-5 px-4 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600 text-center">Customer Visibility</th>
-                <th className="py-5 px-6 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600 text-right">Operations</th>
+                <th className="py-5 px-6 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600">Item Name</th>
+                <th className="py-5 px-4 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600">Category</th>
+                <th className="py-5 px-4 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600 text-center">Price</th>
+                <th className="py-5 px-4 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600 text-center">Prep Time</th>
+                <th className="py-5 px-4 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600 text-center">Status</th>
+                <th className="py-5 px-6 text-[9px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 dark:divide-white/5">
@@ -425,7 +433,7 @@ export default function MenuManagementPage() {
                     </div>
                   </td>
                   <td className="py-5 px-4">
-                    <span className="px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 text-[8px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.1em] border border-stone-200/50 dark:border-white/5">
+                    <span className="px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 text-[8px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.1em] border border-stone-200/50 dark:border-white/5 whitespace-nowrap">
                       {item.category.name}
                     </span>
                   </td>
@@ -494,8 +502,8 @@ export default function MenuManagementPage() {
             <div className="w-24 h-24 rounded-[2rem] bg-stone-50 dark:bg-stone-800 flex items-center justify-center mb-8 border border-stone-100 dark:border-white/5">
               <Search size={40} strokeWidth={1} className="text-stone-200 dark:text-stone-800" />
             </div>
-            <p className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Asset Search Terminal</p>
-            <p className="text-[10px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.5em] mt-3">Zero matches detected in local registry</p>
+            <p className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Search Items</p>
+            <p className="text-[10px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.5em] mt-3">No items found</p>
           </div>
         )}
       </div>
@@ -509,9 +517,9 @@ export default function MenuManagementPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2 h-2 rounded-full bg-primary" />
-                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Command Input</p>
+                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Input</p>
                 </div>
-                <h3 className="text-3xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">{editItemId ? 'Modify' : 'Initialize'} Asset</h3>
+                <h3 className="text-3xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">{editItemId ? 'Edit' : 'Add'} Item</h3>
               </div>
               <button onClick={() => setIsCreatingItem(false)} className="w-12 h-12 rounded-xl bg-stone-50 dark:bg-stone-800 text-stone-300 dark:text-stone-700 hover:text-stone-950 dark:hover:text-white transition-all border border-stone-100 dark:border-white/5">
                 <XIcon size={22} className="mx-auto" />
@@ -520,22 +528,22 @@ export default function MenuManagementPage() {
             <form onSubmit={handleSaveItem} className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Asset Identity</label>
+                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Item Name</label>
                   <input required type="text" placeholder="e.g. CORE.SIGNATURE_DISH" value={itemFormData.name} onChange={e => setItemFormData({ ...itemFormData, name: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black uppercase tracking-[0.1em] text-[13px]" />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Specifications</label>
-                  <textarea placeholder="INPUT SENSORY PROFILE..." value={itemFormData.description} onChange={e => setItemFormData({ ...itemFormData, description: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black uppercase tracking-[0.05em] text-[13px] resize-none" rows={3} />
+                  <textarea placeholder="Enter description..." value={itemFormData.description} onChange={e => setItemFormData({ ...itemFormData, description: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black uppercase tracking-[0.05em] text-[13px] resize-none" rows={3} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Valuation (₹)</label>
+                    <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Price (₹)</label>
                     <input required type="number" min="0" step="0.01" value={itemFormData.price} onChange={e => setItemFormData({ ...itemFormData, price: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black text-[13px]" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Latency (M)</label>
+                    <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Prep Time (Mins)</label>
                     <input required type="number" min="1" value={itemFormData.preparationTimeMinutes} onChange={e => setItemFormData({ ...itemFormData, preparationTimeMinutes: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black text-[13px]" />
                   </div>
                 </div>
@@ -543,15 +551,15 @@ export default function MenuManagementPage() {
 
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Classification</label>
+                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Category</label>
                   <select required value={itemFormData.categoryId} onChange={e => setItemFormData({ ...itemFormData, categoryId: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black uppercase tracking-[0.1em] text-[13px] appearance-none cursor-pointer">
-                    <option value="" disabled>Select Classification</option>
+                    <option value="" disabled>Select Category</option>
                     {categories?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Visual Manifest</label>
+                  <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Item Image</label>
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleImageSelect(e.target.files[0])} />
                   {imagePreview ? (
                     <div className="relative rounded-2xl overflow-hidden border border-stone-100 dark:border-white/5 aspect-video group">
@@ -563,14 +571,14 @@ export default function MenuManagementPage() {
                   ) : (
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full aspect-video border-2 border-dashed border-stone-100 dark:border-white/10 hover:border-primary/40 rounded-2xl flex flex-col items-center justify-center gap-3 text-stone-400 dark:text-stone-500 hover:text-primary hover:bg-primary/5 transition-all group active:scale-[0.98]">
                       <ImagePlus size={32} strokeWidth={1} className="group-hover:scale-110 transition-transform duration-700" />
-                      <span className="text-[9px] font-black uppercase tracking-[0.2em]">Load Image Asset</span>
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em]">Upload Image</span>
                     </button>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between p-5 bg-stone-50 dark:bg-stone-800 rounded-2xl border border-stone-100 dark:border-white/5">
                   <div className="space-y-0.5">
-                    <p className="text-[13px] font-black text-stone-950 dark:text-white uppercase tracking-tight leading-none">Dietary Classification</p>
+                    <p className="text-[13px] font-black text-stone-950 dark:text-white uppercase tracking-tight leading-none">Diet Type</p>
                     <p className="text-[8px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.1em] mt-1">Type: {itemFormData.isVeg ? 'Veg' : 'Non-Veg'}</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer group">
@@ -591,8 +599,8 @@ export default function MenuManagementPage() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                      <p className="text-[11px] font-black text-stone-950 dark:text-white uppercase tracking-wider">Variants & Sizing</p>
-                      <p className="text-[8px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.2em]">Multi-tier pricing architecture</p>
+                      <p className="text-[11px] font-black text-stone-950 dark:text-white uppercase tracking-wider">Variants & Sizes</p>
+                      <p className="text-[8px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.2em]">Add different sizes and prices</p>
                     </div>
                     <button
                       type="button"
@@ -654,8 +662,8 @@ export default function MenuManagementPage() {
                 {/* Addons Section */}
                 <div className="space-y-6">
                   <div className="space-y-1">
-                    <p className="text-[11px] font-black text-stone-950 dark:text-white uppercase tracking-wider">Custom Add-ons</p>
-                    <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.2em]">Peripheral flavor enhancements</p>
+                    <p className="text-[11px] font-black text-stone-950 dark:text-white uppercase tracking-wider">Add-ons</p>
+                    <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.2em]">Extra items customers can add</p>
                   </div>
 
                   <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
@@ -681,7 +689,7 @@ export default function MenuManagementPage() {
                     {(!addons || addons.length === 0) && (
                       <div className="py-8 border-2 border-dashed border-stone-50 dark:border-white/5 rounded-2xl flex flex-col items-center justify-center text-stone-300 dark:text-stone-700">
                         <ListPlus size={24} strokeWidth={1} className="mb-2 opacity-20" />
-                        <p className="text-[8px] font-black uppercase tracking-[0.2em]">No addons defined in registry</p>
+                        <p className="text-[8px] font-black uppercase tracking-[0.2em]">No add-ons found</p>
                       </div>
                     )}
                   </div>
@@ -689,10 +697,10 @@ export default function MenuManagementPage() {
               </div>
 
               <div className="md:col-span-2 flex gap-4 pt-8 border-t border-stone-50 dark:border-white/5">
-                <button type="button" onClick={() => setIsCreatingItem(false)} className="flex-1 py-4 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-2xl text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] transition-all active:scale-95 border border-stone-100 dark:border-white/5">Abort</button>
+                <button type="button" onClick={() => setIsCreatingItem(false)} className="flex-1 py-4 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-2xl text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] transition-all active:scale-95 border border-stone-100 dark:border-white/5">Cancel</button>
                 <button type="submit" className="flex-[2] py-4 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-2xl text-[9px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-stone-950/30 dark:shadow-primary/30 transition-all active:scale-95 flex items-center justify-center gap-3">
                   <Sparkles size={16} className="text-primary dark:text-stone-950" />
-                  {editItemId ? 'Commit Changes' : 'Finalize Asset'}
+                  {editItemId ? 'Save Changes' : 'Add Item'}
                 </button>
               </div>
             </form>
@@ -709,10 +717,10 @@ export default function MenuManagementPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2 h-2 rounded-full bg-primary" />
-                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Taxonomy Entry</p>
+                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Category Info</p>
                 </div>
                 <h3 className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">
-                  {editCategoryId ? 'Update' : 'New'} <span className="text-stone-300 dark:text-stone-700">Class</span>
+                  {editCategoryId ? 'Edit' : 'New'} <span className="text-stone-300 dark:text-stone-700">Category</span>
                 </h3>
               </div>
               <button onClick={() => setIsCreatingCategory(false)} className="w-12 h-12 rounded-xl bg-stone-50 dark:bg-stone-800 text-stone-300 dark:text-stone-700 hover:text-stone-950 dark:hover:text-white transition-all flex items-center justify-center border border-stone-100 dark:border-white/5">
@@ -722,18 +730,18 @@ export default function MenuManagementPage() {
 
             <form onSubmit={handleSaveCategory} className="space-y-8">
               <div className="space-y-2">
-                <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Class Identity</label>
+                <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Category Name</label>
                 <input required type="text" placeholder="e.g. SIGNATURE_COLLECTION" value={categoryFormData.name} onChange={e => setCategoryFormData({ ...categoryFormData, name: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-2xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black uppercase tracking-[0.1em] text-[13px]" />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Metadata Context</label>
-                <textarea placeholder="OPTIONAL SYSTEM TAGS..." value={categoryFormData.description} onChange={e => setCategoryFormData({ ...categoryFormData, description: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-2xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black uppercase tracking-[0.05em] text-[13px] resize-none" rows={3} />
+                <label className="text-[9px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] ml-1.5">Description</label>
+                <textarea placeholder="Enter description..." value={categoryFormData.description} onChange={e => setCategoryFormData({ ...categoryFormData, description: e.target.value })} className="w-full px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-2xl text-stone-950 dark:text-white focus:border-primary/50 focus:bg-white dark:focus:bg-stone-950 transition-all font-black uppercase tracking-[0.05em] text-[13px] resize-none" rows={3} />
               </div>
 
               <div className="flex items-center justify-between p-5 bg-stone-50 dark:bg-stone-800 rounded-2xl border border-stone-100 dark:border-white/5">
                 <div className="flex-1">
-                  <p className="text-[13px] font-black text-stone-950 dark:text-white uppercase tracking-tight leading-none">Customer Visibility</p>
+                  <p className="text-[13px] font-black text-stone-950 dark:text-white uppercase tracking-tight leading-none">Status</p>
                   <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.1em] mt-1">Status: {categoryFormData.isActive ? 'Active' : 'Hidden'}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer group">
@@ -749,20 +757,20 @@ export default function MenuManagementPage() {
 
               <div className="flex flex-col gap-4 pt-6 border-t border-stone-50 dark:border-white/5">
                 <button type="submit" className="w-full py-4 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-2xl text-[9px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-stone-950/20 dark:shadow-primary/20 transition-all active:scale-95">
-                  {editCategoryId ? 'Synchronize' : 'Initialize'}
+                  {editCategoryId ? 'Save' : 'Add'}
                 </button>
                 {editCategoryId && (
                   <button
                     type="button"
                     onClick={() => {
-                      if (confirm('DESTRUCTIVE ACTION: Permanent classification purge. Proceed?')) {
+                      if (confirm('Are you sure you want to delete this category?')) {
                         deleteCategoryMutation.mutate(editCategoryId);
                         setIsCreatingCategory(false);
                       }
                     }}
                     className="w-full py-4 bg-red-50 dark:bg-red-900/20 hover:bg-red-500 hover:text-white border border-red-100 dark:border-red-900/20 hover:border-red-400 text-red-500 rounded-2xl text-[9px] font-black uppercase tracking-[0.4em] transition-all active:scale-95"
                   >
-                    Purge classification
+                    Delete Category
                   </button>
                 )}
               </div>
@@ -780,9 +788,9 @@ export default function MenuManagementPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2.5">
                   <Sparkles size={14} className="text-primary" />
-                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Global Registry</p>
+                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">All Add-ons</p>
                 </div>
-                <h3 className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">Addon <span className="text-stone-300 dark:text-stone-700">Manager</span></h3>
+                <h3 className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">Manage <span className="text-stone-300 dark:text-stone-700">Add-ons</span></h3>
               </div>
               <button onClick={() => setIsManagingAddons(false)} className="p-3 hover:bg-stone-100 dark:hover:bg-white/5 rounded-2xl transition-all text-stone-300 hover:text-stone-950 dark:hover:text-white">
                 <XIcon size={20} />
@@ -790,7 +798,7 @@ export default function MenuManagementPage() {
             </div>
 
             <form onSubmit={handleSaveAddon} className="flex gap-3 mb-8">
-              <input required type="text" placeholder="ADDON IDENTITY" value={addonFormData.name} onChange={e => setAddonFormData({ ...addonFormData, name: e.target.value })} className="flex-[2] px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-stone-950 dark:text-white" />
+              <input required type="text" placeholder="Add-on Name" value={addonFormData.name} onChange={e => setAddonFormData({ ...addonFormData, name: e.target.value })} className="flex-[2] px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-stone-950 dark:text-white" />
               <input required type="number" step="0.01" placeholder="PRICE" value={addonFormData.price} onChange={e => setAddonFormData({ ...addonFormData, price: e.target.value })} className="flex-1 px-6 py-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-stone-950 dark:text-white" />
               <button type="submit" className="px-6 py-3.5 bg-primary text-stone-950 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20">Add</button>
             </form>
@@ -804,7 +812,7 @@ export default function MenuManagementPage() {
                   </div>
                   <button
                     onClick={() => {
-                      if (confirm('Permanently remove this addon from the global registry?')) {
+                      if (confirm('Are you sure you want to delete this add-on?')) {
                         deleteAddonMutation.mutate(addon.id);
                       }
                     }}

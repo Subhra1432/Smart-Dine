@@ -29,7 +29,7 @@ router.get('/revenue', asyncHandler(async (req: Request, res: Response) => {
 
   const orders = await prisma.order.findMany({
     where,
-    select: { total: true, createdAt: true },
+    select: { total: true, createdAt: true, type: true },
     orderBy: { createdAt: 'asc' },
   });
 
@@ -61,6 +61,11 @@ router.get('/revenue', asyncHandler(async (req: Request, res: Response) => {
   const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
   const totalOrders = orders.length;
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+  
+  const takeAwayRevenue = orders.filter(o => o.type === 'TAKE_AWAY').reduce((sum, o) => sum + o.total, 0);
+  const dineInRevenue = orders.filter(o => o.type === 'DINE_IN' || !o.type).reduce((sum, o) => sum + o.total, 0);
+  const takeAwayOrders = orders.filter(o => o.type === 'TAKE_AWAY').length;
+  const dineInOrders = orders.filter(o => o.type === 'DINE_IN' || !o.type).length;
 
   res.json({
     success: true,
@@ -70,6 +75,10 @@ router.get('/revenue', asyncHandler(async (req: Request, res: Response) => {
         totalRevenue: Math.round(totalRevenue * 100) / 100,
         totalOrders,
         avgOrderValue: Math.round(avgOrderValue * 100) / 100,
+        takeAwayRevenue: Math.round(takeAwayRevenue * 100) / 100,
+        dineInRevenue: Math.round(dineInRevenue * 100) / 100,
+        takeAwayOrders,
+        dineInOrders,
       },
     },
   });
@@ -240,7 +249,7 @@ router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
       where: { restaurantId, createdAt: { gte: today }, isArchived: false },
     }),
     prisma.order.aggregate({
-      where: { restaurantId, createdAt: { gte: today }, paymentStatus: 'PAID', isArchived: false },
+      where: { restaurantId, createdAt: { gte: today }, status: { notIn: ['CANCELLED'] }, isArchived: false },
       _sum: { total: true },
     }),
     prisma.order.count({
@@ -263,6 +272,28 @@ router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
     _sum: { total: true },
   });
 
+  // Order type split
+  const orderTypeSplit = await prisma.order.groupBy({
+    by: ['type'],
+    where: { restaurantId, createdAt: { gte: today }, isArchived: false },
+    _count: true,
+  });
+
+  // Popular Item
+  const popularItemData = await prisma.orderItem.groupBy({
+    by: ['menuItemId'],
+    where: { order: { restaurantId, createdAt: { gte: today }, status: { notIn: ['CANCELLED'] } } },
+    _count: true,
+    orderBy: { _count: { menuItemId: 'desc' } },
+    take: 1,
+  });
+
+  let popularItem = 'N/A';
+  if (popularItemData.length > 0) {
+    const item = await prisma.menuItem.findUnique({ where: { id: popularItemData[0].menuItemId } });
+    popularItem = item?.name || 'N/A';
+  }
+
   // Recent orders
   const recentOrders = await prisma.order.findMany({
     where: { 
@@ -284,7 +315,9 @@ router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
       pendingPayments,
       tableTurnoverRate: totalTables > 0 ? Math.round((todayOrders / totalTables) * 100) / 100 : 0,
       activeOrdersCount,
+      popularItem,
       paymentSplit,
+      orderTypeSplit,
       recentOrders,
     },
   });

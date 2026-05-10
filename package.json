@@ -12,12 +12,14 @@
     "dev:api": "npm run dev -w packages/api",
     "dev:customer": "npm run dev -w apps/customer",
     "dev:staff": "npm run dev -w apps/staff",
+    "dev:desktop": "npm run start -w apps/desktop",
     "dev:superadmin": "npm run dev -w apps/superadmin",
     "build": "npm run build:all",
     "build:shared": "npm run build -w packages/shared",
     "build:api": "npm run build -w packages/api",
     "build:customer": "npm run build -w apps/customer",
     "build:staff": "npm run build -w apps/staff",
+    "build:desktop": "npm run build:win -w apps/desktop",
     "build:superadmin": "npm run build -w apps/superadmin",
     "build:all": "npm run build:shared && npm run build:api && npm run build:customer && npm run build:staff && npm run build:superadmin",
     "start:prod": "node packages/api/dist/app.js",
@@ -35,6 +37,7 @@
     "defaults"
   ],
   "dependencies": {
+    "electron": "^42.0.1",
     "google-auth-library": "^10.6.2"
   }
 }

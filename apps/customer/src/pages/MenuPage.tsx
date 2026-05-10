@@ -74,6 +74,7 @@ export default function MenuPage() {
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [orderType, setOrderType] = useState<'DINE_IN' | 'TAKE_AWAY'>('DINE_IN');
   const [placing, setPlacing] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
@@ -352,6 +353,7 @@ export default function MenuPage() {
         couponCode: cart.couponCode || undefined,
         customerPhone: cart.customerPhone ? cart.customerPhone.replace(/[^\d+]/g, '') : undefined,
         customerName: cart.customerName || undefined,
+        type: orderType,
       }) as any;
 
       const sid = result?.sessionId || result?.id;
@@ -1419,6 +1421,33 @@ export default function MenuPage() {
             </div>
 
             <div className="space-y-6 mb-8 relative z-10 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <button
+                  type="button"
+                  onClick={() => setOrderType('DINE_IN')}
+                  className={`py-4 rounded-2xl flex flex-col items-center justify-center gap-2 border transition-all ${
+                    orderType === 'DINE_IN' 
+                      ? 'bg-saffron-500/10 border-saffron-500 text-saffron-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' 
+                      : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'
+                  }`}
+                >
+                  <UtensilsCrossed size={20} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Dine In</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderType('TAKE_AWAY')}
+                  className={`py-4 rounded-2xl flex flex-col items-center justify-center gap-2 border transition-all ${
+                    orderType === 'TAKE_AWAY' 
+                      ? 'bg-saffron-500/10 border-saffron-500 text-saffron-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' 
+                      : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'
+                  }`}
+                >
+                  <ShoppingCart size={20} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Take Away</span>
+                </button>
+              </div>
+
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-1 h-1 bg-[#D97706] rounded-full" />
                 <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em]">Itemized Manifest</p>

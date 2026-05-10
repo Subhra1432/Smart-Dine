@@ -71,7 +71,7 @@ export function TableQRCode({ tableNumber, qrCodeUrl, baseUrlOverride }: TableQR
 
       <div className="w-full text-center space-y-6 relative z-10">
         <div className="bg-stone-900/50 py-4 rounded-2xl border border-white/5 shadow-inner">
-          <p className="text-[9px] font-black text-stone-500 uppercase tracking-[0.3em] mb-1">Station Anchor</p>
+          <p className="text-[9px] font-black text-stone-500 uppercase tracking-[0.3em] mb-1">Table</p>
           <p className="text-4xl font-black text-white leading-none tracking-tighter">{tableNumber}</p>
         </div>
         
@@ -91,7 +91,7 @@ export function TableQRCode({ tableNumber, qrCodeUrl, baseUrlOverride }: TableQR
           <button 
             onClick={() => {
               navigator.clipboard.writeText(finalQrUrl);
-              toast.success('Vector Link Encrypted & Copied');
+              toast.success('Link copied');
             }}
             className="p-4 bg-stone-900 text-stone-400 rounded-2xl hover:bg-stone-800 hover:text-white transition-all active:scale-95 border border-white/5"
             title="Copy URL"

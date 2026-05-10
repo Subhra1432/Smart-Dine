@@ -152,6 +152,7 @@ export const printCustomerSummary = (customerId: string) =>
     credentials: 'include' 
   });
 export const printTableSummary = (tableId: string) => fetch(`${API_BASE}/billing/table/${tableId}/summary-bill`, { method: 'POST', credentials: 'include' });
+export const printKitchenTicket = (orderId: string) => fetch(`${API_BASE}/billing/orders/${orderId}/print-kitchen`, { method: 'POST', credentials: 'include' });
 
 // Kitchen
 export const getKitchenOrders = (branchId?: string) => fetchApi(`/kitchen/orders${branchId ? `?branchId=${branchId}` : ''}`);

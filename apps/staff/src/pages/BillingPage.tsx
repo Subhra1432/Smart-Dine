@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import {
   getBillingTables, getBillingOrders, updateOrderStatus,
-  updatePaymentStatus, printBill, printCustomerSummary, printTableSummary,
+  updatePaymentStatus, printBill, printCustomerSummary, printTableSummary, printKitchenTicket,
   getBranches, getMenuItems, addItemToOrder, createOrder,
   updateOrderItem
 } from '../lib/api';
@@ -17,7 +17,7 @@ import { NOTIFICATION_SOUND } from '../assets/audio';
 import { useAuthStore } from '../store/auth';
 import {
   DollarSign, Clock, CheckCircle, X, Printer, CreditCard,
-  Circle, AlertCircle, User, Phone, Plus, Search, ChevronRight, Trash2, Check, Volume2
+  Circle, AlertCircle, User, Phone, Plus, Search, ChevronRight, Trash2, Check, Volume2, EyeOff, UtensilsCrossed, ShoppingCart
 } from 'lucide-react';
 import { PageLoader } from '../components/PageLoader';
 
@@ -84,12 +84,14 @@ export default function BillingPage() {
       }
       setAudioContextUnlocked(true);
       playNotificationSound();
-      toast.success('Audio Intelligence Synchronized');
+      toast.success('Sound enabled');
     } catch (err) {
       console.error('Failed to unlock audio:', err);
     }
   };
-  const [tableFilter, setTableFilter] = useState<'ALL' | 'PENDING' | 'UNPAID' | 'HISTORY'>('ALL');
+  const [tableFilter, setTableFilter] = useState<'ALL' | 'PENDING' | 'UNPAID' | 'HISTORY'>(
+    () => (localStorage.getItem('billingTableFilter') as any) || 'ALL'
+  );
   const [pendingStatus, setPendingStatus] = useState<{ orderId: string; status: string } | null>(null);
   const [addingItemToOrderId, setAddingItemToOrderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -97,6 +99,9 @@ export default function BillingPage() {
   const [clearedAt, setClearedAt] = useState<number>(0);
   const [collectionPopup, setCollectionPopup] = useState<{ method: string; amount: number; orderIds: string[] } | null>(null);
   const [collectingOrderId, setCollectingOrderId] = useState<string | null>(null);
+  const [orderTypeFilter, setOrderTypeFilter] = useState<'DINE_IN' | 'TAKE_AWAY'>(
+    () => (localStorage.getItem('billingOrderTypeFilter') as any) || 'DINE_IN'
+  );
   const location = useLocation();
 
   const isReadOnly = user?.role === 'OWNER';
@@ -104,6 +109,9 @@ export default function BillingPage() {
   useEffect(() => {
     if (location.state?.autoSelectTableId) {
       setSelectedTableId(location.state.autoSelectTableId);
+    }
+    if (location.state?.autoSelectOrderType) {
+      setOrderTypeFilter(location.state.autoSelectOrderType);
     }
   }, [location.state]);
 
@@ -161,16 +169,49 @@ export default function BillingPage() {
 
   const filteredTables = useMemo(() => {
     if (!tables) return [];
-    let result = tables;
+    
+    // Map tables to only include the active order that matches the current type filter
+    let result = tables.map(t => {
+      const matchingOrder = t.activeOrders?.find(o => (o.type || 'DINE_IN') === orderTypeFilter);
+      return {
+        ...t,
+        activeOrder: matchingOrder
+      };
+    });
+
     if (tableFilter === 'PENDING') {
-      result = tables.filter(t => t.activeOrders?.some(o => o.status === 'PENDING'));
+      result = result.filter(t => t.activeOrder && t.activeOrder.status === 'PENDING');
     }
     else if (tableFilter === 'UNPAID') {
-      result = tables.filter(t => t.activeOrder?.paymentStatus === 'UNPAID');
+      result = result.filter(t => t.activeOrder && t.activeOrder.paymentStatus === 'UNPAID');
     }
 
     return [...result].sort((a, b) => a.number - b.number);
-  }, [tables, tableFilter]);
+  }, [tables, tableFilter, orderTypeFilter]);
+
+  const dineInPendingCount = useMemo(() => {
+    if (!tables) return 0;
+    return tables.reduce((count, t) => {
+      return count + (t.activeOrders?.filter(o => (o.type || 'DINE_IN') === 'DINE_IN' && o.status === 'PENDING').length || 0);
+    }, 0);
+  }, [tables]);
+
+  const takeAwayPendingCount = useMemo(() => {
+    if (!tables) return 0;
+    return tables.reduce((count, t) => {
+      return count + (t.activeOrders?.filter(o => o.type === 'TAKE_AWAY' && o.status === 'PENDING').length || 0);
+    }, 0);
+  }, [tables]);
+
+  const pendingCount = useMemo(() => {
+    if (!tables) return 0;
+    return tables.filter(t => t.activeOrders?.some(o => o.status === 'PENDING')).length;
+  }, [tables]);
+
+  const unpaidCount = useMemo(() => {
+    if (!tables) return 0;
+    return tables.filter(t => t.activeOrder?.paymentStatus === 'UNPAID').length;
+  }, [tables]);
 
   const selectedTable = useMemo(() =>
     tables?.find(t => t.id === selectedTableId) || null,
@@ -284,6 +325,15 @@ export default function BillingPage() {
     } catch { toast.error('Failed to print bill'); }
   };
 
+  const handlePrintKitchen = async (orderId: string) => {
+    try {
+      const res = await printKitchenTicket(orderId);
+      const html = await res.text();
+      const win = window.open('', '_blank');
+      if (win) { win.document.write(html); win.print(); }
+    } catch { toast.error('Failed to print kitchen ticket'); }
+  };
+
   const handlePrintSummary = async (customerId: string) => {
     try {
       const res = await printCustomerSummary(customerId);
@@ -318,19 +368,69 @@ export default function BillingPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Billing Desk</h1>
-          <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] ml-1">Order Settlement & Financial Reconciliation</p>
+          <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] ml-1">Manage bills and payments</p>
         </div>
 
-        <div className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-md p-1 rounded-xl flex gap-1 border border-white dark:border-white/5 shadow-sm">
-          {['ALL', 'PENDING', 'UNPAID', 'HISTORY'].map(f => (
+        <div className="flex gap-4">
+          {/* Order Type Tabs */}
+          <div className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-md p-1 rounded-xl flex gap-1 border border-white dark:border-white/5 shadow-sm">
             <button
-              key={f}
-              onClick={() => setTableFilter(f as any)}
-              className={`px-3 py-1.5 rounded-lg text-[8px] font-black transition-all uppercase tracking-[0.4em] ${tableFilter === f ? 'bg-stone-950 dark:bg-primary text-white dark:text-stone-950 shadow-xl scale-105' : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'}`}
+              onClick={() => {
+                setOrderTypeFilter('DINE_IN');
+                localStorage.setItem('billingOrderTypeFilter', 'DINE_IN');
+              }}
+              className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all uppercase tracking-[0.3em] flex items-center gap-2 ${orderTypeFilter === 'DINE_IN' ? 'bg-primary text-stone-950 shadow-xl' : 'text-stone-400 dark:text-stone-500 hover:text-stone-300'}`}
             >
-              {f}
+              <UtensilsCrossed size={12} />
+              Dine In
+              {dineInPendingCount > 0 && (
+                <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[14px] text-center">
+                  {dineInPendingCount}
+                </span>
+              )}
             </button>
-          ))}
+            <button
+              onClick={() => {
+                setOrderTypeFilter('TAKE_AWAY');
+                localStorage.setItem('billingOrderTypeFilter', 'TAKE_AWAY');
+              }}
+              className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all uppercase tracking-[0.3em] flex items-center gap-2 ${orderTypeFilter === 'TAKE_AWAY' ? 'bg-primary text-stone-950 shadow-xl' : 'text-stone-400 dark:text-stone-500 hover:text-stone-300'}`}
+            >
+              <ShoppingCart size={12} />
+              Take Away
+              {takeAwayPendingCount > 0 && (
+                <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[14px] text-center">
+                  {takeAwayPendingCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Status Tabs */}
+          <div className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-md p-1 rounded-xl flex gap-1 border border-white dark:border-white/5 shadow-sm">
+            {['ALL', 'PENDING', 'UNPAID', 'HISTORY'].map(f => {
+              let count = 0;
+              if (f === 'PENDING') count = pendingCount;
+              if (f === 'UNPAID') count = unpaidCount;
+              return (
+                <button
+                  key={f}
+                  onClick={() => {
+                    setTableFilter(f as any);
+                    localStorage.setItem('billingTableFilter', f);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-[8px] font-black transition-all uppercase tracking-[0.4em] flex items-center gap-1.5 ${tableFilter === f ? 'bg-stone-950 dark:bg-primary text-white dark:text-stone-950 shadow-xl scale-105' : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'}`}
+                >
+                  {f}
+                  {count > 0 && (
+                    <span className="bg-red-500 text-white text-[7px] font-black px-1 py-0.5 rounded-full min-w-[12px] text-center">
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -339,28 +439,28 @@ export default function BillingPage() {
           <div className="p-4 border-b border-stone-100 dark:border-white/5 flex justify-between items-center bg-stone-50/30 dark:bg-stone-900/30">
             <div>
               <h2 className="text-[9px] font-black text-stone-400 dark:text-stone-500 flex items-center gap-2 uppercase tracking-[0.4em]">
-                <Clock size={12} className="text-primary" /> Archive Log
+                <Clock size={12} className="text-primary" /> History
               </h2>
-              <p className="text-[8px] font-black text-stone-300 dark:text-stone-600 mt-1 uppercase tracking-[0.4em] ml-5">Recently Finalized Transactions</p>
+              <p className="text-[8px] font-black text-stone-300 dark:text-stone-600 mt-1 uppercase tracking-[0.4em] ml-5">Past Orders</p>
             </div>
             <button
               onClick={() => setClearedAt(Date.now())}
               className="text-[8px] px-4 py-2 bg-red-500/10 text-red-600 dark:text-red-400 font-black hover:bg-red-500 hover:text-white rounded-lg transition-all border border-red-500/20 dark:border-red-500/10 uppercase tracking-[0.3em] active:scale-95 shadow-lg shadow-red-500/5"
             >
-              Purge Logs
+              Purge History
             </button>
           </div>
           <div className="overflow-x-auto px-4 pb-4">
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="text-stone-400 dark:text-stone-500 font-black uppercase tracking-[0.3em] text-[9px]">
                 <tr>
-                  <th className="px-4 py-4">ID Hash</th>
-                  <th className="px-4 py-4">Node</th>
-                  <th className="px-4 py-4">Subject</th>
-                  <th className="px-4 py-4">Composition</th>
-                  <th className="px-4 py-4 text-right">Value</th>
+                  <th className="px-4 py-4">Order ID</th>
+                  <th className="px-4 py-4">Table</th>
+                  <th className="px-4 py-4">Customer</th>
+                  <th className="px-4 py-4">Items</th>
+                  <th className="px-4 py-4 text-right">Total</th>
                   <th className="px-4 py-4 text-center">Status</th>
-                  <th className="px-4 py-4 text-right">Timestamp</th>
+                  <th className="px-4 py-4 text-right">Time</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 dark:divide-white/5">
@@ -400,10 +500,10 @@ export default function BillingPage() {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           {filteredTables?.map((table) => (
-            <button
+            <div
               key={table.id}
               onClick={() => setSelectedTableId(table.id)}
-              className={`glass-card group relative p-4 flex flex-col min-h-[13rem] h-full overflow-hidden border ${table.status === 'FREE' ? 'border-white/20 dark:border-white/5' :
+              className={`glass-card cursor-pointer group relative p-4 flex flex-col min-h-[13rem] h-full overflow-hidden border ${table.status === 'FREE' ? 'border-white/20 dark:border-white/5' :
                 table.status === 'DELAYED' ? 'border-red-200/50 dark:border-red-900/20 bg-red-50/20 dark:bg-red-900/10' :
                   'border-primary/20 dark:border-primary/10 bg-primary/5 dark:bg-primary/5'
                 }`}
@@ -436,12 +536,12 @@ export default function BillingPage() {
                         </p>
                       ))}
                       {table.activeOrder.items.length > 2 && (
-                        <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] pl-2.5">+{table.activeOrder.items.length - 2} more protocols</p>
+                        <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.4em] pl-2.5">+{table.activeOrder.items.length - 2} more items</p>
                       )}
                     </div>
                   ) : (
                     <div className="py-3 border-t border-stone-200/30 dark:border-white/10 opacity-30">
-                      <p className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em]">Station Idle</p>
+                      <p className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em]">Free</p>
                     </div>
                   )}
                 </div>
@@ -461,12 +561,12 @@ export default function BillingPage() {
                       }}
                       className="w-full py-3 bg-white/40 dark:bg-stone-900/40 backdrop-blur-md border border-white/40 dark:border-white/5 text-stone-500 dark:text-stone-400 hover:text-stone-950 dark:hover:text-white rounded-xl text-[9px] font-black uppercase tracking-[0.4em] hover:border-primary/50 dark:hover:border-primary/30 transition-all active:scale-95 shadow-sm group-hover:shadow-md"
                     >
-                      {table.status === 'FREE' ? 'Initialize' : 'Engage'}
+                      {table.status === 'FREE' ? 'Start' : 'Open'}
                     </button>
                   )}
                 </div>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       )}
@@ -477,7 +577,7 @@ export default function BillingPage() {
           <div className="p-6 border-b border-stone-200/30 dark:border-white/10 flex items-center justify-between sticky top-0 z-10 bg-transparent">
             <div>
               <h2 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Table #{selectedTable.number}</h2>
-              <p className="text-[9px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-2">Active Protocol Management</p>
+              <p className="text-[9px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-2">Manage Orders</p>
             </div>
             <button
               onClick={() => setSelectedTableId(null)}
@@ -502,7 +602,12 @@ export default function BillingPage() {
                             <span className="text-[10px] font-black text-stone-700 dark:text-stone-300 uppercase tracking-[0.15em]">{order.customer.name || 'Guest'}</span>
                           </div>
                         )}
-                        <h3 className="text-[9px] font-black uppercase tracking-[0.3em] text-primary">Protocol #{order.id.slice(-6).toUpperCase()}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-[9px] font-black uppercase tracking-[0.3em] text-primary">Order #{order.id.slice(-6).toUpperCase()}</h3>
+                          <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-[0.1em] ${order.type === 'TAKE_AWAY' ? 'bg-amber-500/20 text-amber-500' : 'bg-blue-500/20 text-blue-500'}`}>
+                            {order.type === 'TAKE_AWAY' ? 'Take Away' : 'Dine In'}
+                          </span>
+                        </div>
                         <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 mt-0.5 uppercase tracking-[0.3em]">{new Date(order.createdAt).toLocaleTimeString()}</p>
                       </div>
                       <span className={`px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-[0.3em] shadow-sm ${order.status === 'READY' ? 'bg-primary text-stone-950' :
@@ -549,6 +654,13 @@ export default function BillingPage() {
                         <span className="text-xl font-black text-stone-950 dark:text-white tracking-tighter">₹{order.total.toFixed(2)}</span>
                       </div>
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handlePrintKitchen(order.id)}
+                          className="px-2 py-1.5 bg-stone-100 dark:bg-stone-800/80 text-stone-400 dark:text-stone-500 border border-transparent rounded-lg hover:bg-stone-200 hover:text-stone-600 dark:hover:bg-stone-700 dark:hover:text-stone-400 transition-all active:scale-95 flex items-center justify-center"
+                          title="Print Kitchen Ticket"
+                        >
+                          <EyeOff className="w-3 h-3" />
+                        </button>
                         <button
                           onClick={() => handlePrintBill(order.id)}
                           className="px-2 py-1.5 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-white/5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 transition-all active:scale-95 flex items-center justify-center"
@@ -632,7 +744,7 @@ export default function BillingPage() {
                 <div className="space-y-4 pt-4">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-300 dark:via-white/20 to-transparent" />
-                    <p className="text-[9px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em]">Settlement Matrix</p>
+                    <p className="text-[9px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em]">Payment</p>
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-300 dark:via-white/20 to-transparent" />
                   </div>
                   {selectedTable.activeOrders.every(o => o.paymentStatus === 'PAID') ? (
@@ -647,13 +759,13 @@ export default function BillingPage() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <p className="text-[8px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] text-center">Collect All Unpaid Orders</p>
+                      <p className="text-[8px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] text-center">Pay All</p>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { m: 'CASH', icon: '💵', label: 'Cash Flow' },
-                          { m: 'UPI', icon: '📱', label: 'Digital Node' },
-                          { m: 'CARD', icon: '💳', label: 'Credit Link' },
-                          { m: 'FREE', icon: '🎁', label: 'Grant Void' }
+                          { m: 'CASH', icon: '💵', label: 'Cash' },
+                          { m: 'UPI', icon: '📱', label: 'UPI' },
+                          { m: 'CARD', icon: '💳', label: 'Card' },
+                          { m: 'FREE', icon: '🎁', label: 'Free' }
                         ].map(({ m, icon, label }) => (
                           <button
                             key={m}
@@ -697,7 +809,7 @@ export default function BillingPage() {
                     }}
                     className="w-full py-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl text-[9px] font-black uppercase tracking-[0.3em] hover:bg-red-500 hover:text-white transition-all active:scale-95"
                   >
-                    Force Free Table
+                    Clear Table
                   </button>
                 </div>
 
@@ -713,7 +825,7 @@ export default function BillingPage() {
                       onClick={() => handlePrintSummary(selectedTable.activeOrder!.customer!.id)}
                       className="glass-button w-full flex items-center justify-center gap-3 !rounded-2xl !py-4 opacity-70 hover:opacity-100"
                     >
-                      <CheckCircle size={18} /> Consolidate Customer Session
+                      <CheckCircle size={18} /> View Customer Bill
                     </button>
                   )}
                 </div>
@@ -728,8 +840,8 @@ export default function BillingPage() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">Station Optimized</h3>
-                  <p className="text-[12px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.5em] mt-4 max-w-[200px] leading-relaxed">All active protocols have been finalized. Node is in standby.</p>
+                  <h3 className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter">No Active Orders</h3>
+                  <p className="text-[12px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.5em] mt-4 max-w-[200px] leading-relaxed">All orders are completed. Table is free.</p>
                 </div>
               </div>
             )}
@@ -746,18 +858,18 @@ export default function BillingPage() {
               <div className="relative z-10 w-12 h-12 bg-white dark:bg-stone-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-xl border border-stone-100 dark:border-white/5">
                 <CreditCard size={24} className="text-primary" />
               </div>
-              <h3 className="relative z-10 text-xl font-black text-stone-950 dark:text-white mb-2 uppercase tracking-tighter leading-none">Settlement Hub</h3>
+              <h3 className="relative z-10 text-xl font-black text-stone-950 dark:text-white mb-2 uppercase tracking-tighter leading-none">Pay Bill</h3>
               <p className="relative z-10 text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.3em] leading-relaxed">
-                Protocol <span className="text-primary">#{pendingStatus.orderId.slice(-6).toUpperCase()}</span> Complete.
-                <br />Identify Tender Instrument.
+                Order <span className="text-primary">#{pendingStatus.orderId.slice(-6).toUpperCase()}</span> Complete.
+                <br />Select payment method.
               </p>
             </div>
             <div className="p-6 grid grid-cols-2 gap-3">
               {[
-                { method: 'CASH', icon: '💵', label: 'Physical Tender', desc: 'Fiat Currency' },
-                { method: 'UPI', icon: '📱', label: 'Digital Node', desc: 'Secure Mobile Link' },
-                { method: 'CARD', icon: '💳', label: 'Chip & Pin', desc: 'Credit / Debit Vector' },
-                { method: 'FREE', icon: '🎁', label: 'Grant Access', desc: 'Void Value Protocol' },
+                { method: 'CASH', icon: '💵', label: 'Cash', desc: 'Pay by cash' },
+                { method: 'UPI', icon: '📱', label: 'UPI', desc: 'Pay by UPI' },
+                { method: 'CARD', icon: '💳', label: 'Card', desc: 'Pay by card' },
+                { method: 'FREE', icon: '🎁', label: 'Free', desc: 'Complementary' },
               ].map(({ method, icon, label, desc }) => (
                 <button
                   key={method}
@@ -776,7 +888,7 @@ export default function BillingPage() {
                   onClick={() => setPendingStatus(null)}
                   className="w-full py-4 text-[10px] font-black text-stone-400 dark:text-stone-600 hover:text-stone-950 dark:hover:text-white uppercase tracking-[0.5em] transition-all"
                 >
-                  Postpone Reconciliation
+                  Cancel
                 </button>
               </div>
             </div>
@@ -790,8 +902,8 @@ export default function BillingPage() {
           <div className="bg-white/40 dark:bg-stone-950/60 w-full max-w-xl h-full flex flex-col shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] border border-white/30 dark:border-white/10 animate-in slide-in-from-right duration-500 rounded-[2.5rem] backdrop-blur-[40px] overflow-hidden">
             <div className="p-8 border-b border-stone-200/30 dark:border-white/10 flex items-center justify-between bg-transparent">
               <div>
-                <h3 className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Append Module</h3>
-                <p className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-2">Injecting Nodes into Protocol #{addingItemToOrderId.slice(-6).toUpperCase()}</p>
+                <h3 className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Add Items</h3>
+                <p className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-2">Add items to order #{addingItemToOrderId.slice(-6).toUpperCase()}</p>
               </div>
               <button
                 onClick={() => setAddingItemToOrderId(null)}
@@ -806,7 +918,7 @@ export default function BillingPage() {
                 <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500 group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
-                  placeholder="QUERY COMPONENT ARCHIVE..."
+                  placeholder="Search items..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-14 pr-6 py-4 bg-white/50 dark:bg-white/5 border border-white/40 dark:border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-stone-950 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-sm backdrop-blur-md"
@@ -828,7 +940,7 @@ export default function BillingPage() {
                     </div>
                     <div>
                       <p className="font-black text-sm text-stone-950 dark:text-white uppercase tracking-tight group-hover:text-primary transition-colors">{item.name}</p>
-                      <p className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-1">{item.category?.name || 'GENERIC UNIT'}</p>
+                      <p className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-[0.4em] mt-1">{item.category?.name || 'Item'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -842,7 +954,7 @@ export default function BillingPage() {
               {filteredMenuItems.length === 0 && (
                 <div className="text-center py-32 opacity-20 flex flex-col items-center">
                   <Search size={64} className="mb-6 text-stone-300 dark:text-stone-700" />
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600">Zero Results Matched</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-stone-400 dark:text-stone-600">No items found</p>
                 </div>
               )}
             </div>
@@ -891,7 +1003,7 @@ export default function BillingPage() {
                     toast.success(`₹${collectionPopup.amount.toFixed(2)} collected via ${collectionPopup.method}`);
                     setCollectionPopup(null);
                   } catch (err: any) {
-                    toast.error(err.message || 'Settlement protocol failed');
+                    toast.error(err.message || 'Payment failed');
                   }
                 }}
                 className="w-full py-4 bg-primary text-stone-950 rounded-xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-primary/90 transition-all active:scale-95 shadow-xl shadow-primary/20"

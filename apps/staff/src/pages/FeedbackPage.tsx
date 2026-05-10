@@ -22,7 +22,7 @@ export default function FeedbackPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Customer <span className="text-primary italic">Feedback</span></h1>
-          <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] ml-1">Sentiment Analysis & Operational Feeds</p>
+          <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] ml-1">Customer reviews</p>
         </div>
         
         <div className="glass-panel flex items-center gap-5 px-4 py-2 !bg-white/40 dark:!bg-stone-900/40 border-white/20 dark:border-white/5 shadow-2xl shadow-stone-200/40 dark:shadow-none">
@@ -31,7 +31,7 @@ export default function FeedbackPage() {
               <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-0 group-hover:scale-100 transition-transform duration-700" />
            </div>
            <div>
-              <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.3em] mb-0.5">Aggregate Index</p>
+              <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.3em] mb-0.5">Average Rating</p>
               <div className="flex items-baseline gap-1.5">
                  <p className="text-xl font-black text-stone-950 dark:text-white tracking-tighter leading-none">{averageRating}</p>
                  <p className="text-[9px] text-stone-400 dark:text-stone-700 font-black uppercase tracking-widest">/ 5.0</p>
@@ -46,8 +46,8 @@ export default function FeedbackPage() {
             <MessageSquare size={48} className="text-stone-300 dark:text-stone-800 transition-transform group-hover:-rotate-12 duration-700" />
             <div className="absolute inset-0 bg-primary/5 scale-0 group-hover:scale-100 transition-transform duration-700" />
           </div>
-          <h2 className="text-3xl font-black text-stone-950 dark:text-white mb-4 uppercase tracking-tighter">No feedback telemetry</h2>
-          <p className="text-stone-400 dark:text-stone-600 font-black uppercase text-[10px] tracking-[0.2em] max-w-md leading-relaxed">System is awaiting initial customer sentiment inputs to generate operational intelligence feeds.</p>
+          <h2 className="text-3xl font-black text-stone-950 dark:text-white mb-4 uppercase tracking-tighter">No reviews yet</h2>
+          <p className="text-stone-400 dark:text-stone-600 font-black uppercase text-[10px] tracking-[0.2em] max-w-md leading-relaxed">Customer reviews will appear here.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -75,7 +75,7 @@ export default function FeedbackPage() {
                   </p>
                 ) : (
                   <div className="h-16 flex items-center justify-center text-[8px] font-black text-stone-300 dark:text-stone-800 uppercase tracking-[0.4em] border border-dashed border-stone-100 dark:border-white/5 rounded-xl">
-                    No verbal input
+                    No comment
                   </div>
                 )}
               </div>
@@ -84,10 +84,10 @@ export default function FeedbackPage() {
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                        <p className="text-[9px] font-black text-stone-300 dark:text-stone-700 uppercase tracking-[0.2em] flex items-center gap-1.5">
-                         <User size={8} /> Node
+                         <User size={8} /> Customer
                        </p>
                        <p className="text-[11px] font-black text-stone-950 dark:text-white uppercase tracking-tight truncate">
-                         {review.order.customer?.name || review.order.customer?.phone || 'Guest Profile'}
+                         {review.order.customer?.name || review.order.customer?.phone || 'Guest'}
                        </p>
                     </div>
                     <div className="space-y-1 text-right">

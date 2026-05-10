@@ -146,37 +146,38 @@ router.post('/orders/:orderId/print-bill', asyncHandler(async (req: Request, res
   const order = await ordersService.getOrder(req.params['orderId']!, req.user!.restaurantId);
   const restaurant = await prisma.restaurant.findUnique({ where: { id: req.user!.restaurantId } });
 
+  const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
   const billHtml = `<!DOCTYPE html>
 <html><head><style>
-  body { font-family: monospace; width: 300px; margin: 0 auto; padding: 10px; font-size: 12px; }
+  body { font-family: monospace; width: 300px; margin: 0 auto; padding: 10px; font-size: 14px; line-height: 1.4; }
   .center { text-align: center; }
-  .divider { border-top: 1px dashed #000; margin: 8px 0; }
-  .row { display: flex; justify-content: space-between; }
+  .divider { border-top: 2px dashed #000; margin: 10px 0; }
   .bold { font-weight: bold; }
-  h2 { margin: 5px 0; }
+  .box { border: 2px solid #000; padding: 4px 10px; display: inline-block; font-weight: bold; margin: 8px 0; }
+  h2 { margin: 5px 0; font-size: 18px; }
 </style></head><body>
   <div class="center">
-    <h2>${restaurant?.name || 'DineSmart Restaurant'}</h2>
-    <p>Table #${(order as Record<string, unknown>).table ? ((order as Record<string, unknown>).table as Record<string, unknown>)['number'] : ''}</p>
-    <p>Order #${order.id.slice(-8).toUpperCase()}</p>
-    <p>${new Date(order.createdAt).toLocaleString('en-IN')}</p>
-  </div>
-  <div class="divider"></div>
-  ${order.items.map((item) => `
-    <div class="row">
-      <span>${item.quantity}x ${item.menuItem.name}</span>
-      <span>₹${item.totalPrice.toFixed(2)}</span>
+    <h2>Table #${(order as any).table?.number || ''}</h2>
+    <div class="box">
+      🍽️ ${order.type === 'TAKE_AWAY' ? 'TAKE AWAY' : 'DINE IN'}
     </div>
-    ${item.specialInstructions ? `<div style="font-size:10px;color:#666;margin-left:20px">${item.specialInstructions}</div>` : ''}
+    <p class="bold">Order #${order.id.slice(-8).toUpperCase()}</p>
+    <p>${new Date(order.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}</p>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <div class="bold">ITEMS:</div>
+  ${order.items.map((item) => `
+    <div>${item.quantity}x ${item.menuItem.name}</div>
   `).join('')}
+  
   <div class="divider"></div>
-  <div class="row"><span>Subtotal</span><span>₹${order.subtotal.toFixed(2)}</span></div>
-  ${order.discount > 0 ? `<div class="row"><span>Discount</span><span>-₹${order.discount.toFixed(2)}</span></div>` : ''}
-  <div class="row"><span>Tax (5%)</span><span>₹${order.tax.toFixed(2)}</span></div>
-  <div class="divider"></div>
-  <div class="row bold"><span>TOTAL</span><span>₹${order.total.toFixed(2)}</span></div>
-  <div class="divider"></div>
-  <div class="center"><p>Thank you for dining with us!</p><p>Powered by DineSmart OS</p></div>
+  
+  <div class="center">
+    <p class="bold">Total Items: ${totalItems}</p>
+    <p style="font-size: 12px; color: #555;">Printed: ${new Date().toLocaleTimeString('en-IN', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}</p>
+  </div>
 </body></html>`;
 
   res.setHeader('Content-Type', 'text/html');
@@ -437,6 +438,48 @@ router.post('/orders/:orderId/items', requireRole(['MANAGER', 'CASHIER']), async
     specialInstructions
   });
   res.json({ success: true, data });
+}));
+
+// Print kitchen ticket (items + quantities only, no prices)
+router.post('/orders/:orderId/print-kitchen', asyncHandler(async (req: Request, res: Response) => {
+  const order = await ordersService.getOrder(req.params['orderId']!, req.user!.restaurantId);
+  const restaurant = await prisma.restaurant.findUnique({ where: { id: req.user!.restaurantId } });
+
+  const kitchenHtml = `<!DOCTYPE html>
+<html><head><style>
+  body { font-family: monospace; width: 300px; margin: 0 auto; padding: 10px; font-size: 14px; }
+  .center { text-align: center; }
+  .divider { border-top: 2px dashed #000; margin: 8px 0; }
+  .row { display: flex; justify-content: space-between; padding: 4px 0; }
+  .bold { font-weight: bold; }
+  h2 { margin: 5px 0; }
+  .type-badge { display: inline-block; padding: 4px 12px; border: 2px solid #000; font-weight: bold; font-size: 16px; margin: 6px 0; }
+</style></head><body>
+  <div class="center">
+    <h2>🍳 KITCHEN ORDER</h2>
+    <p>${restaurant?.name || 'DineSmart Restaurant'}</p>
+    <p>Table #${(order as any).table?.number || '-'}</p>
+    <div class="type-badge">${(order as any).type === 'TAKE_AWAY' ? '📦 TAKE AWAY' : '🍽️ DINE IN'}</div>
+    <p>Order #${order.id.slice(-8).toUpperCase()}</p>
+    <p>${new Date(order.createdAt).toLocaleString('en-IN')}</p>
+  </div>
+  <div class="divider"></div>
+  <div class="bold" style="font-size:16px;margin-bottom:8px">ITEMS:</div>
+  ${order.items.map((item) => `
+    <div class="row" style="font-size:14px">
+      <span class="bold">${item.quantity}x ${item.menuItem.name}</span>
+    </div>
+    ${item.specialInstructions ? `<div style="font-size:11px;color:#666;margin-left:20px;margin-bottom:4px">⚠ ${item.specialInstructions}</div>` : ''}
+  `).join('')}
+  <div class="divider"></div>
+  <div class="center">
+    <p class="bold">Total Items: ${order.items.reduce((sum, i) => sum + i.quantity, 0)}</p>
+    <p style="font-size:10px">Printed: ${new Date().toLocaleTimeString('en-IN')}</p>
+  </div>
+</body></html>`;
+
+  res.setHeader('Content-Type', 'text/html');
+  res.send(kitchenHtml);
 }));
 
 export default router;

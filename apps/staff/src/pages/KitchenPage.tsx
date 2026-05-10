@@ -34,7 +34,7 @@ export default function KitchenPage() {
   const { clearAuth, user } = useAuthStore();
   const canManageKitchen = user?.role === 'KITCHEN_STAFF' || user?.role === 'MANAGER' || user?.role === 'OWNER';
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [audioContextUnlocked, setAudioContextUnlocked] = useState(false);
+  const [audioContextUnlocked, setAudioContextUnlocked] = useState(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Auto-determine branch from login credentials
@@ -87,31 +87,30 @@ export default function KitchenPage() {
       if (ctx.state === 'suspended') ctx.resume();
 
       const now = ctx.currentTime;
-      // First chime
+      
+      // Clean high chime (E5)
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
       osc1.connect(gain1);
       gain1.connect(ctx.destination);
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(880, now);
-      osc1.frequency.exponentialRampToValueAtTime(660, now + 0.15);
-      gain1.gain.setValueAtTime(0.25, now);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc1.type = 'triangle'; // Softer and richer than sine
+      osc1.frequency.setValueAtTime(659.25, now);
+      gain1.gain.setValueAtTime(0.3, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
       osc1.start(now);
-      osc1.stop(now + 0.3);
+      osc1.stop(now + 0.5);
 
-      // Second chime (slightly delayed)
+      // Higher chime (G5)
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
       osc2.connect(gain2);
       gain2.connect(ctx.destination);
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(1100, now + 0.2);
-      osc2.frequency.exponentialRampToValueAtTime(880, now + 0.45);
-      gain2.gain.setValueAtTime(0.2, now + 0.2);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-      osc2.start(now + 0.2);
-      osc2.stop(now + 0.5);
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(783.99, now + 0.1);
+      gain2.gain.setValueAtTime(0.2, now + 0.1);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      osc2.start(now + 0.1);
+      osc2.stop(now + 0.6);
     } catch (err) {
       console.error('KDS Audio Playback failed:', err);
     }
@@ -128,7 +127,7 @@ export default function KitchenPage() {
       setAudioContextUnlocked(true);
       // Play a test chime to confirm audio works
       setTimeout(() => playNotificationSound(), 50);
-      toast.success('Audio Intelligence Synchronized');
+      toast.success('Sound enabled');
     } catch (err) {
       console.error('Failed to unlock audio:', err);
       // ALWAYS dismiss the overlay — audio failure is non-blocking
@@ -141,6 +140,22 @@ export default function KitchenPage() {
   useEffect(() => {
     audioEnabledRef.current = audioEnabled;
   }, [audioEnabled]);
+
+  // Auto-unlock audio on first user interaction
+  useEffect(() => {
+    const handleFirstClick = async () => {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!audioCtxRef.current && AudioCtx) {
+        audioCtxRef.current = new AudioCtx();
+      }
+      if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+        await audioCtxRef.current.resume();
+      }
+      document.removeEventListener('click', handleFirstClick);
+    };
+    document.addEventListener('click', handleFirstClick);
+    return () => document.removeEventListener('click', handleFirstClick);
+  }, []);
 
   // Socket.io Integration
   useEffect(() => {
@@ -162,7 +177,7 @@ export default function KitchenPage() {
     socket.on('order:new', (order) => {
       console.log('🔔 KDS: New order event received!', order);
       queryClient.invalidateQueries({ queryKey: ['kitchenOrders'] });
-      toast('🍳 NEW ORDER RECEIVED', { 
+      toast('🍳 New Order', { 
         icon: '🔥', 
         style: { background: '#0c0a09', color: '#fff', fontWeight: 'bold' } 
       });
@@ -267,10 +282,10 @@ export default function KitchenPage() {
           <div className="space-y-0.5">
             <div className="flex items-center gap-2.5 mb-1">
                <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-               <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Live Operations Control</p>
+               <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Live Kitchen Orders</p>
             </div>
             <h1 className="text-3xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">
-              Kitchen <span className="text-stone-300 dark:text-stone-700 font-black italic">Matrix</span>
+              Kitchen <span className="text-stone-300 dark:text-stone-700 font-black italic">Display</span>
             </h1>
           </div>
         </div>
@@ -328,8 +343,8 @@ export default function KitchenPage() {
                         {order.table.number}
                       </div>
                       <div>
-                        <p className="text-[8px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] mb-0.5">Index</p>
-                        <p className="text-xs font-black text-stone-950 dark:text-white uppercase tracking-[0.2em]">Table Order</p>
+                        <p className="text-[8px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] mb-0.5">Order</p>
+                        <p className="text-xs font-black text-stone-950 dark:text-white uppercase tracking-[0.2em]">Details</p>
                       </div>
                     </div>
                     <div className={`px-3 py-1.5 rounded-lg flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.3em] ${
@@ -381,7 +396,7 @@ export default function KitchenPage() {
                             <div className="flex items-center gap-4 mt-3">
                                <div className="flex items-center gap-1.5">
                                  <Clock size={10} className="text-stone-300 dark:text-stone-600" />
-                                 <span className="text-[8px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-[0.2em]">{item.menuItem.preparationTimeMinutes}M EST</span>
+                                 <span className="text-[8px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-[0.2em]">{item.menuItem.preparationTimeMinutes}M approx</span>
                                </div>
                                <div className="flex items-center gap-2">
                                  <div className={`w-1.5 h-1.5 rounded-full ${item.status === 'READY' ? 'bg-primary shadow-[0_0_6px_rgba(245,158,11,0.5)]' : item.status === 'PREPARING' ? 'bg-primary animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-stone-200 dark:bg-stone-700'}`} />
@@ -425,13 +440,13 @@ export default function KitchenPage() {
                         onClick={() => handleOrderAction(order, 'START')}
                         className="py-4 bg-stone-950 dark:bg-stone-800 hover:bg-stone-900 dark:hover:bg-stone-700 text-white font-black text-[8px] rounded-2xl transition-all duration-500 uppercase tracking-[0.4em] active:scale-95 shadow-xl shadow-stone-950/20"
                       >
-                        Batch Start
+                        Start All
                       </button>
                       <button
                         onClick={() => handleOrderAction(order, 'DONE')}
                         className="py-4 bg-primary hover:bg-primary/90 text-stone-950 font-black text-[8px] rounded-2xl transition-all duration-500 uppercase tracking-[0.4em] active:scale-95 shadow-xl shadow-primary/30"
                       >
-                        Batch Done
+                        Complete All
                       </button>
                     </div>
                   )}
@@ -447,8 +462,8 @@ export default function KitchenPage() {
                 <ChefHat size={48} strokeWidth={1} className="text-stone-300 dark:text-stone-700" />
               </div>
             </div>
-            <p className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter mb-3">Quiescent state</p>
-            <p className="text-[9px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-[0.5em] text-center">Awaiting incoming transmissions</p>
+            <p className="text-2xl font-black text-stone-950 dark:text-white uppercase tracking-tighter mb-3">No Active Orders</p>
+            <p className="text-[9px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-[0.5em] text-center">Waiting for new orders...</p>
           </div>
         )}
       </div>
@@ -457,7 +472,7 @@ export default function KitchenPage() {
       <footer className="relative z-10 pt-8 mt-auto border-t border-stone-200/30 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(245,158,11,0.8)] animate-pulse" />
-          <span className="text-[8px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em]">DS-KDS OPERATIONAL CORE V2.4 // SYNCED</span>
+          <span className="text-[8px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em]">Kitchen Display System</span>
         </div>
         <div className="flex items-center gap-5">
           <ShieldCheck size={16} className="text-primary" />
@@ -465,31 +480,6 @@ export default function KitchenPage() {
           <span className="text-[9px] font-black text-stone-950 dark:text-white uppercase tracking-[0.3em]">{user?.email}</span>
         </div>
       </footer>
-
-      {/* Audio Activation Overlay */}
-      {!audioContextUnlocked && (
-        <div className="fixed inset-0 z-[100] bg-stone-950/40 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-700">
-          <div className="glass-card max-w-sm p-10 text-center space-y-8 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" />
-            <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-[2rem] mx-auto flex items-center justify-center shadow-2xl relative">
-              <Volume2 size={32} className="text-primary animate-bounce" />
-              <div className="absolute inset-0 bg-primary/20 rounded-[2rem] animate-ping opacity-20" />
-            </div>
-            <div className="space-y-3">
-              <h3 className="text-xl font-black text-white uppercase tracking-tighter">Audio Link Required</h3>
-              <p className="text-[9px] text-stone-500 font-black uppercase tracking-[0.2em] leading-relaxed">
-                Browser security protocols have throttled audio output. Initialize manual uplink to enable order chimes.
-              </p>
-            </div>
-            <button
-              onClick={unlockAudio}
-              className="w-full py-5 bg-white text-black hover:bg-primary rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] transition-all active:scale-95 shadow-xl shadow-white/5"
-            >
-              Initialize Uplink
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

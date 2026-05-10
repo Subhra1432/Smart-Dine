@@ -27,6 +27,11 @@ enum Plan {
   PREMIUM
 }
 
+enum OrderType {
+  DINE_IN
+  TAKE_AWAY
+}
+
 enum OrderStatus {
   PENDING
   CONFIRMED
@@ -298,6 +303,7 @@ model Order {
   branchId      String
   tableId       String
   sessionId     String        @default(uuid())
+  type          OrderType     @default(DINE_IN)
   status        OrderStatus   @default(PENDING)
   paymentStatus PaymentStatus @default(UNPAID)
   paymentMethod PaymentMethod?

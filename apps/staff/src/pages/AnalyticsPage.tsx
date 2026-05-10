@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { 
   TrendingUp, TrendingDown, Crown, Sparkles, 
   BrainCircuit, ArrowUpRight, IndianRupee, AlertCircle,
-  BarChart3, Activity, Zap, Layers, Clock
+  BarChart3, Activity, Zap, Layers, Clock, ShoppingBag, UtensilsCrossed, X
 } from 'lucide-react';
 import { useAuthStore } from '../store/auth';
 import { cn } from '../lib/utils';
@@ -21,6 +21,8 @@ interface PricingSuggestion { menuItemId: string; name: string; currentPrice: nu
 export default function AnalyticsPage() {
   const { restaurant } = useAuthStore();
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+  const [showAllSlowMoving, setShowAllSlowMoving] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -81,12 +83,12 @@ export default function AnalyticsPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase leading-none">Analytics <span className="text-primary italic">Hub</span></h1>
-          <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] ml-1">Operational Intelligence Matrix</p>
+          <p className="text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.4em] ml-1">Sales Reports</p>
         </div>
         
         <div className="flex items-center gap-3 px-4 py-2 bg-white/40 dark:bg-stone-900/40 backdrop-blur-xl border border-white dark:border-white/5 rounded-lg shadow-sm">
           <Activity size={14} className="text-primary animate-pulse" />
-          <span className="text-[9px] font-black text-stone-600 dark:text-stone-400 uppercase tracking-[0.3em]">Neural Link Synchronized</span>
+          <span className="text-[9px] font-black text-stone-600 dark:text-stone-400 uppercase tracking-[0.3em]">Live Data Connected</span>
         </div>
       </div>
 
@@ -98,10 +100,10 @@ export default function AnalyticsPage() {
                     <Crown size={64} className="text-white dark:text-stone-950 relative z-10 transition-transform group-hover:rotate-12" />
                     <div className="absolute inset-0 bg-primary/20 scale-0 group-hover:scale-100 transition-transform duration-1000" />
                 </div>
-                <h2 className="text-5xl font-black text-stone-950 dark:text-white mb-6 tracking-tighter uppercase leading-none">Unlock <span className="text-stone-300 dark:text-stone-700">Intelligence</span></h2>
-                <p className="text-xs text-stone-400 dark:text-stone-500 mb-12 leading-relaxed font-black uppercase tracking-[0.15em]">AI Demand Forecasting, Smart Pricing suggestions, and deep spatial performance metrics. Optimize your operational core today.</p>
+                <h2 className="text-5xl font-black text-stone-950 dark:text-white mb-6 tracking-tighter uppercase leading-none">Unlock <span className="text-stone-300 dark:text-stone-700">Pro Features</span></h2>
+                <p className="text-xs text-stone-400 dark:text-stone-500 mb-12 leading-relaxed font-black uppercase tracking-[0.15em]">Get demand forecasts, smart pricing suggestions, and table performance stats. Upgrade your plan today.</p>
                 <button className="w-full py-6 bg-stone-950 dark:bg-primary text-white dark:text-stone-950 rounded-[2.5rem] text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-stone-950/20 dark:shadow-primary/20 transition-all active:scale-95">
-                   Upgrade System Matrix
+                   Upgrade Plan
                 </button>
             </div>
         </div>
@@ -126,6 +128,40 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
+      {/* Order Type Breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="glass-panel p-6 border-white/20 dark:border-white/5 !bg-white/40 dark:!bg-stone-900/40 shadow-2xl shadow-stone-200/40 dark:shadow-none">
+          <h2 className="text-[10px] font-black text-stone-400 dark:text-stone-600 tracking-[0.3em] uppercase flex items-center gap-3 mb-4">
+            <ShoppingBag size={18} className="text-stone-950 dark:text-white" /> Take Away Stats
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white/40 dark:bg-stone-800/40 p-4 rounded-xl">
+              <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.3em] mb-1">Revenue</p>
+              <p className="text-xl font-black text-stone-950 dark:text-white tracking-tighter">₹{(revenue?.summary.takeAwayRevenue || 0).toLocaleString()}</p>
+            </div>
+            <div className="bg-white/40 dark:bg-stone-800/40 p-4 rounded-xl">
+              <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.3em] mb-1">Orders</p>
+              <p className="text-xl font-black text-stone-950 dark:text-white tracking-tighter">{revenue?.summary.takeAwayOrders || 0}</p>
+            </div>
+          </div>
+        </div>
+        <div className="glass-panel p-6 border-white/20 dark:border-white/5 !bg-white/40 dark:!bg-stone-900/40 shadow-2xl shadow-stone-200/40 dark:shadow-none">
+          <h2 className="text-[10px] font-black text-stone-400 dark:text-stone-600 tracking-[0.3em] uppercase flex items-center gap-3 mb-4">
+            <UtensilsCrossed size={18} className="text-stone-950 dark:text-white" /> Dine In Stats
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white/40 dark:bg-stone-800/40 p-4 rounded-xl">
+              <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.3em] mb-1">Revenue</p>
+              <p className="text-xl font-black text-stone-950 dark:text-white tracking-tighter">₹{(revenue?.summary.dineInRevenue || 0).toLocaleString()}</p>
+            </div>
+            <div className="bg-white/40 dark:bg-stone-800/40 p-4 rounded-xl">
+              <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-[0.3em] mb-1">Orders</p>
+              <p className="text-xl font-black text-stone-950 dark:text-white tracking-tighter">{revenue?.summary.dineInOrders || 0}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* AI Intelligence Sector */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Predictive Demand Matrix */}
@@ -142,7 +178,7 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <h2 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">Demand Forecast</h2>
-              <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-0.5">Predictive Matrix • Next 3H</p>
+              <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-0.5">Forecast • Next 3 Hours</p>
             </div>
           </div>
 
@@ -155,13 +191,13 @@ export default function AnalyticsPage() {
                   <h4 className="font-black text-stone-900 dark:text-white truncate text-sm mb-4 group-hover/item:text-primary transition-colors uppercase tracking-tight">{item.name}</h4>
                   <div className="flex items-end justify-between">
                      <span className="text-2xl font-black text-stone-950 dark:text-white tracking-tighter">~{item.expectedOrders}</span>
-                     <span className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase mb-1 tracking-widest">Expected Node Load</span>
+                     <span className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase mb-1 tracking-widest">Expected Orders</span>
                   </div>
                </div>
              ))}
              {(!demandForecast || demandForecast.length === 0) && hasDemandForecast && (
                <div className="col-span-3 text-center py-12 text-stone-400 dark:text-stone-600 font-black uppercase text-[9px] tracking-[0.4em] bg-stone-50/50 dark:bg-stone-950/50 rounded-2xl border border-dashed border-stone-200 dark:border-white/5">
-                 Neural Network is analyzing patterns...
+                 Analyzing patterns...
                </div>
              )}
           </div>
@@ -178,7 +214,7 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <h2 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">Smart Pricing</h2>
-              <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-0.5">Revenue Vector Optimization</p>
+              <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-0.5">Price Suggestions</p>
             </div>
           </div>
 
@@ -217,7 +253,7 @@ export default function AnalyticsPage() {
         <div className="glass-panel p-6 border-white/20 dark:border-white/5 !bg-white/40 dark:!bg-stone-900/40 shadow-2xl shadow-stone-200/40 dark:shadow-none">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-[10px] font-black text-stone-400 dark:text-stone-600 tracking-[0.3em] uppercase flex items-center gap-3">
-              <TrendingUp size={18} className="text-stone-950 dark:text-white" /> Velocity Distribution
+              <TrendingUp size={18} className="text-stone-950 dark:text-white" /> Best Selling Items
             </h2>
           </div>
           <div className="h-[300px] w-full">
@@ -248,7 +284,7 @@ export default function AnalyticsPage() {
         <div className="glass-panel p-6 border-white/20 dark:border-white/5 !bg-white/40 dark:!bg-stone-900/40 shadow-2xl shadow-stone-200/40 dark:shadow-none">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-[10px] font-black text-stone-400 dark:text-stone-600 tracking-[0.3em] uppercase flex items-center gap-3">
-              <Clock size={18} className="text-stone-950 dark:text-white" /> Temporal Load Density
+              <Clock size={18} className="text-stone-950 dark:text-white" /> Peak Hours
             </h2>
           </div>
           <div className="h-[300px] w-full">
@@ -277,10 +313,10 @@ export default function AnalyticsPage() {
         {/* Attention Nodes (Slow Moving) */}
         <div className="glass-panel p-6 space-y-6 border-white/20 dark:border-white/5 !bg-white/40 dark:!bg-stone-900/40 shadow-2xl shadow-stone-200/40 dark:shadow-none h-fit">
           <h2 className="text-[10px] font-black text-stone-400 dark:text-stone-600 tracking-[0.3em] uppercase flex items-center gap-3">
-            <TrendingDown size={18} className="text-stone-950 dark:text-white" /> Attention Required Nodes
+            <TrendingDown size={18} className="text-stone-950 dark:text-white" /> Slow Moving Items
           </h2>
           <div className="grid gap-3">
-            {menuPerf?.slowMoving?.map((item, idx) => (
+            {menuPerf?.slowMoving?.slice(0, showAllSlowMoving ? undefined : 3).map((item, idx) => (
               <div key={idx} className="flex items-center justify-between p-4 bg-stone-50 dark:bg-stone-950/40 border border-stone-100 dark:border-white/5 rounded-2xl group hover:bg-white dark:hover:bg-stone-950 transition-all duration-700 hover:scale-[1.01]">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-lg bg-red-500/5 flex items-center justify-center text-red-500 border border-red-500/10 transition-transform group-hover:rotate-6">
@@ -289,7 +325,7 @@ export default function AnalyticsPage() {
                   <div>
                     <p className="font-black text-stone-950 dark:text-white uppercase tracking-tight group-hover:text-red-500 transition-colors text-sm">{item.name}</p>
                     <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-widest mt-1">
-                      {item.orderCount} cycles • ₹{item.revenue.toFixed(0)} System Value
+                      {item.orderCount} orders • ₹{item.revenue.toFixed(0)} Revenue
                     </p>
                   </div>
                 </div>
@@ -298,9 +334,17 @@ export default function AnalyticsPage() {
                 </div>
               </div>
             ))}
+            {menuPerf?.slowMoving && menuPerf.slowMoving.length > 3 && (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="w-full py-2 bg-stone-100 dark:bg-stone-800 text-stone-950 dark:text-white rounded-lg text-[9px] font-black uppercase tracking-[0.2em] hover:bg-stone-200 dark:hover:bg-stone-700 transition-all mt-2"
+              >
+                See More
+              </button>
+            )}
             {(!menuPerf?.slowMoving || menuPerf.slowMoving.length === 0) && (
               <div className="py-12 text-center text-stone-300 dark:text-stone-700 font-black text-[9px] uppercase tracking-[0.4em] bg-stone-50/50 dark:bg-stone-950/50 rounded-2xl border border-dashed border-stone-200 dark:border-white/5">
-                All nodes performing nominally
+                All items are performing well
               </div>
             )}
           </div>
@@ -309,17 +353,17 @@ export default function AnalyticsPage() {
         {/* Spatial Efficiency Matrix (Table Performance) */}
         <div className="glass-panel p-6 flex flex-col border-white/20 dark:border-white/5 !bg-white/40 dark:!bg-stone-900/40 shadow-2xl shadow-stone-200/40 dark:shadow-none">
           <h2 className="text-[10px] font-black text-stone-400 dark:text-stone-600 tracking-[0.3em] uppercase flex items-center gap-3 mb-8">
-            <Layers size={18} className="text-stone-950 dark:text-white" /> Spatial Efficiency Matrix
+            <Layers size={18} className="text-stone-950 dark:text-white" /> Table Performance
           </h2>
           <div className="overflow-x-auto overflow-y-auto max-h-[400px] flex-grow scrollbar-thin scrollbar-thumb-stone-200 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="text-[9px] font-black text-stone-300 dark:text-stone-700 uppercase tracking-[0.2em] border-b border-stone-100 dark:border-white/5">
-                  <th className="pb-4 min-w-[100px]">Node ID</th>
-                  <th className="text-center pb-4 min-w-[80px]">Volume</th>
-                  <th className="text-center pb-4 min-w-[100px]">Gross Value</th>
-                  <th className="text-center pb-4 min-w-[100px]">Avg Ticket</th>
-                  <th className="text-right pb-4 min-w-[80px]">Cycle</th>
+                  <th className="pb-4 min-w-[100px]">Table No.</th>
+                  <th className="text-center pb-4 min-w-[80px]">Orders</th>
+                  <th className="text-center pb-4 min-w-[100px]">Total Revenue</th>
+                  <th className="text-center pb-4 min-w-[100px]">Avg Bill</th>
+                  <th className="text-right pb-4 min-w-[80px]">Avg Time</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-50 dark:divide-white/5">
@@ -348,6 +392,38 @@ export default function AnalyticsPage() {
         </div>
       </div>
         </>
+      )}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="glass-panel p-6 max-w-lg w-full !bg-white dark:!bg-stone-900 border-white/20 dark:border-white/5 shadow-2xl rounded-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-black text-stone-950 dark:text-white tracking-tighter uppercase">All Slow Moving Items</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-stone-500 hover:text-stone-700 dark:hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-stone-200 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
+              {menuPerf?.slowMoving?.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 bg-stone-50 dark:bg-stone-950/40 border border-stone-100 dark:border-white/5 rounded-xl group hover:bg-white dark:hover:bg-stone-950 transition-all duration-700">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-red-500/5 flex items-center justify-center text-red-500 border border-red-500/10 transition-transform group-hover:rotate-6">
+                      <AlertCircle size={20} />
+                    </div>
+                    <div>
+                      <p className="font-black text-stone-950 dark:text-white uppercase tracking-tight group-hover:text-red-500 transition-colors text-sm">{item.name}</p>
+                      <p className="text-[8px] font-black text-stone-400 dark:text-stone-600 uppercase tracking-widest mt-1">
+                        {item.orderCount} orders • ₹{item.revenue.toFixed(0)} Revenue
+                      </p>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 bg-red-500/10 rounded-md border border-red-500/10">
+                     <span className="text-[8px] font-black text-red-500 uppercase tracking-[0.2em]">Low Volume</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
