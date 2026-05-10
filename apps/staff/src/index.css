@@ -108,12 +108,12 @@
 
 /* Premium Toggle Protocol */
 .premium-toggle {
-  @apply relative w-14 h-7 bg-stone-200 dark:bg-stone-800/50 backdrop-blur-md border border-stone-300 dark:border-white/10 rounded-full peer-focus:outline-none transition-all duration-200 shadow-inner cursor-pointer;
+  @apply relative w-14 h-7 bg-stone-200 dark:bg-stone-800/50 backdrop-blur-md border border-stone-300 dark:border-white/10 rounded-full peer-focus:outline-none transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-inner cursor-pointer;
 }
 
 .premium-toggle::after {
   content: '';
-  @apply absolute top-[3px] left-[3px] w-5 h-5 bg-white dark:bg-stone-300 rounded-full transition-all duration-200 shadow-md;
+  @apply absolute top-[3px] left-[3px] w-5 h-5 bg-white dark:bg-stone-300 rounded-full transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-md;
 }
 
 .peer:checked ~ .premium-toggle {

@@ -40,13 +40,21 @@ export default function KitchenPage() {
   // Auto-determine branch from login credentials
   const selectedBranchId = user?.branchId || '';
 
-  const { data: orders, isLoading: ordersLoading } = useQuery<KitchenOrder[]>({
+  const { data: orders, isLoading: ordersLoading, isError, error } = useQuery<KitchenOrder[]>({
     queryKey: ['kitchenOrders', selectedBranchId],
     queryFn: () => getKitchenOrders(selectedBranchId) as Promise<KitchenOrder[]>,
     refetchInterval: 10000,
+    enabled: !!user,
   });
 
-  const isLoading = ordersLoading || !orders;
+  const isLoading = !user || ordersLoading || (!orders && !isError);
+
+  useEffect(() => {
+    if (isError) {
+      toast.error('Failed to load kitchen orders');
+      console.error('KDS Error:', error);
+    }
+  }, [isError, error]);
 
   const statusMutation = useMutation({
     mutationFn: ({ itemId, status }: { itemId: string; status: string }) => updateItemStatus(itemId, status),
@@ -271,7 +279,6 @@ export default function KitchenPage() {
 
   return (
     <div className="min-h-screen bg-transparent p-6 relative overflow-hidden flex flex-col font-sans transition-colors duration-700">
-      <PageLoader isLoading={isLoading} />
       {/* Header Matrix */}
       <header className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-10">
         <div className="flex items-center gap-6">

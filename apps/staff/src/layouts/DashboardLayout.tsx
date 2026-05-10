@@ -83,16 +83,16 @@ export default function DashboardLayout() {
 
       {/* ── Primary Navigation (Sidebar) ─────────────────────── */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/20 dark:bg-stone-950/40 backdrop-blur-[40px] border-r border-stone-200/30 dark:border-white/5 transform transition-all duration-300 lg:translate-x-0 lg:static ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/20 dark:bg-stone-950/40 backdrop-blur-[40px] border-r border-stone-200/30 dark:border-white/5 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 lg:static ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
           }`}
       >
         <div className="flex flex-col h-full">
           {/* Identity Header */}
           <div className="p-8 pb-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[1.5rem] bg-stone-950 shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex items-center justify-center border border-white/10 relative group overflow-hidden transition-all duration-200 hover:scale-110">
+              <div className="w-12 h-12 rounded-[1.5rem] bg-stone-950 shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex items-center justify-center border border-white/10 relative group overflow-hidden transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110">
                 <UtensilsCrossed size={24} className="text-white relative z-10 transition-transform group-hover:rotate-12" />
-                <div className="absolute inset-0 bg-primary/20 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-full" />
+                <div className="absolute inset-0 bg-primary/20 scale-0 group-hover:scale-100 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-full" />
               </div>
               <div className="overflow-hidden">
                 <h1 className="font-black text-[11px] text-primary uppercase tracking-[0.5em] leading-none mb-2.5">DineSmart <span className="text-stone-400">OS</span></h1>
@@ -113,7 +113,7 @@ export default function DashboardLayout() {
                 end={item.path === '/admin'}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `group flex items-center gap-5 px-6 py-4 rounded-[1.5rem] text-[10px] font-black transition-all duration-200 uppercase tracking-[0.15em] border ${isActive
+                  `group flex items-center gap-5 px-6 py-4 rounded-[1.5rem] text-[10px] font-black transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] uppercase tracking-[0.15em] border ${isActive
                     ? 'bg-stone-950 dark:bg-primary text-white dark:text-stone-950 shadow-[0_15px_40px_rgba(0,0,0,0.3)] border-white/10 scale-[1.02]'
                     : 'text-stone-400 hover:text-stone-950 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5 border-transparent'
                   }`
@@ -121,8 +121,8 @@ export default function DashboardLayout() {
               >
                 {({ isActive }) => (
                   <>
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 ${isActive ? 'bg-white/10' : 'group-hover:bg-primary/10'}`}>
-                      <item.icon size={18} className="transition-all duration-200 group-hover:rotate-12" />
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive ? 'bg-white/10' : 'group-hover:bg-primary/10'}`}>
+                      <item.icon size={18} className="transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:rotate-12" />
                     </div>
                     {item.label}
                   </>
