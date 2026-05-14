@@ -42,9 +42,10 @@ ENV NODE_ENV=production
 ENV PORT=7860
 EXPOSE 7860
 
-# Create a startup script that runs Redis and the app
+# Create a startup script that runs Redis, pushes the DB schema, and starts the app
 RUN echo '#!/bin/sh\n\
 redis-server --daemonize yes\n\
+npx prisma db push --schema=packages/api/prisma/schema.prisma --accept-data-loss\n\
 node packages/api/dist/app.js\n\
 ' > start.sh && chmod +x start.sh
 
