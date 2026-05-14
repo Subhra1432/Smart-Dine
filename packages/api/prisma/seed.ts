@@ -65,17 +65,111 @@ export async function main() {
   }
   console.log('✅ Super Admins seeded');
 
-  // Create Demo Restaurant
-  const restaurant = await prisma.restaurant.create({
-    data: {
-      name: 'Spice Garden',
-      slug: 'spice-garden',
-      status: 'ACTIVE',
-      plan: 'PREMIUM',
-      planExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      isActive: true,
+  // ── CUSTOM RESTAURANT SETUP FOR USER ───────────────────────────
+  const userEmail = 'subhrakantabehera691@gmail.com';
+  const userPass = 'Subhra@1432';
+
+  let customRestaurant = await prisma.restaurant.findUnique({ where: { slug: 'dinesmart-premium' } });
+  if (!customRestaurant) {
+    customRestaurant = await prisma.restaurant.create({
+      data: {
+        name: 'DineSmart Premium Restaurant',
+        slug: 'dinesmart-premium',
+        status: 'ACTIVE',
+        plan: 'PREMIUM',
+        isActive: true,
+      },
+    });
+  }
+
+  const customBranch = await prisma.branch.upsert({
+    where: { id: 'custom-branch-id' }, // We'll just use a stable ID or find it
+    update: {},
+    create: {
+      id: 'custom-branch-id',
+      restaurantId: customRestaurant.id,
+      name: 'DineSmart Main Branch',
+      address: 'Bhubaneswar, Odisha',
+      phone: '+918658809082',
     },
   });
+
+  const userHash = await bcrypt.hash(userPass, 12);
+  await prisma.user.upsert({
+    where: { email: userEmail },
+    update: { passwordHash: userHash, restaurantId: customRestaurant.id, role: 'OWNER' },
+    create: {
+      email: userEmail,
+      passwordHash: userHash,
+      restaurantId: customRestaurant.id,
+      role: 'OWNER',
+    },
+  });
+
+  // Categories and Items for Custom Restaurant
+  const customCategoriesData = [
+    { name: 'Starters', sortOrder: 1, items: [
+      { name: 'Crispy Baby Corn', price: 210, isVeg: true, desc: 'Golden fried baby corn in spicy sauce' },
+      { name: 'Chicken 65', price: 280, isVeg: false, desc: 'Classic spicy fried chicken' }
+    ]},
+    { name: 'Main Course', sortOrder: 2, items: [
+      { name: 'Butter Paneer', price: 320, isVeg: true, desc: 'Paneer cubes in creamy tomato gravy' },
+      { name: 'Mutton Rogan Josh', price: 450, isVeg: false, desc: 'Aromatic mutton curry' }
+    ]},
+    { name: 'Biryani', sortOrder: 3, items: [
+      { name: 'Chicken Dum Biryani', price: 350, isVeg: false, desc: 'Authentic Hyderabadi biryani' }
+    ]},
+    { name: 'Beverages', sortOrder: 4, items: [
+      { name: 'Cold Coffee', price: 120, isVeg: true, desc: 'Rich and creamy cold coffee' }
+    ]}
+  ];
+
+  for (const catData of customCategoriesData) {
+    const category = await prisma.category.upsert({
+      where: { restaurantId_name: { restaurantId: customRestaurant.id, name: catData.name } },
+      update: { sortOrder: catData.sortOrder },
+      create: { restaurantId: customRestaurant.id, name: catData.name, sortOrder: catData.sortOrder }
+    });
+
+    for (const item of catData.items) {
+      await prisma.menuItem.upsert({
+        where: { restaurantId_name: { restaurantId: customRestaurant.id, name: item.name } },
+        update: { price: item.price, description: item.desc, isVeg: item.isVeg, categoryId: category.id },
+        create: {
+          restaurantId: customRestaurant.id,
+          categoryId: category.id,
+          name: item.name,
+          price: item.price,
+          description: item.desc,
+          isVeg: item.isVeg,
+          preparationTimeMinutes: 20
+        }
+      });
+    }
+  }
+  console.log('✅ Custom Restaurant and Menu seeded for', userEmail);
+
+  // ── DEMO RESTAURANT SETUP ─────────────────────────────────────
+  // (Keep the existing demo setup but maybe wrap in a check or just let it run)
+  
+  // Create Demo Restaurant
+  const demoSlug = 'spice-garden';
+  let restaurant = await prisma.restaurant.findUnique({ where: { slug: demoSlug } });
+  if (!restaurant) {
+    restaurant = await prisma.restaurant.create({
+      data: {
+        name: 'Spice Garden',
+        slug: demoSlug,
+        status: 'ACTIVE',
+        plan: 'PREMIUM',
+        planExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        isActive: true,
+      },
+    });
+  }
+
+  // Rest of the existing seed logic...
+  // (I will truncate the rest for brevity in the tool call, but I'll ensure it stays consistent)
 
   // Create 3 Branches
   const branches = await Promise.all([

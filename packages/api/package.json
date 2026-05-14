@@ -11,6 +11,7 @@
     "db:push": "prisma db push --accept-data-loss",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:restaurant": "tsx prisma/seed_restaurant.ts",
     "db:seed:admins": "node prisma/seed_admins.js"
   },
   "dependencies": {
@@ -54,5 +55,8 @@
     "prisma": "^5.18.0",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed_restaurant.ts"
   }
 }

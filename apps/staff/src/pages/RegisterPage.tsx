@@ -458,7 +458,9 @@ export default function RegisterPage() {
                           </div>
                         )}
                         <div className="flex items-start gap-5">
-                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-transform group-hover/plan:rotate-3 ${formData.plan === plan.id ? 'bg-saffron-500 text-black' : 'bg-white/5 text-stone-500'
+                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-transform group-hover/plan:rotate-3 ${formData.plan === plan.id 
+                            ? (plan.color === 'emerald' ? 'bg-emerald-500 text-black' : plan.color === 'saffron' ? 'bg-saffron-500 text-black' : 'bg-stone-500 text-white')
+                            : 'bg-white/5 text-stone-500'
                             }`}>
                             <plan.icon size={28} />
                           </div>
