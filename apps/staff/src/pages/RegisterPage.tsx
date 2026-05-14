@@ -25,7 +25,7 @@ const PLANS = [
     description: 'Perfect for small cafes & standalone outlets.',
     features: ['Single Branch', 'Digital Menu', 'Basic Analytics', 'Standard Support'],
     icon: Zap,
-    color: 'stone'
+    color: 'saffron'
   },
   {
     id: 'PREMIUM' as const,
@@ -40,6 +40,20 @@ const PLANS = [
     ],
     icon: Crown,
     color: 'emerald'
+  },
+  {
+    id: 'ENTERPRISE' as const,
+    name: 'Custom Forge',
+    price: 4999,
+    description: 'Bespoke infrastructure for global brands.',
+    features: [
+      'Dedicated Instance',
+      'Custom Integrations',
+      '24/7 Priority Ops',
+      'Unlimited Nodes',
+    ],
+    icon: Building2,
+    color: 'stone'
   }
 ];
 
@@ -57,7 +71,7 @@ export default function RegisterPage() {
     gstBill: '',
     password: '',
     confirmPassword: '',
-    plan: 'STARTER' as 'STARTER' | 'PREMIUM'
+    plan: 'STARTER' as 'STARTER' | 'PREMIUM' | 'ENTERPRISE'
   });
   const [loading, setLoading] = useState(false);
 
@@ -305,7 +319,7 @@ export default function RegisterPage() {
                               value={formData.ownerName}
                               onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
                               placeholder="OWNER NAME"
-                              className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                              className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                             />
                           </div>
                           <div className="relative group/field">
@@ -329,7 +343,7 @@ export default function RegisterPage() {
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             placeholder="OWNER AUTHENTICATION EMAIL"
-                            className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                           />
                         </div>
 
@@ -341,7 +355,7 @@ export default function RegisterPage() {
                             value={formData.address}
                             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                             placeholder="RESTAURANT HQ ADDRESS"
-                            className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -358,7 +372,7 @@ export default function RegisterPage() {
                             value={formData.panCard}
                             onChange={(e) => setFormData({ ...formData, panCard: e.target.value })}
                             placeholder="PAN CARD NUMBER"
-                            className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                           />
                         </div>
                         <div className="relative group/field">
@@ -369,7 +383,7 @@ export default function RegisterPage() {
                             value={formData.gstBill}
                             onChange={(e) => setFormData({ ...formData, gstBill: e.target.value })}
                             placeholder="GST / REGISTRATION NO."
-                            className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -391,7 +405,7 @@ export default function RegisterPage() {
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             placeholder="ACCESS KEY"
-                            className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                           />
                         </div>
                         <div className="relative group/field">
@@ -402,7 +416,7 @@ export default function RegisterPage() {
                             value={formData.confirmPassword}
                             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                             placeholder="CONFIRM KEY"
-                            className="w-full pl-14 pr-6 py-5 bg-white/[0.05] border border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white/[0.08] focus:outline-none transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-stone-100/50 dark:bg-white/[0.05] border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-950 dark:text-white uppercase tracking-widest placeholder:text-stone-500 focus:border-saffron-500/50 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -603,4 +617,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
