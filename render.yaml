@@ -15,6 +15,7 @@ services:
       - key: DIRECT_URL
         sync: false
       - key: REDIS_URL
+        value: redis://red-d7hf8ntckfvc73eiibk0:6379
         sync: false
       - key: JWT_ACCESS_SECRET
         generateValue: true
@@ -29,15 +30,15 @@ services:
       - key: JWT_REFRESH_EXPIRES_IN
         value: "7d"
       - key: API_BASE_URL
-        value: "https://dine-smart-9auy.onrender.com"
+        value: "https://smart-dine-h93u.onrender.com"
       - key: FRONTEND_CUSTOMER_URL
-        value: "https://dine-smart-9auy.onrender.com"
+        value: "https://smart-dine-h93u.onrender.com"
       - key: FRONTEND_URL
-        value: "https://dine-smart-9auy.onrender.com"
+        value: "https://smart-dine-h93u.onrender.com"
       - key: FRONTEND_SUPERADMIN_URL
-        value: "https://dine-smart-9auy.onrender.com"
+        value: "https://smart-dine-h93u.onrender.com"
       - key: QR_BASE_URL
-        value: "https://dine-smart-9auy.onrender.com"
+        value: "https://smart-dine-h93u.onrender.com"
       - key: LOG_LEVEL
         value: "info"
       # Optional: Set these manually in Render dashboard if needed
