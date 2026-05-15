@@ -39,12 +39,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex overflow-hidden bg-stone-950">
+    <div className="relative min-h-screen w-full flex overflow-y-auto bg-stone-950">
       <PageLoader isLoading={loading} />
       {!loading && (
         <>
           {/* ── Full-bleed Background (Left atmosphere) ───────── */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 h-full w-full fixed">
         <div
           className="absolute inset-0 scale-110 animate-ken-burns opacity-70"
           style={{
@@ -93,7 +93,7 @@ export default function LoginPage() {
       <div className="relative z-30 w-full lg:w-[600px] min-h-screen flex items-center justify-center p-6 lg:p-12 animate-in slide-in-from-right-16 duration-700">
 
         {/* Glassmorphic Card */}
-        <div className="relative w-full max-w-[440px] bg-stone-900/40 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col p-8 lg:p-10">
+        <div className="relative w-full max-w-[440px] bg-stone-900/40 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] flex flex-col p-8 lg:p-10 my-10">
 
           {/* Subtle Neumorphic Inner Highlight */}
           <div className="absolute inset-0 rounded-[2.5rem] shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)] pointer-events-none" />
@@ -170,32 +170,6 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {/* Rapid Override */}
-          <div className="mt-8 pt-8 border-t border-white/[0.06]">
-            <div className="flex items-center gap-4 mb-5">
-              <div className="h-px flex-1 bg-white/[0.04]" />
-              <span className="text-[9px] font-black text-stone-700 uppercase tracking-[0.6em]">Rapid Override</span>
-              <div className="h-px flex-1 bg-white/[0.04]" />
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: 'OWNER', email: 'owner@spicegarden.com', pass: 'owner123' },
-                { label: 'CASHIER', email: 'cashier@spicegarden.com', pass: 'cashier123' },
-                { label: 'KITCHEN', email: 'kitchen@spicegarden.com', pass: 'kitchen123' },
-              ].map((staff) => (
-                <button
-                  key={staff.label}
-                  type="button"
-                  className="flex flex-col items-center justify-center py-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all duration-300 border border-transparent hover:border-white/10 active:scale-95"
-                  onClick={() => { setEmail(staff.email); setPassword(staff.pass); }}
-                >
-                  <span className="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] mb-1 group-hover:text-primary transition-colors">{staff.label}</span>
-                  <span className="text-[9px] text-stone-500 font-bold uppercase">{staff.pass}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Footer */}
           <div className="mt-10 pt-4 flex items-center justify-between border-t border-white/5">
             <span className="text-[9px] font-black text-stone-500 uppercase tracking-[0.4em]">v4.2.0-STABLE</span>
@@ -207,7 +181,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-
       {/* Corner accents */}
       <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-white/[0.04] rounded-tl-3xl pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-20 h-20 border-b-2 border-l-2 border-white/[0.04] rounded-bl-3xl pointer-events-none" />
